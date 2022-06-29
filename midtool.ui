@@ -1003,7 +1003,7 @@ QTabBar::tab{width:100}</string>
    <attribute name="title">
     <string>摄像头</string>
    </attribute>
-   <widget class="QGraphicsView" name="graphicsView">
+   <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1012,27 +1012,18 @@ QTabBar::tab{width:100}</string>
       <height>581</height>
      </rect>
     </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_16"/>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>470</x>
       <y>10</y>
-      <width>641</width>
+      <width>514</width>
       <height>52</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_14">
-     <item>
-      <widget class="QComboBox" name="comboBox_cam">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>50</height>
-        </size>
-       </property>
-      </widget>
-     </item>
      <item>
       <widget class="QPushButton" name="pushButton_openCam">
        <property name="enabled">
@@ -1056,12 +1047,12 @@ QTabBar::tab{width:100}</string>
         </font>
        </property>
        <property name="text">
-        <string>开启摄像头</string>
+        <string>摄像头开关</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_closeCam">
+      <widget class="QPushButton" name="pushButton_capture">
        <property name="enabled">
         <bool>true</bool>
        </property>
@@ -1083,7 +1074,28 @@ QTabBar::tab{width:100}</string>
         </font>
        </property>
        <property name="text">
-        <string>关闭摄像头</string>
+        <string>拍照</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="label_cap">
+       <property name="minimumSize">
+        <size>
+         <width>300</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
@@ -1354,7 +1366,7 @@ QTabBar::tab{width:100}</string>
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 0.42</string>
+        <string>MidTool 中台工具箱 0.5</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

@@ -2,8 +2,8 @@ import sys
 from collections import deque
 from ctypes import *
 
-from PySide2.QtMultimedia import QCamera, QCameraInfo
-from PySide2.QtMultimediaWidgets import QCameraViewfinder, QGraphicsVideoItem
+from PySide2.QtMultimedia import QCamera, QCameraImageCapture
+from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit
 from PySide2.QtCore import Qt, QCoreApplication, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess
@@ -572,21 +572,40 @@ class Serial(QWidget):
 class Camera(QWidget):
     def __init__(self):
         super().__init__()
-        self.camera_list = QCameraInfo.availableCameras()
-        print(self.camera_list)
-        self.viewfinder = QCameraViewfinder()
-        TabWidget.comboBox_cam.addItems([cam.description() for cam in self.camera_list])
-        # TabWidget.pushButton_openCam.clicked.connect(self.open_cam)
+        self.camera = QCamera()
+        self.camera.setCaptureMode(QCamera.CaptureViewfinder)
+        self.is_opened = False
 
-    def open_cam(self):
-        # if self.camera.availableDevices():
-        camera = QCamera(TabWidget.comboBox_cam.currentText())
-        camera.setViewfinder(self.viewfinder)
-        self.viewfinder.show()
-        camera.start()
+        # view_finder_settings = QCameraViewfinderSettings()
+        # view_finder_settings.setResolution(1200, 600)
+        # self.camera.setViewfinderSettings(view_finder_settings)
 
-    def close_cam(self):
-        self.camera.stop()
+        # self.camera_info = QCameraInfo()
+        # self.camera_list = self.camera_info.availableCameras()
+
+        self.view_finder = QCameraViewfinder()
+        self.camera.setViewfinder(self.view_finder)
+
+        # TabWidget.comboBox_cam.addItems([cam.description() for cam in self.camera_list])
+        TabWidget.pushButton_openCam.clicked.connect(self.cam_switch)
+        TabWidget.pushButton_capture.clicked.connect(self.capture)
+        # TODO 更好的方案？
+        TabWidget.horizontalLayout_16.addWidget(self.view_finder)
+
+        self.cap = QCameraImageCapture(self.camera)
+        self.cap.setCaptureDestination(QCameraImageCapture.CaptureToFile)
+
+    def cam_switch(self):
+        if not self.is_opened:
+            self.camera.start()
+            self.is_opened = True
+        else:
+            self.camera.stop()
+            self.is_opened = False
+
+    def capture(self):
+        self.cap.capture("C:/Users/Nehcknarf/PycharmProjects/midtool/test")
+        TabWidget.label_cap.setText("拍照成功，存储于工具目录下 test.jpg")
 
 
 if __name__ == "__main__":
@@ -597,7 +616,7 @@ if __name__ == "__main__":
 
     loader = QUiLoader()
     # 本地测试
-    # TabWidget = loader.load("/mnt/c/Users/Nehcknarf/PycharmProjects/midtool/midtool.ui")
+    # TabWidget = loader.load("./midtool.ui")
     # 生产环境
     TabWidget = loader.load("/nubomed/midtool/midtool.ui")
 
