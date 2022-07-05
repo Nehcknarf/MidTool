@@ -1,7 +1,9 @@
+import os
 import sys
 from collections import deque
 from ctypes import *
 
+import PySide2.QtQuick
 from PySide2.QtMultimedia import QCamera, QCameraImageCapture
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtUiTools import QUiLoader
@@ -9,6 +11,10 @@ from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, 
 from PySide2.QtCore import Qt, QCoreApplication, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide2.QtSerialPort import QSerialPortInfo
+
+
+# os.environ["QT_QPA_PLATFORM"] = "xcb"
+os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
 
 code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
              6: "指纹太乱", 7: "指纹特征点太少", 8: "指纹不匹配", 9: "没搜索到指纹", 10: "特征合并失败", 11: "地址号超出指纹库范围",
@@ -51,6 +57,8 @@ class Commander(QThread):
             if process_command.waitForReadyRead():
                 stdout = bytes(process_command.readAllStandardOutput()).decode("utf8").rstrip('\n')
                 self.stdout.emit(stdout)
+
+        self.stdout.emit("执行完毕！")
 
 
 class Reader(QThread):
@@ -269,6 +277,7 @@ class Terminal(QWidget):
         super().__init__()
         self.thread = QThread()
         # UI
+        TabWidget.listButton.clicked.connect(self.pm2_list)
         TabWidget.startButton.clicked.connect(self.start_mid)
         TabWidget.stopButton.clicked.connect(self.stop_mid)
         TabWidget.restartButton.clicked.connect(self.restart_mid)
@@ -282,6 +291,7 @@ class Terminal(QWidget):
         path, _ = QFileDialog.getOpenFileName(self, "选择Shell脚本", "/nubomed", "Shell脚本 (*.sh)")
         if path:
             TabWidget.textBrowser_2.clear()
+            TabWidget.textBrowser_2.setPlainText(f"执行脚本：{path}")
             self.thread = Commander(f"/bin/sh {path}")
             self.thread.stdout.connect(TabWidget.textBrowser_2.append)
             self.thread.start()
@@ -313,8 +323,13 @@ class Terminal(QWidget):
         self.thread.stdout.connect(TabWidget.textBrowser_2.append)
         self.thread.start()
 
+    def pm2_list(self):
+        self.common_command("pm2 list -m")
+
     def start_mid(self):
-        self.common_command("pm2 start 0 -m")
+        path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
+        if path:
+            self.common_command(f"pm2 start {path} -m")
 
     def restart_mid(self):
         self.common_command("pm2 restart 0 -m")
@@ -481,6 +496,9 @@ class Serial(QWidget):
         port_name = TabWidget.comboBox_portName.currentText()
         baudrate = TabWidget.comboBox_BaudRate.currentText()
 
+        if QSerialPortInfo(port_name).isBusy():
+            return
+
         nDeviceType = 1  # 串口设备
         iCom = int(port_name[-1])  # 串口号 1-16
         iBaud = int(int(baudrate) / 9600)  # （9600*N）bps,其中N=1—12(默认出厂N=6，即57600bps)
@@ -599,13 +617,43 @@ class Camera(QWidget):
         if not self.is_opened:
             self.camera.start()
             self.is_opened = True
+            TabWidget.pushButton_openCam.setText("关闭摄像头")
         else:
             self.camera.stop()
             self.is_opened = False
+            TabWidget.pushButton_openCam.setText("开启摄像头")
 
     def capture(self):
         self.cap.capture("C:/Users/Nehcknarf/PycharmProjects/midtool/test")
         TabWidget.label_cap.setText("拍照成功，存储于工具目录下 test.jpg")
+
+
+class Arcsoft(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.thread = QThread()
+
+        TabWidget.pushButton_generator.clicked.connect(self.generator)
+        TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
+
+    @staticmethod
+    def check_active():
+        hospital = TabWidget.lineEdit_4.text()
+
+        if QFile.exists(f'/nubomed/{hospital}/conf/arcsoftActiveFile.dat') \
+                or QFile.exists(f'/nubomed/{hospital}/conf/arcsoftActiveFile2.dat'):
+            TabWidget.textBrowser_arcsoft.setText("✔ 已激活")
+        else:
+            TabWidget.textBrowser_arcsoft.setText("× 未激活")
+
+    def generator(self):
+        TabWidget.textBrowser_arcsoft.clear()
+        TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
+        password, _ = QInputDialog.getText(self, "提升权限", "请输入Root密码:", QLineEdit.Normal, "")
+
+        self.thread = Commander(f"/bin/sh /nubomed/arcsoft/arcsoftsetup.sh {password}")
+        self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
+        self.thread.start()
 
 
 if __name__ == "__main__":
@@ -625,6 +673,7 @@ if __name__ == "__main__":
     y = YamlConfig()
     s = Serial()
     c = Camera()
+    a = Arcsoft()
 
     TabWidget.show()
 
