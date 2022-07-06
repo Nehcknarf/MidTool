@@ -4,11 +4,13 @@ from collections import deque
 from ctypes import *
 
 import PySide2.QtQuick
-from PySide2.QtMultimedia import QCamera, QCameraImageCapture
+from PySide2.QtMultimedia import QCamera, QCameraImageCapture, QCameraViewfinderSettings
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit
-from PySide2.QtCore import Qt, QCoreApplication, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess
+from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
+    QFileSystemModel, QAbstractItemView
+from PySide2.QtCore import Qt, QCoreApplication, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, \
+    QProcess, QSize
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide2.QtSerialPort import QSerialPortInfo
 
@@ -401,61 +403,66 @@ class YamlConfig(QWidget):
 class FileManager(QWidget):
     def __init__(self):
         super().__init__()
-        self.file_name = ""
-        self.dir = ""
-        self.process = QProcess()
-        self.msg_box = QMessageBox()
+        self.path = ""
+        self.model = QFileSystemModel()
+        self.model.setRootPath("/media")
+        self.model.setReadOnly(False)
 
-    def duplicate_popup(self):
-        self.msg_box = QMessageBox()
-        self.msg_box.setWindowTitle("错误")
-        self.msg_box.setText("文件已经存在")
-        self.msg_box.setStandardButtons(QMessageBox.Ok)
-        self.msg_box.setIcon(QMessageBox.Information)
-        self.msg_box.exec()
+        TabWidget.treeView.setModel(self.model)
+        TabWidget.treeView.setRootIndex(self.model.index("/nubomed"))
+        TabWidget.treeView.setRootIndex(self.model.index("/home/nehcknarf"))
+        TabWidget.treeView.setSortingEnabled(True)
+        TabWidget.treeView.setColumnWidth(0, 200)
+        TabWidget.treeView.setIconSize(QSize(30, 30))
+        TabWidget.treeView.setEditTriggers(
+            QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
 
-    # def add_file(self):
-    #     if form.lineEdit_2.text() in [form.listWidget.item(i).text() for i in range(form.listWidget.count())]:
-    #         self.duplicate_popup()
-    #     else:
-    #         form.listWidget.addItem(form.lineEdit_2.text())
-    #
-    # def del_file(self):
-    #     TabWidget.listWidget.takeItem(TabWidget.listWidget.currentRow())
-    #
-    # def open_file(self):
-    #     self.file_name, _ = QFileDialog.getOpenFileName(self, "打开文件...", "/home", "All files (*.*);;")
-    #     # self.dir = QFileDialog.getExistingDirectory(self, "Open Directory", "/home",
-    #     #                                             QFileDialog.ShowDirsOnly | QFileDialog.DontResolveSymlinks)
-    #     if self.file_name in [TabWidget.listWidget.item(i).text() for i in range(TabWidget.listWidget.count())]:
-    #         self.duplicate_popup()
-    #     else:
-    #         if self.file_name:
-    #             TabWidget.listWidget.addItem(self.file_name)
-    #
-    # def get_usb_device_info(self):
-    #     if self.watcher.fileChanged:
-    #         # self.process.startCommand("blkid -d -c /dev/null")
-    #         self.process.start("blkid -d -c /dev/null")
-    #         self.process.waitForFinished()
-    #         stdout = bytes(self.process.readAllStandardOutput()).decode("utf8")
-    #         ret = re.findall(r"(/dev/sd[a-z])", stdout)
-    #         form.comboBox.addItems(ret)
-    #
-    # def mount_usb_device(self):
-    #     # self.process.startCommand("mkdir -p /mnt/usb")
-    #     self.process.start("mkdir -p /mnt/usb")
-    #     self.process.waitForFinished()
-    #     device = form.comboBox.currentText()
-    #     print(device)
-    #     # self.process.startCommand(f"mount {device} /mnt/usb")
-    #     self.process.start(f"mount {device} /mnt/usb")
-    #     self.process.waitForFinished()
-    #     if self.process.finished:
-    #         self.msg_box.setText("USB设备成功挂载！")
-    #         self.msg_box.exec()
+        TabWidget.treeView_driver.setModel(self.model)
+        TabWidget.treeView_driver.setRootIndex(self.model.index("/media"))
+        TabWidget.treeView_driver.setRootIndex(self.model.index("/home/nehcknarf"))
+        TabWidget.treeView_driver.setSortingEnabled(True)
+        TabWidget.treeView_driver.setColumnWidth(0, 200)
+        TabWidget.treeView_driver.setIconSize(QSize(30, 30))
+        TabWidget.treeView_driver.setEditTriggers(
+            QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
 
-    def copy_to_usb(self):
+        TabWidget.treeView.clicked.connect(self.left)
+        TabWidget.treeView_driver.clicked.connect(self.right)
+        TabWidget.pushButton_open.clicked.connect(self.open)
+        TabWidget.pushButton_mkdir.clicked.connect(self.mkdir)
+        TabWidget.pushButton_remove.clicked.connect(self.rm)
+        # TabWidget.pushButton_copy.clicked.connect()
+
+    def left(self, index):
+        TabWidget.treeView_driver.clearSelection()
+        self.path = self.model.filePath(index)
+
+    def right(self, index):
+        TabWidget.treeView.clearSelection()
+        self.path = self.model.filePath(index)
+
+    def popup(self):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle("错误")
+        msg_box.setText("文件已经存在")
+        msg_box.setStandardButtons(QMessageBox.Ok)
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.exec()
+
+    def open(self):
+        path = QFileDialog.getExistingDirectory(self, "打开文件夹", "/home", QFileDialog.ShowDirsOnly)
+        if path:
+            TabWidget.treeView.setRootIndex(self.model.index(path))
+
+    def mkdir(self):
+        dir_name, _ = QInputDialog.getText(self, "新建文件夹", "请输入文件夹名称", QLineEdit.Normal, "")
+        if dir_name:
+            self.model.mkdir(self.model.index(self.path), dir_name)
+
+    def rm(self):
+        self.model.remove(self.model.index(self.path))
+
+    def copy(self):
         pass
 
 
@@ -594,9 +601,10 @@ class Camera(QWidget):
         self.camera.setCaptureMode(QCamera.CaptureViewfinder)
         self.is_opened = False
 
-        # view_finder_settings = QCameraViewfinderSettings()
-        # view_finder_settings.setResolution(1200, 600)
-        # self.camera.setViewfinderSettings(view_finder_settings)
+        view_finder_settings = QCameraViewfinderSettings()
+        view_finder_settings.setResolution(640, 480)
+        view_finder_settings.setMaximumFrameRate(30)
+        self.camera.setViewfinderSettings(view_finder_settings)
 
         # self.camera_info = QCameraInfo()
         # self.camera_list = self.camera_info.availableCameras()
@@ -668,9 +676,10 @@ if __name__ == "__main__":
     # 生产环境
     TabWidget = loader.load("/nubomed/midtool/midtool.ui")
 
-    f = LogBrowser()
+    l = LogBrowser()
     t = Terminal()
     y = YamlConfig()
+    f = FileManager()
     s = Serial()
     c = Camera()
     a = Arcsoft()
