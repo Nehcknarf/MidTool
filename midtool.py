@@ -9,15 +9,21 @@ from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QAbstractItemView
-from PySide2.QtCore import Qt, QCoreApplication, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, \
-    QProcess, QSize
+from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide2.QtSerialPort import QSerialPortInfo
 
 
-# os.environ["QT_QPA_PLATFORM"] = "xcb"
+# Ubuntu 22.04
+# os.environ["QT_QPA_PLATFORM"] = "wayland"
+# Ubuntu 20.04
+os.environ["QT_QPA_PLATFORM"] = "xcb"
+# DEBUG
+# os.environ["QT_DEBUG_PLUGINS"] = "1"
+# 虚拟键盘
 os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
 
+# 指昂指纹模块返回码字典
 code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
              6: "指纹太乱", 7: "指纹特征点太少", 8: "指纹不匹配", 9: "没搜索到指纹", 10: "特征合并失败", 11: "地址号超出指纹库范围",
              12: "从指纹库读模板出错", 13: "上传特征失败", 14: "模块不能接收后续数据包", 15: "上传图象失败", 16: "删除模板失败",
@@ -470,9 +476,10 @@ class Serial(QWidget):
     def __init__(self):
         super().__init__()
         self.serial_port_info = QSerialPortInfo
-
-        self.so = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
+        # 本地测试
         # self.so = cdll.LoadLibrary("./libapit.so")
+        # 生产环境
+        self.so = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
         self.handle = c_int(0)
 
         TabWidget.pushButton_closeDevice.setEnabled(False)
@@ -665,7 +672,7 @@ class Arcsoft(QWidget):
 
 
 if __name__ == "__main__":
-    QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+    # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
 
     app = QApplication(sys.argv)
     # app.setStyle('Fusion')
