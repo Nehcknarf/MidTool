@@ -1218,16 +1218,47 @@ QTabBar::tab{width:100}</string>
       <height>661</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string>本机</string>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_12">
      <item>
       <widget class="QTreeView" name="treeView">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">QTreeView::item {
         height: 30px;
         }</string>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragDrop</enum>
+       </property>
+       <property name="defaultDropAction">
+        <enum>Qt::CopyAction</enum>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1242,6 +1273,11 @@ QTabBar::tab{width:100}</string>
       <height>661</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
     <property name="title">
      <string>U盘</string>
     </property>
@@ -1251,10 +1287,36 @@ QTabBar::tab{width:100}</string>
        <property name="enabled">
         <bool>true</bool>
        </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
        <property name="styleSheet">
         <string notr="true">QTreeView::item {
         height: 30px;
         }</string>
+       </property>
+       <property name="dragEnabled">
+        <bool>true</bool>
+       </property>
+       <property name="dragDropMode">
+        <enum>QAbstractItemView::DragDrop</enum>
+       </property>
+       <property name="defaultDropAction">
+        <enum>Qt::CopyAction</enum>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>0</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="uniformRowHeights">
+        <bool>true</bool>
+       </property>
+       <property name="sortingEnabled">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1266,7 +1328,7 @@ QTabBar::tab{width:100}</string>
       <x>560</x>
       <y>180</y>
       <width>102</width>
-      <height>332</height>
+      <height>201</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -1293,7 +1355,7 @@ QTabBar::tab{width:100}</string>
         </font>
        </property>
        <property name="text">
-        <string>&lt;打开文件夹</string>
+        <string>&lt; 打开文件夹</string>
        </property>
       </widget>
      </item>
@@ -1327,7 +1389,7 @@ QTabBar::tab{width:100}</string>
      <item>
       <widget class="QPushButton" name="pushButton_remove">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="minimumSize">
         <size>
@@ -1348,33 +1410,6 @@ QTabBar::tab{width:100}</string>
        </property>
        <property name="text">
         <string>删除</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButton_copy">
-       <property name="enabled">
-        <bool>true</bool>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>100</width>
-         <height>50</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>100</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>10</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>复制到U盘</string>
        </property>
       </widget>
      </item>
@@ -1648,7 +1683,7 @@ QTabBar::tab{width:100}</string>
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 0.5.3</string>
+        <string>MidTool 中台工具箱 0.6</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

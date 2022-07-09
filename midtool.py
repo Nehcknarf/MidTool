@@ -7,9 +7,9 @@ import PySide2.QtQuick
 from PySide2.QtMultimedia import QCamera, QCameraImageCapture, QCameraViewfinderSettings
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
-    QFileSystemModel, QAbstractItemView
-from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize
+from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, QFileSystemModel
+from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize, \
+    QModelIndex
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide2.QtSerialPort import QSerialPortInfo
 
@@ -409,28 +409,20 @@ class YamlConfig(QWidget):
 class FileManager(QWidget):
     def __init__(self):
         super().__init__()
-        self.path = ""
+        self.model_index = QModelIndex()
         self.model = QFileSystemModel()
         self.model.setRootPath("/media")
         self.model.setReadOnly(False)
 
         TabWidget.treeView.setModel(self.model)
         TabWidget.treeView.setRootIndex(self.model.index("/nubomed"))
-        TabWidget.treeView.setRootIndex(self.model.index("/home/nehcknarf"))
-        TabWidget.treeView.setSortingEnabled(True)
         TabWidget.treeView.setColumnWidth(0, 200)
         TabWidget.treeView.setIconSize(QSize(30, 30))
-        TabWidget.treeView.setEditTriggers(
-            QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
 
         TabWidget.treeView_driver.setModel(self.model)
         TabWidget.treeView_driver.setRootIndex(self.model.index("/media"))
-        TabWidget.treeView_driver.setRootIndex(self.model.index("/home/nehcknarf"))
-        TabWidget.treeView_driver.setSortingEnabled(True)
         TabWidget.treeView_driver.setColumnWidth(0, 200)
         TabWidget.treeView_driver.setIconSize(QSize(30, 30))
-        TabWidget.treeView_driver.setEditTriggers(
-            QAbstractItemView.DoubleClicked | QAbstractItemView.SelectedClicked | QAbstractItemView.EditKeyPressed)
 
         TabWidget.treeView.clicked.connect(self.left)
         TabWidget.treeView_driver.clicked.connect(self.right)
@@ -463,13 +455,10 @@ class FileManager(QWidget):
     def mkdir(self):
         dir_name, _ = QInputDialog.getText(self, "新建文件夹", "请输入文件夹名称", QLineEdit.Normal, "")
         if dir_name:
-            self.model.mkdir(self.model.index(self.path), dir_name)
+            self.model.mkdir(self.model_index.parent(), dir_name)
 
     def rm(self):
-        self.model.remove(self.model.index(self.path))
-
-    def copy(self):
-        pass
+        self.model.remove(self.model_index)
 
 
 class Serial(QWidget):
