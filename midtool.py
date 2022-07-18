@@ -1,18 +1,21 @@
 import os
 import sys
+import re
+import random
 from collections import deque
 from ctypes import *
 
 import PySide2.QtQuick
 from PySide2.QtMultimedia import QCamera, QCameraImageCapture, QCameraViewfinderSettings
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
+# from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QHttpMultiPart, QHttpPart, QNetworkReply
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, QFileSystemModel
+from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
+    QFileSystemModel, QTableWidgetItem
 from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize, \
-    QModelIndex
+    QModelIndex, QTimer, QCoreApplication  # QUrl, QByteArray, QJsonDocument, QEventLoop
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
-from PySide2.QtSerialPort import QSerialPortInfo
-
+from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
 # Ubuntu 22.04
 # os.environ["QT_QPA_PLATFORM"] = "wayland"
@@ -32,6 +35,7 @@ code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没�
 
 class Commander(QThread):
     stdout = Signal(str)
+    verbose = Signal(str)
 
     def __init__(self, command, password=None):
         super().__init__()
@@ -57,7 +61,7 @@ class Commander(QThread):
         process_command.start()
         # process_command.start(self.command)
         process_command.waitForStarted()
-
+        string = ""
         while process_command.state() != QProcess.NotRunning:
             QApplication.processEvents()
             if QThread.currentThread().isInterruptionRequested():
@@ -65,8 +69,10 @@ class Commander(QThread):
             if process_command.waitForReadyRead():
                 stdout = bytes(process_command.readAllStandardOutput()).decode("utf8").rstrip('\n')
                 self.stdout.emit(stdout)
+                string += f"{stdout}\n"
 
-        self.stdout.emit("执行完毕！")
+        self.verbose.emit(string)
+        self.stdout.emit("指令已执行")
 
 
 class Reader(QThread):
@@ -127,11 +133,12 @@ class GetFingerprint(QThread):
         self.step.emit("请将手指平放在传感器上...")
         ret = 2  # 传感器上没有手指
         timeout = 0
-        while ret == 2 and timeout <= 100:
+        while ret == 2 and timeout <= 99:
             QApplication.processEvents()
+            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.dll.ZAZErr2Str(ret))}")
             ret = self.dll.ZAZGetImage(self.handle, nAddr)
             timeout += 1
-        if timeout == 101:
+        if timeout == 100:
             self.step.emit("超时！请重新采集")
             return
         self.emit_state(ret, "第一次采集指纹")
@@ -145,11 +152,12 @@ class GetFingerprint(QThread):
 
         ret = 2  # 传感器上没有手指
         timeout = 0
-        while ret == 2 and timeout <= 100:
+        while ret == 2 and timeout <= 99:
             QApplication.processEvents()
+            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.dll.ZAZErr2Str(ret))}")
             ret = self.dll.ZAZGetImage(self.handle, nAddr)
             timeout += 1
-        if timeout == 101:
+        if timeout == 100:
             self.step.emit("超时！请重新采集")
             return
         self.emit_state(ret, "第二次采集指纹")
@@ -284,6 +292,9 @@ class Terminal(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = QThread()
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.check_midware_status)
+        self.timer.start(2000)
         # UI
         TabWidget.listButton.clicked.connect(self.pm2_list)
         TabWidget.startButton.clicked.connect(self.start_mid)
@@ -322,17 +333,37 @@ class Terminal(QWidget):
         self.thread.stdout.connect(TabWidget.textBrowser_2.append)
         self.thread.start()
 
-    def common_command(self, command):
+    def common_command(self, command, verbose=True):
         command, password = self.promote(command)
-
-        TabWidget.textBrowser_2.clear()
-        TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
         self.thread = Commander(command, password)
-        self.thread.stdout.connect(TabWidget.textBrowser_2.append)
+        if verbose:
+            TabWidget.textBrowser_2.clear()
+            TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
+            self.thread.stdout.connect(TabWidget.textBrowser_2.append)
+        else:
+            self.thread.verbose.connect(self.parse)
         self.thread.start()
+
+    @staticmethod
+    def parse(string):
+        match = re.search(r"\+---\s(NuboMedCollateService)\n.*"
+                        r"pid\s:\s(\d+)\n.*"
+                        r"status\s:\s(\w+)\n.*"
+                        r"uptime\s:\s(.+)\n.*"
+                        r"memory\susage\s:\s(.+)\n", string, re.DOTALL)
+
+        if match is not None:
+            TabWidget.tableWidget.setItem(0, 0, QTableWidgetItem(match.group(1)))
+            TabWidget.tableWidget.setItem(0, 1, QTableWidgetItem(match.group(2)))
+            TabWidget.tableWidget.setItem(0, 2, QTableWidgetItem(match.group(3)))
+            TabWidget.tableWidget.setItem(0, 3, QTableWidgetItem(match.group(4)))
+            TabWidget.tableWidget.setItem(0, 4, QTableWidgetItem(match.group(5)))
 
     def pm2_list(self):
         self.common_command("pm2 list -m")
+
+    def check_midware_status(self):
+        self.common_command("pm2 list -m", verbose=False)
 
     def start_mid(self):
         path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
@@ -464,7 +495,7 @@ class FileManager(QWidget):
 class Serial(QWidget):
     def __init__(self):
         super().__init__()
-        self.serial_port_info = QSerialPortInfo
+        # self.timer = QTimer()
         # 本地测试
         # self.so = cdll.LoadLibrary("./libapit.so")
         # 生产环境
@@ -487,27 +518,32 @@ class Serial(QWidget):
         TabWidget.pushButton_searchfp.clicked.connect(self.search_image)
         TabWidget.pushButton_del.clicked.connect(self.del_flash)
         TabWidget.pushButton_empty.clicked.connect(self.clean_flash)
+        # self.timer.timeout.connect(self.availability_check)
+        # self.timer.start(2000)
 
-    def get_port(self):
-        TabWidget.comboBox_portName.addItems([com.portName() for com in self.serial_port_info.availablePorts()])
+    @staticmethod
+    def get_port():
+        TabWidget.comboBox_portName.clear()
+        TabWidget.comboBox_portName.addItems([com.portName() for com in QSerialPortInfo.availablePorts()])
 
-    def get_baud_rate(self):
-        return map(str, self.serial_port_info.standardBaudRates())
+    @staticmethod
+    def get_baud_rate():
+        return map(str, QSerialPortInfo.standardBaudRates())
+
+    def availability_check(self):
+        # FIXME 端口占用检测对动态库无效
+        pass
 
     def open_device(self):
         TabWidget.textBrowser_3.clear()
         port_name = TabWidget.comboBox_portName.currentText()
         baudrate = TabWidget.comboBox_BaudRate.currentText()
 
-        if QSerialPortInfo(port_name).isBusy():
-            return
-
         nDeviceType = 1  # 串口设备
         iCom = int(port_name[-1])  # 串口号 1-16
-        iBaud = int(int(baudrate) / 9600)  # （9600*N）bps,其中N=1—12(默认出厂N=6，即57600bps)
+        iBaud = int(int(baudrate) / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
 
         ret = self.so.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
-        print(ret)  # 0 表示成功
         if ret == 0:
             TabWidget.pushButton_openDevice.setEnabled(False)
             TabWidget.pushButton_closeDevice.setEnabled(True)
@@ -540,17 +576,20 @@ class Serial(QWidget):
         nAddr = c_int(0xffffffff)
         ret = 2  # 传感器上没有手指
         timeout = 0
-        while ret == 2 and timeout <= 100:
+        while ret == 2 and timeout <= 99:
             QApplication.processEvents()
+            TabWidget.textBrowser_3.append(f"获取指纹图像中...第{timeout + 1}次尝试，"
+                                           f"返回值：{code_dict.get(ret, self.so.ZAZErr2Str(ret))}")
             ret = self.so.ZAZGetImage(self.handle, nAddr)
             timeout += 1
-        if timeout == 101:
+        if timeout == 100:
             TabWidget.textBrowser_3.append("超时！请重新采集")
             # self.close_device()
             return
         if ret == 0:
             TabWidget.textBrowser_3.append("成功获取指纹")
         else:
+            TabWidget.textBrowser_3.append("获取指纹失败")
             # self.close_device()
             return
 
@@ -568,7 +607,8 @@ class Serial(QWidget):
 
     def get_image(self):
         TabWidget.textBrowser_3.clear()
-        store_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-9999之间的数字:", QLineEdit.Normal, "")
+        store_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-9999之间的数字:", QLineEdit.Normal,
+                                           str(random.randint(0, 9999)))
         if store_id:
             self.thread = GetFingerprint(store_id, self.so, self.handle)
             self.thread.step.connect(TabWidget.textBrowser_3.append)
@@ -639,6 +679,7 @@ class Arcsoft(QWidget):
 
         TabWidget.pushButton_generator.clicked.connect(self.generator)
         TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
+        # TabWidget.pushButton_upload.clicked.connect(self.upload)
 
     @staticmethod
     def check_active():
@@ -659,9 +700,133 @@ class Arcsoft(QWidget):
         self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
         self.thread.start()
 
+    # def upload(self):
+    #     request = QNetworkRequest()
+    #     request.setUrl(QUrl("http://localhost:8080/api/login"))
+    #     request.setRawHeader(b"Content-Type", b"application/json")
+    #     request.setRawHeader(b"Content-Length", b"54")
+    #     request.setRawHeader(b"Host", b"localhost:8080")
+    #
+    #     QJsonObject = QJsonDocument.fromJson(QByteArray()).object()  # 创建空的QJsonObject对象
+    #     QJsonObject["username"] = "admin"
+    #     QJsonObject["password"] = "admin"
+    #     QJsonObject["recaptcha"] = ""
+    #     data = QJsonDocument(QJsonObject).toJson(QJsonDocument.Compact)
+    #
+    #     manager = QNetworkAccessManager()
+    #     reply = manager.post(request, data)
+    #     # 同步
+    #     loop = QEventLoop()
+    #     reply.finished.connect(loop.quit)
+    #     loop.exec_()
+    #
+    #     if reply.error() == QNetworkReply.NoError:
+    #         print('Success')
+    #     else:
+    #         print('Error')
+    #
+    #     token = reply.readAll()
+    #     print(token)
+    #     # 异步
+    #     # reply.finished.connect(self.parse)
+    #
+    #     file_name = "midtool.ui"
+    #
+    #     request.setUrl(QUrl(f"http://localhost:8080/api/resources/{file_name}?override=ture"))
+    #
+    #     multi_part = QHttpMultiPart(QHttpMultiPart.FormDataType)
+    #
+    #     text_part = QHttpPart()
+    #     text_part.setRawHeader(b"Host", b"localhost:8080")
+    #     text_part.setRawHeader(b"X-Auth", token)
+    #     # text_part.setRawHeader(b"Content-Disposition", b'form-data; name=""')
+    #     # text_part.setBody(b"")
+    #
+    #     file_part = QHttpPart()
+    #     file_part.setRawHeader(b"Content-Type", b"text/plain")
+    #     file_part.setRawHeader(b"Content-Disposition", b'form-data; name="file"')
+    #     file = QFile(file_name)
+    #     file.open(QIODevice.ReadOnly)
+    #     file_part.setBodyDevice(file)
+    #     file.setParent(multi_part)
+    #
+    #     multi_part.append(text_part)
+    #     multi_part.append(file_part)
+    #
+    #     manager = QNetworkAccessManager()
+    #     reply = manager.post(request, multi_part)
+    #     multi_part.setParent(reply)
+    #
+    #     # 同步
+    #     loop = QEventLoop()
+    #     reply.finished.connect(loop.quit)
+    #     loop.exec_()
+    #
+    #     if reply.error() == QNetworkReply.NoError:
+    #         print('Success')
+    #     else:
+    #         print('Error')
+    #
+    #     response = reply.readAll()
+    #     print(response)
+
+    # def parse(self):
+    #     responseData = self.reply.readAll()
+    #     print(responseData)
+    #     if self.reply.error() == QNetworkReply.NoError:
+    #         print('Success')
+    #     else:
+    #         print('Error')
+
+
+class Scan(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.thread = QThread()
+        self.ser = QSerialPort()
+
+        TabWidget.pushButton_closeDevice_2.setEnabled(False)
+        TabWidget.comboBox_BaudRate_2.addItems(self.get_baud_rate())
+        TabWidget.comboBox_BaudRate_2.setCurrentText("115200")
+        TabWidget.pushButton_refreshPort_2.clicked.connect(self.get_port)
+        # TabWidget.pushButton_openDevice_2.clicked.connect(self.open_device)
+        # TabWidget.pushButton_closeDevice_2.clicked.connect(self.close_device)
+
+    @staticmethod
+    def get_port():
+        TabWidget.comboBox_portName_2.clear()
+        TabWidget.comboBox_portName_2.addItems([com.portName() for com in QSerialPortInfo.availablePorts()])
+
+    @staticmethod
+    def get_baud_rate():
+        return map(str, QSerialPortInfo.standardBaudRates())
+
+    def open(self):
+        if self.ser.isOpen():
+            port_name = TabWidget.comboBox_portName_2.currentText()
+            baudrate = TabWidget.comboBox_BaudRate_2.currentText()
+
+            self.ser = QSerialPort()
+            self.ser.setPortName(port_name)
+            self.ser.setBaudRate(int(baudrate))
+            self.ser.open(QIODevice.ReadOnly)
+            data = self.ser.readAll()
+            data = data.data()
+
+    def show(self):
+        if self.ser.bytesAvailable():
+            data = self._serial.readAll()
+            data = data.data()
+            # 解码显示（中文啥的）
+            try:
+                self.textBrowser.append(data.decode('gb2312'))
+            except:
+                # 解码失败
+                self.textBrowser.append(repr(data))
+
 
 if __name__ == "__main__":
-    # QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+    QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
 
     app = QApplication(sys.argv)
     # app.setStyle('Fusion')
@@ -672,13 +837,14 @@ if __name__ == "__main__":
     # 生产环境
     TabWidget = loader.load("/nubomed/midtool/midtool.ui")
 
-    l = LogBrowser()
-    t = Terminal()
-    y = YamlConfig()
-    f = FileManager()
-    s = Serial()
-    c = Camera()
-    a = Arcsoft()
+    log = LogBrowser()
+    ter = Terminal()
+    yml = YamlConfig()
+    file = FileManager()
+    ser = Serial()
+    cam = Camera()
+    arc = Arcsoft()
+    scan = Scan()
 
     TabWidget.show()
 
