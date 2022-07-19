@@ -292,11 +292,20 @@ class Terminal(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = QThread()
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.check_midware_status)
-        self.timer.start(2000)
+        self.thread_cc = QThread()
+        # self.timer = QTimer()
+        # self.timer.timeout.connect(self.check_midware_status)
+        # self.timer.start(3000)
         # UI
+        TabWidget.tableWidget.setColumnWidth(0, 160)
+        TabWidget.tableWidget.setColumnWidth(1, 60)
+        TabWidget.tableWidget.setColumnWidth(2, 60)
+        TabWidget.tableWidget.setColumnWidth(3, 70)
+        TabWidget.tableWidget.setColumnWidth(4, 70)
+        TabWidget.tableWidget.setRowHeight(0, 38)
+
         TabWidget.listButton.clicked.connect(self.pm2_list)
+        TabWidget.reflashButton.clicked.connect(self.check_midware_status)
         TabWidget.startButton.clicked.connect(self.start_mid)
         TabWidget.stopButton.clicked.connect(self.stop_mid)
         TabWidget.restartButton.clicked.connect(self.restart_mid)
@@ -335,14 +344,14 @@ class Terminal(QWidget):
 
     def common_command(self, command, verbose=True):
         command, password = self.promote(command)
-        self.thread = Commander(command, password)
+        self.thread_cc = Commander(command, password)
         if verbose:
             TabWidget.textBrowser_2.clear()
             TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
-            self.thread.stdout.connect(TabWidget.textBrowser_2.append)
+            self.thread_cc.stdout.connect(TabWidget.textBrowser_2.append)
         else:
-            self.thread.verbose.connect(self.parse)
-        self.thread.start()
+            self.thread_cc.verbose.connect(self.parse)
+        self.thread_cc.start()
 
     @staticmethod
     def parse(string):
@@ -350,7 +359,7 @@ class Terminal(QWidget):
                         r"pid\s:\s(\d+)\n.*"
                         r"status\s:\s(\w+)\n.*"
                         r"uptime\s:\s(.+)\n.*"
-                        r"memory\susage\s:\s(.+)\n", string, re.DOTALL)
+                        r"memory\susage\s:\s(.+?)\n", string, re.DOTALL)
 
         if match is not None:
             TabWidget.tableWidget.setItem(0, 0, QTableWidgetItem(match.group(1)))
