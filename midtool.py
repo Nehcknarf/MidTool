@@ -6,14 +6,14 @@ from collections import deque
 from ctypes import *
 
 import PySide2.QtQuick
-from PySide2.QtMultimedia import QCamera, QCameraImageCapture, QCameraViewfinderSettings
+from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 # from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QHttpMultiPart, QHttpPart, QNetworkReply
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QTableWidgetItem
 from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize, \
-    QModelIndex, QTimer, QCoreApplication  # QUrl, QByteArray, QJsonDocument, QEventLoop
+    QModelIndex, QCoreApplication  # QTimer, QUrl, QByteArray, QJsonDocument, QEventLoop
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
@@ -110,6 +110,20 @@ class Searcher(QThread):
 
     def run(self):
         pass
+
+
+class Serial(QThread):
+    pinout = Signal(str)
+
+    def __init__(self, ser):
+        super().__init__()
+        self.ser = ser
+
+    def run(self):
+        if self.ser.bytesAvailable():
+            data = self.ser.readAll()
+            data = data.data().decode('utf-8')
+            self.pinout.emit(data)
 
 
 class GetFingerprint(QThread):
@@ -501,7 +515,7 @@ class FileManager(QWidget):
         self.model.remove(self.model_index)
 
 
-class Serial(QWidget):
+class FingerPrint(QWidget):
     def __init__(self):
         super().__init__()
         # self.timer = QTimer()
@@ -643,41 +657,45 @@ class Camera(QWidget):
     def __init__(self):
         super().__init__()
         self.camera = QCamera()
-        self.camera.setCaptureMode(QCamera.CaptureViewfinder)
+        self.view_finder = QCameraViewfinder()
+        self.view_finder_settings = QCameraViewfinderSettings()
         self.is_opened = False
 
-        view_finder_settings = QCameraViewfinderSettings()
-        view_finder_settings.setResolution(640, 480)
-        view_finder_settings.setMaximumFrameRate(30)
-        self.camera.setViewfinderSettings(view_finder_settings)
-
-        # self.camera_info = QCameraInfo()
-        # self.camera_list = self.camera_info.availableCameras()
-
-        self.view_finder = QCameraViewfinder()
-        self.camera.setViewfinder(self.view_finder)
-
-        # TabWidget.comboBox_cam.addItems([cam.description() for cam in self.camera_list])
+        TabWidget.pushButton_refreshCam.clicked.connect(self.get_cam)
         TabWidget.pushButton_openCam.clicked.connect(self.cam_switch)
         TabWidget.pushButton_capture.clicked.connect(self.capture)
-        # TODO 更好的方案？
         TabWidget.horizontalLayout_16.addWidget(self.view_finder)
 
-        self.cap = QCameraImageCapture(self.camera)
-        self.cap.setCaptureDestination(QCameraImageCapture.CaptureToFile)
+    @staticmethod
+    def get_cam():
+        TabWidget.comboBox_chooseCam.clear()
+        TabWidget.comboBox_chooseCam.addItems([cam_info.deviceName() for cam_info in QCameraInfo.availableCameras()])
 
     def cam_switch(self):
-        if not self.is_opened:
-            self.camera.start()
-            self.is_opened = True
-            TabWidget.pushButton_openCam.setText("关闭摄像头")
-        else:
-            self.camera.stop()
-            self.is_opened = False
-            TabWidget.pushButton_openCam.setText("开启摄像头")
+        for cam_info in QCameraInfo.availableCameras():
+            if cam_info.deviceName() == TabWidget.comboBox_chooseCam.currentText():
+                self.camera = QCamera(cam_info)
+                self.camera.setCaptureMode(QCamera.CaptureViewfinder)
+
+                self.view_finder_settings.setResolution(640, 480)
+                self.view_finder_settings.setMaximumFrameRate(30)
+                self.camera.setViewfinderSettings(self.view_finder_settings)
+
+                self.camera.setViewfinder(self.view_finder)
+
+                if not self.is_opened:
+                    self.camera.start()
+                    self.is_opened = True
+                    TabWidget.pushButton_openCam.setText("关闭摄像头")
+                else:
+                    self.camera.stop()
+                    self.is_opened = False
+                    TabWidget.pushButton_openCam.setText("开启摄像头")
 
     def capture(self):
-        self.cap.capture("C:/Users/Nehcknarf/PycharmProjects/midtool/test")
+        cap = QCameraImageCapture(self.camera)
+        cap.setCaptureDestination(QCameraImageCapture.CaptureToFile)
+        cap.capture("C:/Users/Nehcknarf/PycharmProjects/midtool/test")
         TabWidget.label_cap.setText("拍照成功，存储于工具目录下 test.jpg")
 
 
@@ -793,13 +811,15 @@ class Scan(QWidget):
         super().__init__()
         self.thread = QThread()
         self.ser = QSerialPort()
+        self.ser.readyRead.connect(self.read)
 
-        TabWidget.pushButton_closeDevice_2.setEnabled(False)
+        TabWidget.pushButton_refreshPort_2.clicked.connect(self.get_port)
         TabWidget.comboBox_BaudRate_2.addItems(self.get_baud_rate())
         TabWidget.comboBox_BaudRate_2.setCurrentText("115200")
-        TabWidget.pushButton_refreshPort_2.clicked.connect(self.get_port)
-        # TabWidget.pushButton_openDevice_2.clicked.connect(self.open_device)
-        # TabWidget.pushButton_closeDevice_2.clicked.connect(self.close_device)
+        TabWidget.pushButton_openDevice_2.clicked.connect(self.open)
+        TabWidget.pushButton_closeDevice_2.setEnabled(False)
+        TabWidget.pushButton_closeDevice_2.clicked.connect(self.close)
+        TabWidget.pushButton_cls.clicked.connect(self.cls)
 
     @staticmethod
     def get_port():
@@ -812,26 +832,34 @@ class Scan(QWidget):
 
     def open(self):
         if self.ser.isOpen():
+            return
+        else:
             port_name = TabWidget.comboBox_portName_2.currentText()
-            baudrate = TabWidget.comboBox_BaudRate_2.currentText()
+            baud_rate = TabWidget.comboBox_BaudRate_2.currentText()
 
-            self.ser = QSerialPort()
             self.ser.setPortName(port_name)
-            self.ser.setBaudRate(int(baudrate))
-            self.ser.open(QIODevice.ReadOnly)
-            data = self.ser.readAll()
-            data = data.data()
+            self.ser.setBaudRate(int(baud_rate))
+            # self.ser.setReadBufferSize(0)
+            ret = self.ser.open(QIODevice.ReadOnly)
+            if ret:
+                TabWidget.pushButton_openDevice_2.setEnabled(False)
+                TabWidget.textBrowser_4.append("串口打开成功")
+            else:
+                TabWidget.textBrowser_4.append("串口打开失败")
 
-    def show(self):
-        if self.ser.bytesAvailable():
-            data = self._serial.readAll()
-            data = data.data()
-            # 解码显示（中文啥的）
-            try:
-                self.textBrowser.append(data.decode('gb2312'))
-            except:
-                # 解码失败
-                self.textBrowser.append(repr(data))
+    def read(self):
+        self.thread = Serial(self.ser)
+        self.thread.pinout.connect(TabWidget.textBrowser_4.append, Qt.BlockingQueuedConnection)
+        self.thread.start()
+
+    def close(self):
+        if self.ser.isOpen():
+            self.ser.close()
+        TabWidget.textBrowser_4.append("设备已关闭")
+
+    @staticmethod
+    def cls():
+        TabWidget.textBrowser_4.clear()
 
 
 if __name__ == "__main__":
@@ -850,7 +878,7 @@ if __name__ == "__main__":
     ter = Terminal()
     yml = YamlConfig()
     file = FileManager()
-    ser = Serial()
+    fp = FingerPrint()
     cam = Camera()
     arc = Arcsoft()
     scan = Scan()
