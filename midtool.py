@@ -122,7 +122,7 @@ class Serial(QThread):
     def run(self):
         if self.ser.bytesAvailable():
             data = self.ser.readAll()
-            data = data.data().decode('utf-8')
+            data = data.data().decode('utf8')
             self.pinout.emit(data)
 
 
@@ -132,14 +132,14 @@ class GetFingerprint(QThread):
     def __init__(self, store_id, dll, handle):
         super().__init__()
         self.store_id = store_id
-        self.dll = dll
+        self.libc = dll
         self.handle = handle
 
     def emit_state(self, code, func_str):
         if code == 0:
             self.step.emit(f"{func_str}成功")
         else:
-            self.step.emit(f"{func_str}失败(错误类型/代码：{code_dict.get(code, self.dll.ZAZErr2Str(code))})")
+            self.step.emit(f"{func_str}失败(错误类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))})")
             return
 
     def run(self):
@@ -149,15 +149,15 @@ class GetFingerprint(QThread):
         timeout = 0
         while ret == 2 and timeout <= 99:
             QApplication.processEvents()
-            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.dll.ZAZErr2Str(ret))}")
-            ret = self.dll.ZAZGetImage(self.handle, nAddr)
+            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
             self.step.emit("超时！请重新采集")
             return
         self.emit_state(ret, "第一次采集指纹")
 
-        ret = self.dll.ZAZGenChar(self.handle, nAddr, 2)
+        ret = self.libc.ZAZGenChar(self.handle, nAddr, 2)
         self.emit_state(ret, "生成特征A")
 
         self.step.emit("请抬起手指！")
@@ -168,21 +168,21 @@ class GetFingerprint(QThread):
         timeout = 0
         while ret == 2 and timeout <= 99:
             QApplication.processEvents()
-            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.dll.ZAZErr2Str(ret))}")
-            ret = self.dll.ZAZGetImage(self.handle, nAddr)
+            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
             self.step.emit("超时！请重新采集")
             return
         self.emit_state(ret, "第二次采集指纹")
 
-        ret = self.dll.ZAZGenChar(self.handle, nAddr, 1)
+        ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
         self.emit_state(ret, "生成特征B")
 
-        ret = self.dll.ZAZRegModule(self.handle, nAddr)
+        ret = self.libc.ZAZRegModule(self.handle, nAddr)
         self.emit_state(ret, "合并特征")
 
-        ret = self.dll.ZAZStoreChar(self.handle, nAddr, 1, int(self.store_id))
+        ret = self.libc.ZAZStoreChar(self.handle, nAddr, 1, int(self.store_id))
         self.emit_state(ret, f"保存模板(位置{self.store_id})")
 
 
@@ -520,9 +520,9 @@ class FingerPrint(QWidget):
         super().__init__()
         # self.timer = QTimer()
         # 本地测试
-        # self.so = cdll.LoadLibrary("./libapit.so")
+        # self.libc = cdll.LoadLibrary("./libapit.so")
         # 生产环境
-        self.so = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
+        self.libc = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
         self.handle = c_int(0)
 
         TabWidget.pushButton_closeDevice.setEnabled(False)
@@ -566,7 +566,7 @@ class FingerPrint(QWidget):
         iCom = int(port_name[-1])  # 串口号 1-16
         iBaud = int(int(baudrate) / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
 
-        ret = self.so.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
+        ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
         if ret == 0:
             TabWidget.pushButton_openDevice.setEnabled(False)
             TabWidget.pushButton_closeDevice.setEnabled(True)
@@ -576,10 +576,10 @@ class FingerPrint(QWidget):
             TabWidget.pushButton_del.setEnabled(True)
             TabWidget.pushButton_empty.setEnabled(True)
         else:
-            QMessageBox.critical(self, "Error", "设备未正确打开！")
+            QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
 
     def close_device(self):
-        ret = self.so.ZAZCloseDeviceEx(self.handle)
+        ret = self.libc.ZAZCloseDeviceEx(self.handle)
         if ret == 1:
             TabWidget.pushButton_openDevice.setEnabled(True)
             TabWidget.pushButton_closeDevice.setEnabled(False)
@@ -602,8 +602,8 @@ class FingerPrint(QWidget):
         while ret == 2 and timeout <= 99:
             QApplication.processEvents()
             TabWidget.textBrowser_3.append(f"获取指纹图像中...第{timeout + 1}次尝试，"
-                                           f"返回值：{code_dict.get(ret, self.so.ZAZErr2Str(ret))}")
-            ret = self.so.ZAZGetImage(self.handle, nAddr)
+                                           f"返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
             TabWidget.textBrowser_3.append("超时！请重新采集")
@@ -616,16 +616,16 @@ class FingerPrint(QWidget):
             # self.close_device()
             return
 
-        ret = self.so.ZAZGenChar(self.handle, nAddr, 1)
+        ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
         if ret == 0:
             TabWidget.textBrowser_3.append("生成特征成功")
-            code = self.so.ZAZSearch(self.handle, c_int(0xffffffff), 1, 0, 9999, byref(i), byref(score))
+            code = self.libc.ZAZSearch(self.handle, c_int(0xffffffff), 1, 0, 9999, byref(i), byref(score))
             TabWidget.textBrowser_3.append("***如果返回类型/代码为”没搜索到指纹“，且匹配得分为0，则匹配得到的ID不正确，忽略即可***")
-            TabWidget.textBrowser_3.append(f"返回类型/代码：{code_dict.get(code, self.so.ZAZErr2Str(code))}")
+            TabWidget.textBrowser_3.append(f"返回类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))}")
             TabWidget.textBrowser_3.append("匹配的ID：未找到" if i.value == 65022 else f"匹配的ID：{str(i.value)}")
             TabWidget.textBrowser_3.append(f"匹配得分：{str(score.value)}")
         else:
-            TabWidget.textBrowser_3.append(f"生成特征失败(错误类型/代码：{code_dict.get(ret, self.so.ZAZErr2Str(ret))})")
+            TabWidget.textBrowser_3.append(f"生成特征失败(错误类型/代码：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))})")
             # self.close_device()
 
     def get_image(self):
@@ -633,23 +633,23 @@ class FingerPrint(QWidget):
         store_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-9999之间的数字:", QLineEdit.Normal,
                                            str(random.randint(0, 9999)))
         if store_id:
-            self.thread = GetFingerprint(store_id, self.so, self.handle)
+            self.thread = GetFingerprint(store_id, self.libc, self.handle)
             self.thread.step.connect(TabWidget.textBrowser_3.append)
             self.thread.start()
 
     def del_flash(self):
         store_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-9999的数字):", QLineEdit.Normal, "")
         if store_id:
-            ret = self.so.ZAZDelChar(self.handle, c_int(0xffffffff), int(store_id), 1)
+            ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(store_id), 1)
             TabWidget.textBrowser_3.append(f"模板{store_id}删除成功" if ret == 0 else f"模板{store_id}删除失败")
 
     def clean_flash(self):
-        ret = self.so.ZAZEmpty(self.handle, c_int(0xffffffff))
+        ret = self.libc.ZAZEmpty(self.handle, c_int(0xffffffff))
         TabWidget.textBrowser_3.append("成功清空指纹库" if ret == 0 else "清空指纹库失败")
 
     def get_template_num(self):
         num = c_int(0)
-        ret = self.so.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
+        ret = self.libc.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
         TabWidget.textBrowser_3.append(f"有效模板总数为{num.value}" if ret == 0 else "获取有效模板总数失败")
 
 
@@ -834,6 +834,7 @@ class Scan(QWidget):
         if self.ser.isOpen():
             return
         else:
+            TabWidget.textBrowser_4.clear()
             port_name = TabWidget.comboBox_portName_2.currentText()
             baud_rate = TabWidget.comboBox_BaudRate_2.currentText()
 
@@ -843,19 +844,22 @@ class Scan(QWidget):
             ret = self.ser.open(QIODevice.ReadOnly)
             if ret:
                 TabWidget.pushButton_openDevice_2.setEnabled(False)
+                TabWidget.pushButton_closeDevice_2.setEnabled(True)
                 TabWidget.textBrowser_4.append("串口打开成功")
             else:
                 TabWidget.textBrowser_4.append("串口打开失败")
 
     def read(self):
         self.thread = Serial(self.ser)
-        self.thread.pinout.connect(TabWidget.textBrowser_4.append, Qt.BlockingQueuedConnection)
+        self.thread.pinout.connect(TabWidget.textBrowser_4.append)
         self.thread.start()
 
     def close(self):
         if self.ser.isOpen():
             self.ser.close()
-        TabWidget.textBrowser_4.append("设备已关闭")
+            TabWidget.textBrowser_4.append("设备已关闭")
+            TabWidget.pushButton_openDevice_2.setEnabled(True)
+            TabWidget.pushButton_closeDevice_2.setEnabled(False)
 
     @staticmethod
     def cls():
