@@ -2,6 +2,7 @@ import os
 import sys
 import re
 import random
+import logging
 from collections import deque
 from ctypes import *
 
@@ -9,6 +10,7 @@ import PySide2.QtQuick
 from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
 # from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QHttpMultiPart, QHttpPart, QNetworkReply
+from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QTableWidgetItem
@@ -25,6 +27,10 @@ os.environ["QT_QPA_PLATFORM"] = "xcb"
 # os.environ["QT_DEBUG_PLUGINS"] = "1"
 # 虚拟键盘
 os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+logger.setLevel(level=logging.WARN)
 
 # 指昂指纹模块返回码字典
 code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
@@ -121,8 +127,13 @@ class Serial(QThread):
 
     def run(self):
         if self.ser.bytesAvailable():
-            data = self.ser.readAll()
-            data = data.data().decode('utf8')
+            try:
+                data = self.ser.readAll().data()
+                "da".encode(hex)
+            except ValueError as e:
+                print(e)
+                data = "请检查输入数据"
+            # TODO 闪退问题
             self.pinout.emit(data)
 
 
@@ -562,21 +573,22 @@ class FingerPrint(QWidget):
         port_name = TabWidget.comboBox_portName.currentText()
         baudrate = TabWidget.comboBox_BaudRate.currentText()
 
-        nDeviceType = 1  # 串口设备
-        iCom = int(port_name[-1])  # 串口号 1-16
-        iBaud = int(int(baudrate) / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
+        if port_name:
+            nDeviceType = 1  # 串口设备
+            iCom = int(port_name[-1])  # 串口号 1-16
+            iBaud = int(int(baudrate) / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
 
-        ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
-        if ret == 0:
-            TabWidget.pushButton_openDevice.setEnabled(False)
-            TabWidget.pushButton_closeDevice.setEnabled(True)
-            TabWidget.pushButton_getFingerprintNum.setEnabled(True)
-            TabWidget.pushButton_getfingerprint.setEnabled(True)
-            TabWidget.pushButton_searchfp.setEnabled(True)
-            TabWidget.pushButton_del.setEnabled(True)
-            TabWidget.pushButton_empty.setEnabled(True)
-        else:
-            QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
+            ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
+            if ret == 0:
+                TabWidget.pushButton_openDevice.setEnabled(False)
+                TabWidget.pushButton_closeDevice.setEnabled(True)
+                TabWidget.pushButton_getFingerprintNum.setEnabled(True)
+                TabWidget.pushButton_getfingerprint.setEnabled(True)
+                TabWidget.pushButton_searchfp.setEnabled(True)
+                TabWidget.pushButton_del.setEnabled(True)
+                TabWidget.pushButton_empty.setEnabled(True)
+            else:
+                QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
 
     def close_device(self):
         ret = self.libc.ZAZCloseDeviceEx(self.handle)
@@ -871,22 +883,30 @@ if __name__ == "__main__":
 
     app = QApplication(sys.argv)
     # app.setStyle('Fusion')
+    serverName = 'MidTool'
+    socket = QLocalSocket()
+    socket.connectToServer(serverName)
+    if socket.waitForConnected(500):
+        app.quit()
+    else:
+        localServer = QLocalServer()
+        localServer.listen(serverName)
 
-    loader = QUiLoader()
-    # 本地测试
-    # TabWidget = loader.load("./midtool.ui")
-    # 生产环境
-    TabWidget = loader.load("/nubomed/midtool/midtool.ui")
+        loader = QUiLoader()
+        # 本地测试
+        # TabWidget = loader.load("./midtool.ui")
+        # 生产环境
+        TabWidget = loader.load("/nubomed/midtool/midtool.ui")
 
-    log = LogBrowser()
-    ter = Terminal()
-    yml = YamlConfig()
-    file = FileManager()
-    fp = FingerPrint()
-    cam = Camera()
-    arc = Arcsoft()
-    scan = Scan()
+        log = LogBrowser()
+        ter = Terminal()
+        yml = YamlConfig()
+        file = FileManager()
+        fp = FingerPrint()
+        cam = Camera()
+        arc = Arcsoft()
+        scan = Scan()
 
-    TabWidget.show()
+        TabWidget.show()
 
-    sys.exit(app.exec_())
+        sys.exit(app.exec_())
