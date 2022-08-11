@@ -3,8 +3,10 @@ import sys
 import re
 import random
 import logging
+import struct
 from collections import deque
 from ctypes import *
+from datetime import datetime
 
 import PySide2.QtQuick
 from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
@@ -37,6 +39,8 @@ code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没�
              6: "指纹太乱", 7: "指纹特征点太少", 8: "指纹不匹配", 9: "没搜索到指纹", 10: "特征合并失败", 11: "地址号超出指纹库范围",
              12: "从指纹库读模板出错", 13: "上传特征失败", 14: "模块不能接收后续数据包", 15: "上传图象失败", 16: "删除模板失败",
              17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象"}
+
+device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", }
 
 
 class Commander(QThread):
@@ -124,17 +128,41 @@ class Serial(QThread):
     def __init__(self, ser):
         super().__init__()
         self.ser = ser
+        self.total_data = b''
 
     def run(self):
         if self.ser.bytesAvailable():
-            try:
-                data = self.ser.readAll().data()
-                "da".encode(hex)
-            except ValueError as e:
-                print(e)
-                data = "请检查输入数据"
-            # TODO 闪退问题
-            self.pinout.emit(data)
+            bytes_data = self.ser.readAll().data()  # bytes
+            self.total_data += bytes_data
+            print(self.total_data)
+            if re.findall(b'~.*\xe7', self.total_data):
+                try:
+                    header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", self.total_data[:26])
+                except struct.error as err:
+                    data = f"数据头解析失败，{err}"
+                    self.total_data = self.total_data[1:]
+                else:
+                    header_list = [i.hex() if isinstance(i, bytes) else i for i in header_tuple]
+                    device_type = header_list[10]
+                    payload_length = header_list[-1]
+                    try:
+                        payload_tuple = struct.unpack("13B", self.total_data[26:26+payload_length])
+                        # ending_tuple = struct.unpack("2sc", self.total_data[26 + payload_length:29 + payload_length])
+                    except struct.error as err:
+                        data = f"数据载荷/尾解析失败，{err}"
+                    else:
+                        self.total_data = self.total_data[29 + payload_length + 6:]
+                        # ending_list = [i.hex() for i in ending_tuple]
+                        # data = tuple(header_list) + payload_tuple + tuple(ending_list)
+                        # print(data)
+                        if device_type == "0708":
+                            card_type = payload_tuple[0]
+                            card_uid = "-".join(map(str, payload_tuple[1:]))
+                            data = f"设备类型：{device_dict.get(device_type)}，卡类型：{card_type}，卡号：{card_uid}"
+                        elif device_type == "0108":
+                            pass
+                finally:
+                    self.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{data}")
 
 
 class GetFingerprint(QThread):
@@ -824,6 +852,8 @@ class Scan(QWidget):
         self.thread = QThread()
         self.ser = QSerialPort()
         self.ser.readyRead.connect(self.read)
+        self.thread = Serial(self.ser)
+        self.thread.pinout.connect(TabWidget.textBrowser_4.append)
 
         TabWidget.pushButton_refreshPort_2.clicked.connect(self.get_port)
         TabWidget.comboBox_BaudRate_2.addItems(self.get_baud_rate())
@@ -862,8 +892,6 @@ class Scan(QWidget):
                 TabWidget.textBrowser_4.append("串口打开失败")
 
     def read(self):
-        self.thread = Serial(self.ser)
-        self.thread.pinout.connect(TabWidget.textBrowser_4.append)
         self.thread.start()
 
     def close(self):
