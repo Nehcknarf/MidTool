@@ -131,29 +131,29 @@ class Serial(QThread):
         self.total_data = b''
 
     def run(self):
-        if self.ser.bytesAvailable():
-            bytes_data = self.ser.readAll().data()  # bytes
-            self.total_data += bytes_data
-            self.pinout.emit("数据流：" + self.total_data.hex())
+        bytes_data = self.ser.readAll().data()  # bytes
+        self.total_data += bytes_data
+        # self.pinout.emit("数据流：" + self.total_data.hex())
+        if length_domain := re.findall(b'~(.{2})\x02', self.total_data):
             try:
-                # FIXME findall[0]索引可能带来不确定性
-                length_domain = re.findall(b'~(.{2})\x02', self.total_data)[0]
-                length = struct.unpack("h", length_domain)[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
+                length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
             except struct.error as err:
-                sig_data = f"长度域解析失败，{err}"
+                print(f"长度域解析失败，{err}")
             else:
-                # FIXME findall[0]索引可能带来不确定性
-                if pack_data := re.findall(b'~.{'+f'{length}'.encode()+b'}\xe7', self.total_data)[0]:
-                    self.pinout.emit("正则提取出的部分：" + pack_data.hex())
+                if pack_data := re.findall(b'~.{'+f'{length}'.encode()+b'}\xe7', self.total_data):
+                    pack_data = pack_data[0]
+                    self.pinout.emit("接收到的原始数据包：" + pack_data.hex())
                     try:
                         header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", pack_data[:26])  # 起始域到参数长度域
                     except struct.error as err:
-                        sig_data = f"数据头解析失败，{err}"
+                        print(f"数据头解析失败，{err}")
                     else:
                         header_list = [i.hex() if isinstance(i, bytes) else i for i in header_tuple]
                         device_type = header_list[10]  # 单元类型
                         payload_length = header_list[-1]  # 参数长度
-                        self.total_data = self.total_data[29 + payload_length + 6:]
+                        # self.total_data = self.total_data[29 + payload_length + 3:]
+                        self.total_data = b''
+
                         if device_type == "0708":
                             try:
                                 payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
@@ -178,10 +178,14 @@ class Serial(QThread):
                                 code_content = "".join(map(str, payload_tuple[2:]))
                                 sig_data = f"设备类型：{device_dict.get(device_type)}，条码内容：{code_content}"
                         else:
-                            self.total_data = b''
                             sig_data = "尚未支持解析的设备类型"
-            finally:
-                self.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
+                        self.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
+                else:
+                    pass
+                    # self.pinout.emit("未匹配到数据包")
+        else:
+            self.total_data = b''
+            # self.pinout.emit("未找到特征（长度域）")
 
 
 class GetFingerprint(QThread):
