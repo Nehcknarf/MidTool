@@ -14,6 +14,7 @@ from PySide2.QtMultimediaWidgets import QCameraViewfinder
 # from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QHttpMultiPart, QHttpPart, QNetworkReply
 from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
+from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QTableWidgetItem
 from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize, \
@@ -40,7 +41,7 @@ code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没�
              12: "从指纹库读模板出错", 13: "上传特征失败", 14: "模块不能接收后续数据包", 15: "上传图象失败", 16: "删除模板失败",
              17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象"}
 
-device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", }
+device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "020a": "人体感应类"}
 
 
 class Commander(QThread):
@@ -140,9 +141,9 @@ class Serial(QThread):
             except struct.error as err:
                 print(f"长度域解析失败，{err}")
             else:
-                if pack_data := re.findall(b'~.{'+f'{length}'.encode()+b'}\xe7', self.total_data):
+                if pack_data := re.findall(b'~.{'+f'{length}'.encode()+b'}\xe7', self.total_data, re.DOTALL):
                     pack_data = pack_data[0]
-                    self.pinout.emit("接收到的原始数据包：" + pack_data.hex())
+                    # self.pinout.emit("接收到的原始数据包：" + pack_data.hex())
                     try:
                         header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", pack_data[:26])  # 起始域到参数长度域
                     except struct.error as err:
@@ -177,6 +178,15 @@ class Serial(QThread):
                                 # 自动上报扫描码内容
                                 code_content = "".join(map(str, payload_tuple[2:]))
                                 sig_data = f"设备类型：{device_dict.get(device_type)}，条码内容：{code_content}"
+                        elif device_type == "020a":
+                            try:
+                                payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
+                            except struct.error as err:
+                                sig_data = f"数据载荷解析失败，{err}"
+                            else:
+                                # 自动上报人位置状态变化
+                                state_dict = {1: "人在指定范围内", 0: "人离开了指定范围"}
+                                sig_data = f"设备类型：{device_dict.get(device_type)}，{state_dict.get(payload_tuple[0])}"
                         else:
                             sig_data = "尚未支持解析的设备类型"
                         self.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
