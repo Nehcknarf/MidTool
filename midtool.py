@@ -18,7 +18,7 @@ from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QTableWidgetItem
 from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize, \
-    QModelIndex, QCoreApplication  # QTimer, QUrl, QByteArray, QJsonDocument, QEventLoop
+    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption  # QTimer, QUrl, QByteArray, QJsonDocument, QEventLoop
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
@@ -30,6 +30,9 @@ os.environ["QT_QPA_PLATFORM"] = "xcb"
 # os.environ["QT_DEBUG_PLUGINS"] = "1"
 # 虚拟键盘
 os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
+# 高分屏缩放
+# os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+os.environ["QT_SCALE_FACTOR"] = "1.25"
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -42,6 +45,8 @@ code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没�
              17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象"}
 
 device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "020a": "人体感应类"}
+# Nbtool传参选择启动标签页（参数：标签页currentIndex）
+tab_dict = {"face": 7, "camera": 6, "fingerprint": 5, "serial_device": 4}
 
 
 class Commander(QThread):
@@ -776,10 +781,11 @@ class Arcsoft(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = QThread()
+        # self.ws = QWebSocket("ws://192.168.1.179:8080/websocket")
 
         TabWidget.pushButton_generator.clicked.connect(self.generator)
         TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
-        # TabWidget.pushButton_upload.clicked.connect(self.upload)
+        TabWidget.pushButton_activateOline.clicked.connect(self.activate)
 
     @staticmethod
     def check_active():
@@ -799,6 +805,17 @@ class Arcsoft(QWidget):
         self.thread = Commander(f"/bin/sh /nubomed/arcsoft/arcsoftsetup.sh {password}")
         self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
         self.thread.start()
+
+    def activate(self):
+        key, _ = QInputDialog.getText(self, "虹软激活", "请输入密钥(无需输入-，共16位，大小写不影响):", QLineEdit.Normal, "")
+        if key:
+            key = key.upper()
+            key = '-'.join([key[0:4], key[4:8], key[8:12], key[12:16]])
+            print(key)
+            msg = {"requestId": "OnlineActiveFaceEngin", "cmd": "OnlineActiveFaceEngin", "seq": 1, "ackSeq": 0,
+                   "params": {"activeKey": key}}
+            ret = self.ws.sendTextMessage(f'{msg}')
+            print(ret)
 
     # def upload(self):
     #     request = QNetworkRequest()
@@ -940,6 +957,7 @@ class Scan(QWidget):
 
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
+    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
 
     app = QApplication(sys.argv)
     # app.setStyle('Fusion')
@@ -957,6 +975,14 @@ if __name__ == "__main__":
         # TabWidget = loader.load("./midtool.ui")
         # 生产环境
         TabWidget = loader.load("/nubomed/midtool/midtool.ui")
+        # 外部传参支持
+        parser = QCommandLineParser()
+        tab = QCommandLineOption(["t", "tab"], "Choice which tab to be shown at start up", "tab")
+        parser.addOption(tab)
+        parser.process(app)
+        tab = parser.value(tab)
+        if tab:
+            TabWidget.setCurrentIndex(tab_dict.get(tab))
 
         log = LogBrowser()
         ter = Terminal()
@@ -966,7 +992,8 @@ if __name__ == "__main__":
         cam = Camera()
         arc = Arcsoft()
         scan = Scan()
-
+        # 置顶
+        TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
         TabWidget.show()
 
         sys.exit(app.exec_())
