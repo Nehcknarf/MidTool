@@ -1,6 +1,8 @@
 import os
 import sys
+import platform
 import re
+import json
 import random
 import logging
 import struct
@@ -16,20 +18,15 @@ from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
-    QFileSystemModel, QTableWidgetItem
+    QFileSystemModel, QTableWidgetItem, QSystemTrayIcon
 from PySide2.QtCore import Qt, QThread, Signal, QDir, QFile, QIODevice, QTextStream, QRegExp, QProcess, QSize, \
-    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption  # QTimer, QUrl, QByteArray, QJsonDocument, QEventLoop
-from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor
+    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QTimer
+    # QUrl, QByteArray, QJsonDocument, QEventLoop
+from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor, QIcon
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
-# Ubuntu 22.04
-# os.environ["QT_QPA_PLATFORM"] = "wayland"
-# Ubuntu 20.04
-os.environ["QT_QPA_PLATFORM"] = "xcb"
 # DEBUG
 # os.environ["QT_DEBUG_PLUGINS"] = "1"
-# 虚拟键盘
-os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
 # 高分屏缩放
 # os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
 os.environ["QT_SCALE_FACTOR"] = "1.25"
@@ -42,7 +39,8 @@ logger.setLevel(level=logging.WARN)
 code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
              6: "指纹太乱", 7: "指纹特征点太少", 8: "指纹不匹配", 9: "没搜索到指纹", 10: "特征合并失败", 11: "地址号超出指纹库范围",
              12: "从指纹库读模板出错", 13: "上传特征失败", 14: "模块不能接收后续数据包", 15: "上传图象失败", 16: "删除模板失败",
-             17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象"}
+             17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象",
+             -1: "发送失败", -2: "接收失败"}
 
 device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "020a": "人体感应类"}
 # Nbtool传参选择启动标签页（参数：标签页currentIndex）
@@ -71,7 +69,8 @@ class Commander(QThread):
             # process_echo.start(f"echo {self.password}")
             process_echo.waitForFinished()
 
-        process_command.setWorkingDirectory("/nubomed")
+        if system == "Linux":
+            process_command.setWorkingDirectory("/nubomed")
         process_command.setProgram(self.command.split()[0])
         process_command.setArguments(self.command.split()[1:])
         process_command.start()
@@ -83,7 +82,10 @@ class Commander(QThread):
             if QThread.currentThread().isInterruptionRequested():
                 break
             if process_command.waitForReadyRead():
-                stdout = bytes(process_command.readAllStandardOutput()).decode("utf8").rstrip('\n')
+                if system == "Windows":
+                    stdout = bytes(process_command.readAllStandardOutput()).decode("gbk").rstrip('\r\n')
+                elif system == "Linux":
+                    stdout = bytes(process_command.readAllStandardOutput()).decode("utf8").rstrip('\n')
                 self.stdout.emit(stdout)
                 string += f"{stdout}\n"
 
@@ -306,7 +308,10 @@ class LogBrowser(QWidget):
         path, _ = QFileDialog.getOpenFileName(self, "选择待监控的日志文件", TabWidget.logpathlineEdit.text(), "日志文件 (*.log)")
         if path:
             TabWidget.textBrowser.clear()
-            self.thread = Commander(f"tail -f -n 30 {path}")
+            if system == "Windows":
+                self.thread = Commander(f"powershell Get-Content {path} -tail 30 -Wait")
+            elif system == "Linux":
+                self.thread = Commander(f"tail -f -n 30 {path}")
             self.thread.stdout.connect(TabWidget.textBrowser.append)
             self.thread.start()
 
@@ -426,6 +431,8 @@ class Terminal(QWidget):
     def send(self):
         command = TabWidget.lineEdit_2.text()
         command, password = self.promote(command)
+        if system == "Windows":
+            command = "powershell " + command
 
         TabWidget.textBrowser_2.clear()
         TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
@@ -446,7 +453,7 @@ class Terminal(QWidget):
 
     @staticmethod
     def parse(string):
-        match = re.search(r"\+---\s(NuboMedCollateService)\n.*"
+        match = re.search(r"\+---\s(NuboMed\w+Service)\n.*"
                         r"pid\s:\s(\d+)\n.*"
                         r"status\s:\s(\w+)\n.*"
                         r"uptime\s:\s(.+)\n.*"
@@ -466,15 +473,23 @@ class Terminal(QWidget):
         self.common_command("pm2 list -m", verbose=False)
 
     def start_mid(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
-        if path:
-            self.common_command(f"pm2 start {path} -m")
+        if system == "Windows":
+            # TODO 最终需要替换进程
+            self.common_command("net start AdobeARMservice")
+        elif system == "Linux":
+            path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
+            if path:
+                self.common_command(f"pm2 start {path} -m")
 
     def restart_mid(self):
         self.common_command("pm2 restart 0 -m")
 
     def stop_mid(self):
-        self.common_command("pm2 stop 0 -m")
+        if system == "Windows":
+            # TODO 最终需要替换进程
+            self.common_command("net stop AdobeARMservice")
+        elif system == "Linux":
+            self.common_command("pm2 stop 0 -m")
 
     def restart_gnome(self):
         self.common_command("sudo systemctl restart gdm")
@@ -596,11 +611,18 @@ class FingerPrint(QWidget):
     def __init__(self):
         super().__init__()
         # self.timer = QTimer()
-        # 本地测试
-        # self.libc = cdll.LoadLibrary("./libapit.so")
-        # 生产环境
-        self.libc = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
-        self.handle = c_int(0)
+        if system == "Windows":
+            # 本地测试
+            self.libc = cdll.LoadLibrary('./libapit.dll')
+            # 生产环境
+            # TODO 最终需要替换路径
+            # self.libc = cdll.LoadLibrary("/nubomed/midtool/libapit.dll")
+        elif system == "Linux":
+            # 本地测试
+            # self.libc = cdll.LoadLibrary('./libapit.so')
+            # 生产环境
+            self.libc = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
+        self.handle = c_int64(0)
 
         TabWidget.pushButton_closeDevice.setEnabled(False)
         TabWidget.pushButton_getFingerprintNum.setEnabled(False)
@@ -658,7 +680,7 @@ class FingerPrint(QWidget):
 
     def close_device(self):
         ret = self.libc.ZAZCloseDeviceEx(self.handle)
-        if ret == 1:
+        if ret == 1 or ret == 0:  # Win动态库返回0代表成功
             TabWidget.pushButton_openDevice.setEnabled(True)
             TabWidget.pushButton_closeDevice.setEnabled(False)
             TabWidget.pushButton_getFingerprintNum.setEnabled(False)
@@ -697,7 +719,7 @@ class FingerPrint(QWidget):
         ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
         if ret == 0:
             TabWidget.textBrowser_3.append("生成特征成功")
-            code = self.libc.ZAZSearch(self.handle, c_int(0xffffffff), 1, 0, 9999, byref(i), byref(score))
+            code = self.libc.ZAZSearch(self.handle, c_int(0xffffffff), 1, 0, 1049, byref(i), byref(score))
             TabWidget.textBrowser_3.append("***如果返回类型/代码为”没搜索到指纹“，且匹配得分为0，则匹配得到的ID不正确，忽略即可***")
             TabWidget.textBrowser_3.append(f"返回类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))}")
             TabWidget.textBrowser_3.append("匹配的ID：未找到" if i.value == 65022 else f"匹配的ID：{str(i.value)}")
@@ -708,15 +730,15 @@ class FingerPrint(QWidget):
 
     def get_image(self):
         TabWidget.textBrowser_3.clear()
-        store_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-9999之间的数字:", QLineEdit.Normal,
-                                           str(random.randint(0, 9999)))
+        store_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-1049之间的数字:", QLineEdit.Normal,
+                                           str(random.randint(0, 1050)))
         if store_id:
             self.thread = GetFingerprint(store_id, self.libc, self.handle)
             self.thread.step.connect(TabWidget.textBrowser_3.append)
             self.thread.start()
 
     def del_flash(self):
-        store_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-9999的数字):", QLineEdit.Normal, "")
+        store_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-1049的数字):", QLineEdit.Normal, "")
         if store_id:
             ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(store_id), 1)
             TabWidget.textBrowser_3.append(f"模板{store_id}删除成功" if ret == 0 else f"模板{store_id}删除失败")
@@ -800,7 +822,7 @@ class Arcsoft(QWidget):
     def generator(self):
         TabWidget.textBrowser_arcsoft.clear()
         TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
-        password, _ = QInputDialog.getText(self, "提升权限", "请输入Root密码:", QLineEdit.Normal, "")
+        password, _ = QInputDialog.getText(self, "提升权限", "请输入当前账户密码:", QLineEdit.Normal, "")
 
         self.thread = Commander(f"/bin/sh /nubomed/arcsoft/arcsoftsetup.sh {password}")
         self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
@@ -955,10 +977,68 @@ class Scan(QWidget):
         TabWidget.textBrowser_4.clear()
 
 
+class DeviceAliveCheck(QWidget):
+    def __init__(self):
+        super().__init__()
+        # self.thread = QThread()
+
+        # self.timer = QTimer()
+        # self.timer.timeout.connect(self.sender)
+        # self.timer.start(5000)
+
+        self.ws = QWebSocket("ws://localhost:8080/websocket")
+        self.ws.connected.connect(self.connect_establish)
+        # self.ws.disconnected.connect()
+        self.ws.textMessageReceived.connect(self.recv)
+
+        TabWidget.pushButton_checkAlive.clicked.connect(self.send)
+
+    def connect_establish(self):
+        TabWidget.textBrowser_ws.appned('WebSocket 连接已建立')
+
+    def send(self):
+        device_type = TabWidget.comboBox_wsDevice.currentText()
+        time = datetime.now()
+
+        if device_type == "电子锁":
+            request_json = {
+                "requestId": f"GetCabinetLockStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
+                "cmd": "GetCabinetLockStatus",
+                "seq": 1,
+                "ackSeq": 0,
+                "params": {
+                    "device": "H3000R-1"
+                }
+            }
+        elif device_type == "温湿度":
+            request_json = {
+                "requestId": f"GetAllCabinetInfo-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
+                "cmd": "GetAllCabinetInfo",
+                "seq": 1,
+                "ackSeq": 0
+            }
+
+        ret = self.ws.sendTextMessage(json.dumps(request_json))
+        TabWidget.textBrowser_ws.appned('已发送' + str(ret) + '比特')
+
+    def recv(self, message):
+        msg = json.loads(message)
+        TabWidget.textBrowser_ws.appned(str(msg))
+
+        cmd_type = msg.get("cmd")
+        if cmd_type == 'GetCabinetLockStatusResult':
+            lock_status = msg.get('params').get('lockStatus')
+            status_dict = {0: '关闭', 1: '打开'}
+            lock_status = status_dict.get(lock_status)
+            TabWidget.textBrowser_ws.appned('门状态：' + lock_status)
+        elif cmd_type == '':
+            pass
+
+
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
-
+    system = platform.system()
     app = QApplication(sys.argv)
     # app.setStyle('Fusion')
     serverName = 'MidTool'
@@ -975,6 +1055,29 @@ if __name__ == "__main__":
         # TabWidget = loader.load("./midtool.ui")
         # 生产环境
         TabWidget = loader.load("/nubomed/midtool/midtool.ui")
+        # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能
+        TabWidget.setTabVisible(2, False)  # 配置文件修改 Tab
+        TabWidget.setTabVisible(3, False)  # 配置文件修改 Tab
+        # TabWidget.setTabVisible(8, False)  # 外部硬件工况 Tab
+        TabWidget.setTabVisible(9, False)  # 设置 Tab
+        # 多系统兼容
+        if system == "Windows":
+            # system_tray_icon = QSystemTrayIcon()
+            # system_tray_icon.setIcon(QIcon('./icon.png'))
+            # system_tray_icon.show()
+            # 关闭部分不支持的功能的按钮
+            TabWidget.listButton.setEnabled(False)
+            TabWidget.restartButton.setEnabled(False)
+            TabWidget.restartdesktopButton.setEnabled(False)
+            TabWidget.wsButton.setEnabled(False)
+            TabWidget.shButton.setEnabled(False)
+        elif system == "Linux":
+            # Ubuntu 22.04
+            # os.environ["QT_QPA_PLATFORM"] = "wayland"
+            # Ubuntu 20.04
+            os.environ["QT_QPA_PLATFORM"] = "xcb"
+            # 虚拟键盘
+            os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
         # 外部传参支持
         parser = QCommandLineParser()
         tab = QCommandLineOption(["t", "tab"], "Choice which tab to be shown at start up", "tab")
@@ -994,6 +1097,7 @@ if __name__ == "__main__":
         scan = Scan()
         # 置顶
         TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
+        TabWidget.activateWindow()
         TabWidget.show()
 
         sys.exit(app.exec_())

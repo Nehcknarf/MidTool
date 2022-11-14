@@ -12,6 +12,7 @@ pyinstaller --noconfirm \
 --add-data './icon.png:.' \
 --add-data './virtualkeyboard:./Pyside2/Qt/plugins/virtualkeyboard' \
 --add-data './libapit.so:.' \
+--add-data './libapit.dll:.' \
 midtool.py
 
 echo "remove previous version..."

@@ -35,7 +35,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>icon.png</normaloff>icon.png</iconset>
+    <normaloff>../../.designer/backup/icon.png</normaloff>../../.designer/backup/icon.png</iconset>
   </property>
   <property name="toolTip">
    <string/>
@@ -252,7 +252,7 @@ QTabBar::tab{width:100}</string>
              </font>
             </property>
             <property name="text">
-             <string>首次启动中台</string>
+             <string>启动中台</string>
             </property>
            </widget>
           </item>
@@ -527,7 +527,7 @@ QTabBar::tab{width:100}</string>
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>1251</width>
+      <width>1354</width>
       <height>641</height>
      </rect>
     </property>
@@ -549,6 +549,24 @@ QTabBar::tab{width:100}</string>
          </property>
          <property name="text">
           <string>加载历史日志</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="tailButton_2">
+         <property name="minimumSize">
+          <size>
+           <width>100</width>
+           <height>50</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>10</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>监控当前日志</string>
          </property>
         </widget>
        </item>
@@ -592,7 +610,7 @@ QTabBar::tab{width:100}</string>
         <widget class="QLineEdit" name="lineEdit">
          <property name="minimumSize">
           <size>
-           <width>400</width>
+           <width>100</width>
            <height>50</height>
           </size>
          </property>
@@ -762,7 +780,7 @@ QTabBar::tab{width:100}</string>
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_5">
+  <widget class="QWidget" name="tab_3">
    <attribute name="title">
     <string>文件管理器</string>
    </attribute>
@@ -973,7 +991,7 @@ QTabBar::tab{width:100}</string>
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_3">
+  <widget class="QWidget" name="tab_4">
    <attribute name="title">
     <string>配置文件修改</string>
    </attribute>
@@ -1093,7 +1111,7 @@ QTabBar::tab{width:100}</string>
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_9">
+  <widget class="QWidget" name="tab_5">
    <attribute name="title">
     <string>串口输出</string>
    </attribute>
@@ -1366,7 +1384,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_4">
+  <widget class="QWidget" name="tab_6">
    <attribute name="title">
     <string>指纹</string>
    </attribute>
@@ -1709,7 +1727,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_6">
+  <widget class="QWidget" name="tab_7">
    <attribute name="title">
     <string>摄像头</string>
    </attribute>
@@ -1846,7 +1864,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab">
+  <widget class="QWidget" name="tab_8">
    <attribute name="title">
     <string>人脸识别</string>
    </attribute>
@@ -1903,6 +1921,9 @@ p, li { white-space: pre-wrap; }
        </item>
        <item>
         <widget class="QPushButton" name="pushButton_checkLicense">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="minimumSize">
           <size>
            <width>100</width>
@@ -1935,7 +1956,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QPushButton" name="pushButton_activateOline">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="minimumSize">
           <size>
@@ -1962,7 +1983,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QPushButton" name="pushButton_checkActivation">
          <property name="enabled">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
          <property name="minimumSize">
           <size>
@@ -1991,7 +2012,73 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_7">
+  <widget class="QWidget" name="tab_9">
+   <attribute name="title">
+    <string>外部硬件工况</string>
+   </attribute>
+   <widget class="QTextBrowser" name="textBrowser_ws">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>1251</width>
+      <height>581</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+     </font>
+    </property>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>461</width>
+      <height>52</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_28">
+     <item>
+      <widget class="QComboBox" name="comboBox_wsDevice">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <item>
+        <property name="text">
+         <string>电子锁</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton_checkAlive">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>检查工况</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="tab_10">
    <attribute name="title">
     <string>设置</string>
    </attribute>
@@ -2236,7 +2323,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </widget>
   </widget>
-  <widget class="QWidget" name="tab_8">
+  <widget class="QWidget" name="tab_11">
    <attribute name="title">
     <string>关于</string>
    </attribute>
@@ -2258,7 +2345,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 0.78</string>
+        <string>MidTool 中台工具箱 0.79</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
