@@ -474,8 +474,7 @@ class Terminal(QWidget):
 
     def start_mid(self):
         if system == "Windows":
-            # TODO 最终需要替换进程
-            self.common_command("net start AdobeARMservice")
+            self.common_command("net start ConsumableService")
         elif system == "Linux":
             path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
             if path:
@@ -486,8 +485,7 @@ class Terminal(QWidget):
 
     def stop_mid(self):
         if system == "Windows":
-            # TODO 最终需要替换进程
-            self.common_command("net stop AdobeARMservice")
+            self.common_command("net stop ConsumableService")
         elif system == "Linux":
             self.common_command("pm2 stop 0 -m")
 
@@ -612,11 +610,7 @@ class FingerPrint(QWidget):
         super().__init__()
         # self.timer = QTimer()
         if system == "Windows":
-            # 本地测试
             self.libc = cdll.LoadLibrary('./libapit.dll')
-            # 生产环境
-            # TODO 最终需要替换路径
-            # self.libc = cdll.LoadLibrary("/nubomed/midtool/libapit.dll")
         elif system == "Linux":
             # 本地测试
             # self.libc = cdll.LoadLibrary('./libapit.so')
@@ -1051,10 +1045,10 @@ if __name__ == "__main__":
         localServer.listen(serverName)
 
         loader = QUiLoader()
-        # 本地测试
-        # TabWidget = loader.load("./midtool.ui")
+        # 本地测试/Win版生产环境
+        TabWidget = loader.load("./midtool.ui")
         # 生产环境
-        TabWidget = loader.load("/nubomed/midtool/midtool.ui")
+        # TabWidget = loader.load("/nubomed/midtool/midtool.ui")
         # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能
         TabWidget.setTabVisible(2, False)  # 配置文件修改 Tab
         TabWidget.setTabVisible(3, False)  # 配置文件修改 Tab
