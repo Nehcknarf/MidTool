@@ -11,9 +11,9 @@ Linux 版打包命令：
 midtool.py`
 
 Windows 版打包命令：
-`pyinstaller --noconfirm --add-data ./midtool.ui;. --add-data ./icon.png;. --add-data ./libapit.dll;. midtool.py`
+`pyinstaller --noconfirm --noconsole --add-data ./midtool.ui;. --add-data ./icon.png;. --add-data ./libapit.dll;. --icon icon.png midtool.py`
 
-默认放置路径：
+Linux 版默认放置路径：
 `/nubomed/midtool`
 
 构建 Qt 应用依赖：
