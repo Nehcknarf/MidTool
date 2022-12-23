@@ -9,8 +9,8 @@ import struct
 from collections import deque
 from ctypes import *
 from datetime import datetime
+from urllib import request, parse
 from zipfile import ZipFile
-import shutil
 
 from ruamel.yaml import YAML
 
@@ -30,10 +30,14 @@ from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
 # DEBUG
 # os.environ["QT_DEBUG_PLUGINS"] = "1"
+# 虚拟键盘
+os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 logger.setLevel(level=logging.WARN)
+
+path = os.path.abspath(os.path.dirname(__file__))
 
 # 指昂指纹模块返回码字典
 code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
@@ -277,12 +281,12 @@ class LogBrowser(QWidget):
         # UI
         TabWidget.textBrowser.ensureCursorVisible()
         TabWidget.textBrowser.document().setMaximumBlockCount(500)
-        TabWidget.StartDateEdit.setMinimumDate(QDate.currentDate().addDays(-8))
+        TabWidget.StartDateEdit.setMinimumDate(QDate.currentDate().addDays(-7))
         TabWidget.EndDateEdit.setMinimumDate(QDate.currentDate().addDays(-7))
         TabWidget.StartDateEdit.setMaximumDate(QDate.currentDate().addDays(-1))
-        TabWidget.EndDateEdit.setMaximumDate(QDate.currentDate())
+        TabWidget.EndDateEdit.setMaximumDate(QDate.currentDate().addDays(-1))
         TabWidget.StartDateEdit.setDate(QDate.currentDate().addDays(-1))
-        TabWidget.EndDateEdit.setDate(QDate.currentDate())
+        TabWidget.EndDateEdit.setDate(QDate.currentDate().addDays(-1))
 
         TabWidget.openfileButton.clicked.connect(self.open_log)
         TabWidget.tailButton.clicked.connect(self.tail_log)
@@ -393,24 +397,25 @@ class LogBrowser(QWidget):
 
         TabWidget.label.setText(f"找到{len(self.q)}处")
 
-    def date_valid_checker(self):
+    @staticmethod
+    def date_valid_checker():
         start_date = TabWidget.StartDateEdit.date()
         end_date = TabWidget.EndDateEdit.date()
-        # print(end_date - start_date)
         if end_date < start_date:
-            TabWidget.textBrowser.append("结束日期不得小于开始日期")
             TabWidget.EndDateEdit.setDate(start_date)
-    # TODO 完成压缩下载
-    def download_log(self):
-        start_date = TabWidget.StartDateEdit.date().toString("yyyy-MM-dd")
-        end_date = TabWidget.EndDateEdit.date().toString("yyyy-MM-dd")
 
-        path = QFileDialog.getExistingDirectory(self, "打开文件夹", "/home", QFileDialog.ShowDirsOnly)
+    def download_log(self):
+        start_date = TabWidget.StartDateEdit.date()
+        end_date = TabWidget.EndDateEdit.date()
+        diff = start_date.daysTo(end_date) + 1
+        date_list = [end_date.addDays(-i).toString("yyyy-MM-dd") for i in range(diff)]
+        path = QFileDialog.getExistingDirectory(self, "保存到文件夹", "/media", QFileDialog.ShowDirsOnly)
+        time = datetime.now()
         if path:
-            with ZipFile('log.zip', 'a') as myzip:
-                for data in range(start_date, end_date):
-                    myzip.write(f'mid{start_date}.log')
-            shutil.move('log.zip', path)
+            with ZipFile(f"{path}/log-save-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}.zip", 'a') as myzip:
+                for data in date_list:
+                    myzip.write(f"/nubomed/consumable-cabinet-service/logs/mid-{data}-1.log.gz")
+            TabWidget.textBrowser.append("压缩完成并拷贝到指定目录！")
 
 
 class Terminal(QWidget):
@@ -540,6 +545,7 @@ class ConfigEditor(QWidget):
         super().__init__()
         self.yaml = YAML()
         self.yaml.preserve_quotes = True
+        self.yaml.default_flow_style = None
         self.yaml.indent(mapping=2, sequence=4, offset=2)
         self.is_cabinet = False
         self.browser_cfg_path = "/nubomed/nbrowser/static/localize.json"
@@ -553,7 +559,6 @@ class ConfigEditor(QWidget):
             self.sync_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-sync.yml"
             self.nvr_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-nvr.yml"
             self.extern_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-extern.yml"
-            self.xspan_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-thirdparty.yml"
         else:
             # 药品 4.0
             TabWidget.tabWidget.setTabVisible(0, False)
@@ -572,6 +577,7 @@ class ConfigEditor(QWidget):
         TabWidget.saveButton.clicked.connect(self.save_cfg)
         TabWidget.addlineButton.clicked.connect(self.insert)
         TabWidget.dellineButton.clicked.connect(self.remove)
+        TabWidget.saveButton.setEnabled(False)
 
     @staticmethod
     def insert():
@@ -603,9 +609,13 @@ class ConfigEditor(QWidget):
             self.nvr_cfg_dict = self.yaml.load(f)
             nvr_ip = self.nvr_cfg_dict.get("nvr").get("nvrIp")
             product_no = self.nvr_cfg_dict.get("nvr").get("reader")[0].get("productNo")
+            terminale_id = self.nvr_cfg_dict.get("nvr").get("terminale-id")
+            server_ip = self.nvr_cfg_dict.get("nvr").get("mcc").get("server-ip")
         if self.is_cabinet:
             TabWidget.lineEdit_cfg5.setText(nvr_ip)
             TabWidget.lineEdit_cfg6.setText(product_no)
+            TabWidget.lineEdit_cfg7_3.setText(terminale_id)
+            TabWidget.lineEdit_cfg8.setText(server_ip)
         else:
             TabWidget.lineEdit_cfg5_2.setText(nvr_ip)
             TabWidget.lineEdit_cfg6_2.setText(product_no)
@@ -621,11 +631,19 @@ class ConfigEditor(QWidget):
         if self.is_cabinet:
             with open(self.extern_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.extern_cfg_dict = self.yaml.load(f)
-                readers = self.extern_cfg_dict.get("rodin").get("server").get("readers")
-                TabWidget.tableWidget_ext.setRowCount(len(readers))
-                for idx, reader in enumerate(readers):
-                    TabWidget.tableWidget_ext.setItem(idx, 0, QTableWidgetItem(reader.get("cabinet-id")))
-                    TabWidget.tableWidget_ext.setItem(idx, 1, QTableWidgetItem(reader.get("host")))
+                if self.extern_cfg_dict.get("rodin") is not None:
+                    antenna_nos = self.extern_cfg_dict.get("rodin").get("server").get("antennaNos")
+                    readers = self.extern_cfg_dict.get("rodin").get("server").get("readers")
+                    TabWidget.tableWidget_ext.setRowCount(len(readers))
+                    for idx, reader in enumerate(readers):
+                        TabWidget.tableWidget_ext.setItem(idx, 0, QTableWidgetItem(reader.get("cabinet-id")))
+                        TabWidget.tableWidget_ext.setItem(idx, 1, QTableWidgetItem(reader.get("host")))
+                        if reader.get("antennaNos", antenna_nos) is not None:
+                            TabWidget.tableWidget_ext.setItem(idx, 2, QTableWidgetItem(str(reader.get("antennaNos", antenna_nos))))
+                else:
+                    TabWidget.tableWidget_ext.setEnabled(False)
+
+        TabWidget.saveButton.setEnabled(True)
 
     def save_cfg(self):
         with open(self.browser_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -646,6 +664,8 @@ class ConfigEditor(QWidget):
             if self.is_cabinet:
                 self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5.text()
                 self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6.text()
+                self.nvr_cfg_dict["nvr"]["terminale-id"] = TabWidget.lineEdit_cfg7_3.text()
+                self.nvr_cfg_dict["nvr"]["mcc"]["server-ip"] = TabWidget.lineEdit_cfg8.text()
             else:
                 self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5_2.text()
                 self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6_2.text()
@@ -666,7 +686,11 @@ class ConfigEditor(QWidget):
                 for i in range(TabWidget.tableWidget_ext.rowCount()):
                     cabinet_id = TabWidget.tableWidget_ext.item(i, 0).text()
                     host = TabWidget.tableWidget_ext.item(i, 1).text()
-                    readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
+                    if TabWidget.tableWidget_ext.item(i, 2) is not None:
+                        antenna_nos = eval(TabWidget.tableWidget_ext.item(i, 2).text())
+                        readers.append({"antennaNos": antenna_nos, "cabinet-id": cabinet_id, "host": host, "port": 4001})
+                    else:
+                        readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
                 self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
                 self.yaml.dump(self.extern_cfg_dict, f)
         TabWidget.label_status.setText("保存成功！")
@@ -732,12 +756,10 @@ class FingerPrint(QWidget):
         super().__init__()
         # self.timer = QTimer()
         if system == "Windows":
-            self.libc = cdll.LoadLibrary('./libapit.dll')
+            self.libc = cdll.LoadLibrary(f'{path}/libapit.dll')
         elif system == "Linux":
             # 本地测试
-            # self.libc = cdll.LoadLibrary('./libapit.so')
-            # 生产环境
-            self.libc = cdll.LoadLibrary("/nubomed/midtool/libapit.so")
+            self.libc = cdll.LoadLibrary(f'{path}/libapit.so')
         self.handle = c_int64(0)
 
         TabWidget.pushButton_closeDevice.setEnabled(False)
@@ -919,21 +941,37 @@ class Arcsoft(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = QThread()
-        # self.ws = QWebSocket("ws://192.168.1.179:8080/websocket")
+        self.yaml = YAML()
 
         TabWidget.pushButton_generator.clicked.connect(self.generator)
         TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
         TabWidget.pushButton_activateOline.clicked.connect(self.activate)
 
+        if system == "Linux":
+            with open("/nubomed/consumable-cabinet-service/conf/application-camera.yml", mode='r', encoding="UTF-8") as f:
+                self.camera_cfg_dict = self.yaml.load(f)
+                app_id = self.camera_cfg_dict.get("arcsoft").get("AppId")
+                sdk_key = self.camera_cfg_dict.get("arcsoft").get("SdkKey")
+                active_key = self.camera_cfg_dict.get("arcsoft").get("ActiveKey")
+                TabWidget.lineEdit_appId.setText(app_id)
+                TabWidget.lineEdit_sdkKey.setText(sdk_key)
+                TabWidget.lineEdit_activateKey.setText(active_key)
+
     @staticmethod
     def check_active():
-        hospital = TabWidget.lineEdit_4.text()
-
-        if QFile.exists(f'/nubomed/{hospital}/conf/arcsoftActiveFile.dat') \
-                or QFile.exists(f'/nubomed/{hospital}/conf/arcsoftActiveFile2.dat'):
-            TabWidget.textBrowser_arcsoft.setText("✔ 已激活")
-        else:
-            TabWidget.textBrowser_arcsoft.setText("× 未激活")
+        TabWidget.textBrowser_arcsoft.clear()
+        req = request.Request("http://192.168.1.96:8080/system/getActiveInfo")
+        with request.urlopen(req) as response:
+            res = response.read()
+        res = json.loads(res.decode('utf8'))
+        if res.get('activeState') is not None:
+            TabWidget.textBrowser_arcsoft.append(f"激活状态：{res.get('activeState')}")
+        if res.get('appId') is not None:
+            TabWidget.textBrowser_arcsoft.append(f"App ID：{res.get('appId')}")
+        if res.get('sdkKey') is not None:
+            TabWidget.textBrowser_arcsoft.append(f"SDK Key：{res.get('sdkKey')}")
+        if res.get('activeKey') is not None:
+            TabWidget.textBrowser_arcsoft.append(f"激活密钥：{res.get('activeKey')}")
 
     def generator(self):
         TabWidget.textBrowser_arcsoft.clear()
@@ -945,15 +983,16 @@ class Arcsoft(QWidget):
         self.thread.start()
 
     def activate(self):
-        key, _ = QInputDialog.getText(self, "虹软激活", "请输入密钥(无需输入-，共16位，大小写不影响):", QLineEdit.Normal, "")
-        if key:
-            key = key.upper()
-            key = '-'.join([key[0:4], key[4:8], key[8:12], key[12:16]])
-            print(key)
-            msg = {"requestId": "OnlineActiveFaceEngin", "cmd": "OnlineActiveFaceEngin", "seq": 1, "ackSeq": 0,
-                   "params": {"activeKey": key}}
-            ret = self.ws.sendTextMessage(f'{msg}')
-            print(ret)
+        TabWidget.textBrowser_arcsoft.clear()
+        app_id = TabWidget.lineEdit_appId.text()
+        sdk_key = TabWidget.lineEdit_sdkKey.text()
+        active_key = TabWidget.lineEdit_activateKey.text()
+
+        data = parse.urlencode({"AppId": app_id, "SdkKey": sdk_key, "activeKey": active_key})
+        req = request.urlopen("http://192.168.1.96:8080/system/activeFaceEngin?" + data)
+        res = req.read()
+        res = res.decode('utf8')
+        TabWidget.textBrowser_arcsoft.append(f"{res}")
 
     # def upload(self):
     #     request = QNetworkRequest()
@@ -1119,24 +1158,44 @@ class DeviceAliveCheck(QWidget):
         device_type = TabWidget.comboBox_wsDevice.currentText()
         time = datetime.now()
 
-        if device_type == "柜锁":
+        if device_type == "查询柜锁状态":
             request_json = {
                 "requestId": f"GetCabinetLockStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
                 "cmd": "GetCabinetLockStatus",
                 "seq": 1,
                 "ackSeq": 0,
                 "params": {
-                    "device": "H3000R-1"
+                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
                 }
             }
-        elif device_type == "柜门":
+        elif device_type == "查询柜门状态":
             request_json = {
                 "requestId": f"GetCabinetDoorStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
                 "cmd": "GetCabinetDoorStatus",
                 "seq": 1,
                 "ackSeq": 0,
                 "params": {
-                    "device": "H3000R-1"
+                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
+                }
+            }
+        elif device_type == "开始消毒":
+            request_json = {
+                "requestId": f"StartSterilize-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
+                "cmd": "StartSterilize",
+                "seq": 1,
+                "ackSeq": 0,
+                "params": {
+                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
+                }
+            }
+        elif device_type == "停止消毒":
+            request_json = {
+                "requestId": f"StopSterilize-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
+                "cmd": "StopSterilize",
+                "seq": 1,
+                "ackSeq": 0,
+                "params": {
+                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
                 }
             }
         request = json.dumps(request_json)
@@ -1145,17 +1204,29 @@ class DeviceAliveCheck(QWidget):
 
     def connected(self):
         TabWidget.textBrowser_ws.append('WebSocket 连接已建立')
+        time = datetime.now()
+        request_json = {
+            "requestId": f"GetAllCabinetInfo-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
+            "cmd": "GetAllCabinetInfo",
+            "seq": 1,
+            "ackSeq": 0
+        }
+        request = json.dumps(request_json)
+        ret = self.ws.sendTextMessage(request)
 
     def disconnected(self):
         TabWidget.textBrowser_ws.append('WebSocket 连接已断开')
+        TabWidget.comboBox_deviceList.clear()
 
     def recv(self, message):
         status_dict = {0: '关闭', 1: '打开'}
         msg = json.loads(message)
         TabWidget.textBrowser_ws.append(f'接收响应：{str(msg)}')
-
         cmd_type = msg.get("cmd")
-        if cmd_type == 'GetCabinetLockStatusResult':
+        if cmd_type == 'GetAllCabinetInfoResult':
+            device_list = msg.get('params').get('devices')
+            TabWidget.comboBox_deviceList.addItems(device_list)
+        elif cmd_type == 'GetCabinetLockStatusResult':
             lock_status = msg.get('params').get('lockStatus')
             lock_status = status_dict.get(lock_status)
             TabWidget.textBrowser_ws.append(f'锁状态：{lock_status}')
@@ -1192,12 +1263,8 @@ if __name__ == "__main__":
         localServer.listen(serverName)
 
         loader = QUiLoader()
-        # 本地测试/Win版生产环境
-        # TabWidget = loader.load("./midtool.ui")
-        # 生产环境
-        TabWidget = loader.load("/nubomed/midtool/midtool.ui")
-
-        TabWidget.setWindowIcon(QIcon('./icon.png'))
+        TabWidget = loader.load(f'{path}/midtool.ui')
+        TabWidget.setWindowIcon(QIcon(f'{path}/icon.png'))
         # 使窗口显示在屏幕中心
         center = QGuiApplication.primaryScreen().availableGeometry().center()  # 获取屏幕的中心点
         geometry = TabWidget.geometry()
@@ -1210,14 +1277,17 @@ if __name__ == "__main__":
         # 多系统兼容
         if system == "Windows":
             # system_tray_icon = QSystemTrayIcon()
-            # system_tray_icon.setIcon(QIcon('./icon.png'))
+            # system_tray_icon.setIcon(QIcon(f'{path}/icon.png'))
             # system_tray_icon.show()
-            # 关闭部分不支持的功能的按钮
+            # 关闭部分不支持的功能的标签/按钮
+            TabWidget.setTabVisible(3, False)  # 配置文件修改 Tab
+            TabWidget.setTabVisible(7, False)  # 人脸识别 Tab
             TabWidget.listButton.setEnabled(False)
             TabWidget.restartButton.setEnabled(False)
             TabWidget.restartdesktopButton.setEnabled(False)
             TabWidget.wsButton.setEnabled(False)
             TabWidget.shButton.setEnabled(False)
+            TabWidget.downlogButton.setEnabled(False)
         elif system == "Linux":
             # 高分屏缩放
             # os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
@@ -1226,8 +1296,6 @@ if __name__ == "__main__":
             # os.environ["QT_QPA_PLATFORM"] = "wayland"
             # Ubuntu 20.04
             os.environ["QT_QPA_PLATFORM"] = "xcb"
-            # 虚拟键盘
-            os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
         # 外部传参支持
         parser = QCommandLineParser()
         tab = QCommandLineOption(["t", "tab"], "Choice which tab to be shown at start up", "tab")
@@ -1248,7 +1316,8 @@ if __name__ == "__main__":
         checker = DeviceAliveCheck()
         # 置顶
         # TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
-        # TabWidget.activateWindow()
+        TabWidget.activateWindow()
+        TabWidget.raise_()
         TabWidget.show()
 
         sys.exit(app.exec_())

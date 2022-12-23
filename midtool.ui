@@ -530,7 +530,7 @@ QTabBar::tab{width:100}</string>
      <rect>
       <x>10</x>
       <y>600</y>
-      <width>531</width>
+      <width>581</width>
       <height>52</height>
      </rect>
     </property>
@@ -538,6 +538,12 @@ QTabBar::tab{width:100}</string>
      <item>
       <widget class="QLabel" name="label_9">
        <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
         <size>
          <width>100</width>
          <height>50</height>
@@ -558,6 +564,9 @@ QTabBar::tab{width:100}</string>
          <width>100</width>
          <height>50</height>
         </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true"/>
        </property>
        <property name="dateTime">
         <datetime>
@@ -584,6 +593,12 @@ QTabBar::tab{width:100}</string>
      <item>
       <widget class="QLabel" name="label_10">
        <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
         <size>
          <width>100</width>
          <height>50</height>
@@ -624,18 +639,18 @@ QTabBar::tab{width:100}</string>
       <widget class="QPushButton" name="downlogButton">
        <property name="minimumSize">
         <size>
-         <width>100</width>
+         <width>150</width>
          <height>50</height>
         </size>
        </property>
        <property name="text">
-        <string>下载日志到...</string>
+        <string>保存历史日志到...</string>
        </property>
       </widget>
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -1094,9 +1109,9 @@ QTabBar::tab{width:100}</string>
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>10</y>
-      <width>1141</width>
-      <height>641</height>
+      <y>80</y>
+      <width>1251</width>
+      <height>571</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -1140,12 +1155,12 @@ QTabBar::tab{width:50}</string>
      <attribute name="title">
       <string>浏览器</string>
      </attribute>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>631</width>
+        <width>761</width>
         <height>228</height>
        </rect>
       </property>
@@ -1156,7 +1171,7 @@ QTabBar::tab{width:50}</string>
           <widget class="QLabel" name="label_11">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -1189,7 +1204,7 @@ QTabBar::tab{width:50}</string>
           <widget class="QLabel" name="label_14">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -1222,7 +1237,7 @@ QTabBar::tab{width:50}</string>
           <widget class="QLabel" name="label_12">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -1255,7 +1270,7 @@ QTabBar::tab{width:50}</string>
           <widget class="QLabel" name="label_15">
            <property name="minimumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -1289,13 +1304,13 @@ QTabBar::tab{width:50}</string>
      <attribute name="title">
       <string>NVR</string>
      </attribute>
-     <widget class="QWidget" name="layoutWidget_3">
+     <widget class="QWidget" name="">
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>30</y>
-        <width>421</width>
-        <height>112</height>
+        <y>32</y>
+        <width>561</width>
+        <height>228</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -1365,6 +1380,72 @@ QTabBar::tab{width:50}</string>
          </item>
         </layout>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_45">
+         <item>
+          <widget class="QLabel" name="label_28">
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>500</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>终端ID(terminale-id)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_cfg7_3">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_46">
+         <item>
+          <widget class="QLabel" name="label_30">
+           <property name="minimumSize">
+            <size>
+             <width>200</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>500</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>mcc 服务器 IP(server_ip)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_cfg8">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
     </widget>
@@ -1372,7 +1453,7 @@ QTabBar::tab{width:50}</string>
      <attribute name="title">
       <string>同步</string>
      </attribute>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
         <x>30</x>
@@ -1419,12 +1500,15 @@ QTabBar::tab{width:50}</string>
       <string>读写器</string>
      </attribute>
      <widget class="QTableWidget" name="tableWidget_ext">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>221</width>
-        <height>581</height>
+        <width>451</width>
+        <height>531</height>
        </rect>
       </property>
       <property name="selectionBehavior">
@@ -1446,12 +1530,17 @@ QTabBar::tab{width:50}</string>
         <string>读写器IP</string>
        </property>
       </column>
+      <column>
+       <property name="text">
+        <string>天线列表</string>
+       </property>
+      </column>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>260</x>
-        <y>40</y>
+        <x>500</x>
+        <y>50</y>
         <width>102</width>
         <height>108</height>
        </rect>
@@ -1765,16 +1854,16 @@ QTabBar::tab{width:50}</string>
      </widget>
     </widget>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>1160</x>
-      <y>230</y>
-      <width>102</width>
-      <height>161</height>
+      <x>90</x>
+      <y>10</y>
+      <width>314</width>
+      <height>52</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_15">
+    <layout class="QHBoxLayout" name="horizontalLayout_43">
      <item>
       <widget class="QPushButton" name="readButton">
        <property name="minimumSize">
@@ -1830,6 +1919,19 @@ QTabBar::tab{width:50}</string>
       </widget>
      </item>
     </layout>
+   </widget>
+   <widget class="QLabel" name="label_29">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>10</y>
+      <width>281</width>
+      <height>51</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>*请首先点击读取当前配置按钮，加载当前配置情况</string>
+    </property>
    </widget>
   </widget>
   <widget class="QWidget" name="tab_5">
@@ -2592,10 +2694,10 @@ p, li { white-space: pre-wrap; }
    <widget class="QTextBrowser" name="textBrowser_arcsoft">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>70</y>
-      <width>1251</width>
-      <height>581</height>
+      <x>640</x>
+      <y>10</y>
+      <width>621</width>
+      <height>641</height>
      </rect>
     </property>
     <property name="font">
@@ -2604,17 +2706,42 @@ p, li { white-space: pre-wrap; }
      </font>
     </property>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QToolBox" name="toolBox">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>436</width>
-      <height>54</height>
+      <width>621</width>
+      <height>641</height>
      </rect>
     </property>
-    <layout class="QHBoxLayout" name="horizontalLayout_27">
-     <item>
+    <property name="styleSheet">
+     <string notr="true">QToolBoxButton {min-height: 50px;}</string>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="page">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>621</width>
+       <height>529</height>
+      </rect>
+     </property>
+     <attribute name="label">
+      <string>生成网卡激活信息/激活状态检查</string>
+     </attribute>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>90</y>
+        <width>231</width>
+        <height>52</height>
+       </rect>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout_17">
        <item>
         <widget class="QPushButton" name="pushButton_generator">
@@ -2627,7 +2754,7 @@ p, li { white-space: pre-wrap; }
          <property name="maximumSize">
           <size>
            <width>120</width>
-           <height>16777215</height>
+           <height>50</height>
           </size>
          </property>
          <property name="font">
@@ -2643,7 +2770,7 @@ p, li { white-space: pre-wrap; }
        <item>
         <widget class="QPushButton" name="pushButton_checkLicense">
          <property name="enabled">
-          <bool>false</bool>
+          <bool>true</bool>
          </property>
          <property name="minimumSize">
           <size>
@@ -2654,7 +2781,7 @@ p, li { white-space: pre-wrap; }
          <property name="maximumSize">
           <size>
            <width>100</width>
-           <height>16777215</height>
+           <height>50</height>
           </size>
          </property>
          <property name="font">
@@ -2663,7 +2790,7 @@ p, li { white-space: pre-wrap; }
           </font>
          </property>
          <property name="toolTip">
-          <string>请先到”设置“选项卡配置项目名称，再执行检查</string>
+          <string/>
          </property>
          <property name="text">
           <string>检测激活状态</string>
@@ -2671,66 +2798,150 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
       </layout>
-     </item>
-     <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_18">
+     </widget>
+    </widget>
+    <widget class="QWidget" name="page_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <attribute name="label">
+      <string>在线激活</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_activateOline">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>210</y>
+        <width>100</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>100</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>100</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>在线激活</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>521</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_15">
        <item>
-        <widget class="QPushButton" name="pushButton_activateOline">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>在线激活</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_18">
+         <item>
+          <widget class="QLabel" name="label_25">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>App_ID(选填)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_appId">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_checkActivation">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>120</width>
-           <height>16777215</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="text">
-          <string>激活验证</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_27">
+         <item>
+          <widget class="QLabel" name="label_26">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>SDK_Key(选填)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_sdkKey">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_44">
+         <item>
+          <widget class="QLabel" name="label_27">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>激活密钥(必填)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="lineEdit_activateKey">
+           <property name="minimumSize">
+            <size>
+             <width>100</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="placeholderText">
+            <string/>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
-     </item>
-    </layout>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QWidget" name="tab_9">
@@ -2811,6 +3022,19 @@ p, li { white-space: pre-wrap; }
       </widget>
      </item>
      <item>
+      <widget class="QComboBox" name="comboBox_deviceList">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="placeholderText">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QComboBox" name="comboBox_wsDevice">
        <property name="minimumSize">
         <size>
@@ -2825,12 +3049,22 @@ p, li { white-space: pre-wrap; }
        </property>
        <item>
         <property name="text">
-         <string>柜门</string>
+         <string>查询柜门状态</string>
         </property>
        </item>
        <item>
         <property name="text">
-         <string>柜锁</string>
+         <string>查询柜锁状态</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>开始消毒</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>停止消毒</string>
         </property>
        </item>
       </widget>
@@ -2855,7 +3089,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>查询硬件状态</string>
+        <string>发送指令</string>
        </property>
       </widget>
      </item>
@@ -3153,7 +3387,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 0.90</string>
+        <string>MidTool 中台工具箱 0.92</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
