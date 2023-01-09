@@ -450,14 +450,14 @@ class Terminal(QWidget):
         if path:
             TabWidget.textBrowser_2.clear()
             TabWidget.textBrowser_2.setPlainText(f"执行脚本：{path}")
-            self.thread = Commander(f"/bin/sh {path}")
+            self.thread = Commander(f"bash {path}")
             self.thread.stdout.connect(TabWidget.textBrowser_2.append)
             self.thread.start()
 
     def promote(self, command):
         if command.__contains__("sudo"):
             command = command.replace("sudo", "sudo -S")
-            password, _ = QInputDialog.getText(self, "提升权限", "请输入Root密码:", QLineEdit.Normal, "")
+            password, _ = QInputDialog.getText(self, "提升权限", "请输入当前用户密码:", QLineEdit.Normal, "")
         else:
             password = None
         return command, password
@@ -508,7 +508,7 @@ class Terminal(QWidget):
 
     def start_mid(self):
         if system == "Windows":
-            self.common_command("net start ConsumableService")
+            self.common_command("powershell (net start ConsumableService) -or (net start DrugService)")
         elif system == "Linux":
             path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
             if path:
@@ -519,7 +519,7 @@ class Terminal(QWidget):
 
     def stop_mid(self):
         if system == "Windows":
-            self.common_command("net stop ConsumableService")
+            self.common_command("powershell (net stop ConsumableService) -or (net stop DrugService)")
         elif system == "Linux":
             self.common_command("pm2 stop 0 -m")
 
@@ -577,7 +577,9 @@ class ConfigEditor(QWidget):
         TabWidget.saveButton.clicked.connect(self.save_cfg)
         TabWidget.addlineButton.clicked.connect(self.insert)
         TabWidget.dellineButton.clicked.connect(self.remove)
+        TabWidget.checkBox.stateChanged.connect(self.switch)
         TabWidget.saveButton.setEnabled(False)
+        TabWidget.tableWidget_ext.setEnabled(False)
 
     @staticmethod
     def insert():
@@ -586,6 +588,13 @@ class ConfigEditor(QWidget):
     @staticmethod
     def remove():
         TabWidget.tableWidget_ext.removeRow(TabWidget.tableWidget_ext.currentIndex().row())
+
+    @staticmethod
+    def switch(state):
+        if state == 2:
+            TabWidget.tableWidget_ext.setEnabled(True)
+        elif state == 0:
+            TabWidget.tableWidget_ext.setEnabled(False)
 
     def read_cfg(self):
         with open(self.browser_cfg_path, mode='r', encoding="UTF-8") as f:
@@ -632,14 +641,15 @@ class ConfigEditor(QWidget):
             with open(self.extern_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.extern_cfg_dict = self.yaml.load(f)
                 if self.extern_cfg_dict.get("rodin") is not None:
-                    antenna_nos = self.extern_cfg_dict.get("rodin").get("server").get("antennaNos")
+                    enabled = self.extern_cfg_dict.get("rodin").get("server").get("enabled")
+                    TabWidget.checkBox.setChecked(enabled)
                     readers = self.extern_cfg_dict.get("rodin").get("server").get("readers")
                     TabWidget.tableWidget_ext.setRowCount(len(readers))
                     for idx, reader in enumerate(readers):
                         TabWidget.tableWidget_ext.setItem(idx, 0, QTableWidgetItem(reader.get("cabinet-id")))
                         TabWidget.tableWidget_ext.setItem(idx, 1, QTableWidgetItem(reader.get("host")))
-                        if reader.get("antennaNos", antenna_nos) is not None:
-                            TabWidget.tableWidget_ext.setItem(idx, 2, QTableWidgetItem(str(reader.get("antennaNos", antenna_nos))))
+                        if reader.get("antennaNos") is not None:
+                            TabWidget.tableWidget_ext.setItem(idx, 2, QTableWidgetItem(str(reader.get("antennaNos"))))
                 else:
                     TabWidget.tableWidget_ext.setEnabled(False)
 
@@ -682,16 +692,19 @@ class ConfigEditor(QWidget):
 
         if self.is_cabinet:
             with open(self.extern_cfg_path, mode='w', encoding="UTF-8") as f:
-                readers = []
-                for i in range(TabWidget.tableWidget_ext.rowCount()):
-                    cabinet_id = TabWidget.tableWidget_ext.item(i, 0).text()
-                    host = TabWidget.tableWidget_ext.item(i, 1).text()
-                    if TabWidget.tableWidget_ext.item(i, 2) is not None:
-                        antenna_nos = eval(TabWidget.tableWidget_ext.item(i, 2).text())
-                        readers.append({"antennaNos": antenna_nos, "cabinet-id": cabinet_id, "host": host, "port": 4001})
-                    else:
-                        readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
-                self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
+                if self.extern_cfg_dict.get("rodin") is not None:
+                    self.extern_cfg_dict["rodin"]["server"]["enabled"] = TabWidget.checkBox.isChecked()
+                    readers = []
+                    for i in range(TabWidget.tableWidget_ext.rowCount()):
+                        cabinet_id = TabWidget.tableWidget_ext.item(i, 0).text()
+                        host = TabWidget.tableWidget_ext.item(i, 1).text()
+                        if TabWidget.tableWidget_ext.item(i, 2) is not None:
+                            antenna_nos = eval(TabWidget.tableWidget_ext.item(i, 2).text())
+                            readers.append({"antennaNos": antenna_nos, "cabinet-id": cabinet_id, "host": host,
+                                            "port": 4001})
+                        else:
+                            readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
+                    self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
                 self.yaml.dump(self.extern_cfg_dict, f)
         TabWidget.label_status.setText("保存成功！")
 
@@ -948,14 +961,17 @@ class Arcsoft(QWidget):
         TabWidget.pushButton_activateOline.clicked.connect(self.activate)
 
         if system == "Linux":
-            with open("/nubomed/consumable-cabinet-service/conf/application-camera.yml", mode='r', encoding="UTF-8") as f:
-                self.camera_cfg_dict = self.yaml.load(f)
-                app_id = self.camera_cfg_dict.get("arcsoft").get("AppId")
-                sdk_key = self.camera_cfg_dict.get("arcsoft").get("SdkKey")
-                active_key = self.camera_cfg_dict.get("arcsoft").get("ActiveKey")
-                TabWidget.lineEdit_appId.setText(app_id)
-                TabWidget.lineEdit_sdkKey.setText(sdk_key)
-                TabWidget.lineEdit_activateKey.setText(active_key)
+            try:
+                with open("/nubomed/consumable-cabinet-service/conf/application-camera.yml", mode='r', encoding="UTF-8") as f:
+                    self.camera_cfg_dict = self.yaml.load(f)
+                    app_id = self.camera_cfg_dict.get("arcsoft").get("AppId")
+                    sdk_key = self.camera_cfg_dict.get("arcsoft").get("SdkKey")
+                    active_key = self.camera_cfg_dict.get("arcsoft").get("ActiveKey")
+                    TabWidget.lineEdit_appId.setText(app_id)
+                    TabWidget.lineEdit_sdkKey.setText(sdk_key)
+                    TabWidget.lineEdit_activateKey.setText(active_key)
+            except FileNotFoundError:
+                TabWidget.textBrowser_arcsoft.append(f"未找到摄像头配置文件 application-camera.yml")
 
     @staticmethod
     def check_active():
@@ -978,7 +994,7 @@ class Arcsoft(QWidget):
         TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
         password, _ = QInputDialog.getText(self, "提升权限", "请输入当前账户密码:", QLineEdit.Normal, "")
 
-        self.thread = Commander(f"/bin/sh /nubomed/arcsoft/arcsoftsetup.sh {password}")
+        self.thread = Commander(f"bash /nubomed/arcsoft/arcsoftsetup.sh {password}")
         self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
         self.thread.start()
 
@@ -1247,6 +1263,58 @@ class DeviceAliveCheck(QWidget):
             TabWidget.textBrowser_ws.append(f'紫外灯状态：{uv_lamp_status}')
 
 
+class MidUpgrade(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.thread = QThread()
+        self.pkg_name = ''
+        self.password = ''
+
+        TabWidget.chosePkgButton.clicked.connect(self.upload)
+        TabWidget.mkdirButton.clicked.connect(self.mkdir)
+        TabWidget.extractButton.clicked.connect(self.extrct)
+        TabWidget.installButton.clicked.connect(self.install)
+        TabWidget.upgradeButton.clicked.connect(self.upgrade)
+
+    def upload(self):
+        path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (consumable-cabinet-service_V*.tar.gz)")
+        if path:
+            TabWidget.textBrowser_5.clear()
+            self.pkg_name = os.path.basename(path)[:-7]
+            self.password, _ = QInputDialog.getText(self, "提升权限", "请输入当前用户密码:", QLineEdit.Normal, "")
+            TabWidget.textBrowser_5.append(self.password)
+            self.thread = Commander(f"sudo -S rsync --progress {path} /nubomed/", self.password)
+            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+            self.thread.start()
+            TabWidget.progressBar.setValue(20)
+
+    def mkdir(self):
+        if self.pkg_name:
+            self.thread = Commander(f"sudo -S mkdir -p /nubomed/{self.pkg_name}", self.password)
+            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+            self.thread.start()
+            TabWidget.progressBar.setValue(40)
+
+    def extrct(self):
+        if self.pkg_name:
+            self.thread = Commander(f"sudo -S tar -zxvf /nubomed/{self.pkg_name}.tar.gz -C /nubomed/{self.pkg_name}", self.password)
+            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+            self.thread.start()
+            TabWidget.progressBar.setValue(60)
+
+    def install(self):
+        self.thread = Commander(f"bash /nubomed/{self.pkg_name}/install.sh")
+        self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+        self.thread.start()
+        TabWidget.progressBar.setValue(80)
+
+    def upgrade(self):
+        self.thread = Commander(f"bash /nubomed/{self.pkg_name}/upgrade.sh")
+        self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+        self.thread.start()
+        TabWidget.progressBar.setValue(100)
+
+
 if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_ShareOpenGLContexts)
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
@@ -1273,7 +1341,7 @@ if __name__ == "__main__":
 
         # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能
         TabWidget.setTabVisible(2, False)  # 文件管理器 Tab
-        TabWidget.setTabVisible(9, False)  # 设置 Tab
+        TabWidget.setTabVisible(10, False)  # 设置 Tab
         # 多系统兼容
         if system == "Windows":
             # system_tray_icon = QSystemTrayIcon()
@@ -1282,11 +1350,17 @@ if __name__ == "__main__":
             # 关闭部分不支持的功能的标签/按钮
             TabWidget.setTabVisible(3, False)  # 配置文件修改 Tab
             TabWidget.setTabVisible(7, False)  # 人脸识别 Tab
+            TabWidget.setTabVisible(9, False)  # 部署升级 Tab
+            # TODO 更新win监控功能
+            TabWidget.tableWidget.setEnabled(False)
+            TabWidget.reflashButton.setEnabled(False)
             TabWidget.listButton.setEnabled(False)
             TabWidget.restartButton.setEnabled(False)
             TabWidget.restartdesktopButton.setEnabled(False)
             TabWidget.wsButton.setEnabled(False)
             TabWidget.shButton.setEnabled(False)
+            TabWidget.StartDateEdit.setEnabled(False)
+            TabWidget.EndDateEdit.setEnabled(False)
             TabWidget.downlogButton.setEnabled(False)
         elif system == "Linux":
             # 高分屏缩放
@@ -1314,6 +1388,7 @@ if __name__ == "__main__":
         arc = Arcsoft()
         scan = Scan()
         checker = DeviceAliveCheck()
+        mu = MidUpgrade()
         # 置顶
         # TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
         TabWidget.activateWindow()
