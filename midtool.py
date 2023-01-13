@@ -9,7 +9,6 @@ import struct
 from collections import deque
 from ctypes import *
 from datetime import datetime
-from urllib import request, parse
 from zipfile import ZipFile
 
 from ruamel.yaml import YAML
@@ -17,14 +16,14 @@ from ruamel.yaml import YAML
 import PySide2.QtQuick
 from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-# from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QHttpMultiPart, QHttpPart, QNetworkReply
+from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
 from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QTableWidgetItem  # QSystemTrayIcon
 from PySide2.QtCore import Qt, QThread, Signal, QFile, QIODevice, QRegExp, QProcess, QSize, \
-    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QDate  # QTimer
+    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QUrlQuery, QDate  # QTimer
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor, QIcon, QGuiApplication
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
@@ -119,21 +118,6 @@ class Reader(QThread):
         file.close()
 
 
-class Searcher(QThread):
-    match = Signal(str)
-
-    def __init__(self, keyword, text, match_case, cursor):
-        super().__init__()
-        self.q = deque()
-        self.keyword = keyword
-        self.text = text
-        self.match_case = match_case
-        self.rx = QRegExp(self.keyword, self.match_case)
-
-    def run(self):
-        pass
-
-
 class Serial(QThread):
     pinout = Signal(str)
 
@@ -145,8 +129,7 @@ class Serial(QThread):
     def run(self):
         bytes_data = self.ser.readAll().data()  # bytes
         self.total_data += bytes_data
-        # FIXME 测试用
-        self.pinout.emit("数据流：" + self.total_data.hex() + "字符串：" + str(self.total_data))
+        # self.pinout.emit("数据流：" + self.total_data.hex() + "字符串：" + str(self.total_data))
         if length_domain := re.findall(b'~(.{2})\x02', self.total_data):
             try:
                 length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
@@ -955,6 +938,10 @@ class Arcsoft(QWidget):
         super().__init__()
         self.thread = QThread()
         self.yaml = YAML()
+        self.request = QNetworkRequest()
+        self.manager = QNetworkAccessManager()
+
+        self.manager.finished.connect(self.check_active_slot)
 
         TabWidget.pushButton_generator.clicked.connect(self.generator)
         TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
@@ -973,22 +960,6 @@ class Arcsoft(QWidget):
             except FileNotFoundError:
                 TabWidget.textBrowser_arcsoft.append(f"未找到摄像头配置文件 application-camera.yml")
 
-    @staticmethod
-    def check_active():
-        TabWidget.textBrowser_arcsoft.clear()
-        req = request.Request("http://192.168.1.96:8080/system/getActiveInfo")
-        with request.urlopen(req) as response:
-            res = response.read()
-        res = json.loads(res.decode('utf8'))
-        if res.get('activeState') is not None:
-            TabWidget.textBrowser_arcsoft.append(f"激活状态：{res.get('activeState')}")
-        if res.get('appId') is not None:
-            TabWidget.textBrowser_arcsoft.append(f"App ID：{res.get('appId')}")
-        if res.get('sdkKey') is not None:
-            TabWidget.textBrowser_arcsoft.append(f"SDK Key：{res.get('sdkKey')}")
-        if res.get('activeKey') is not None:
-            TabWidget.textBrowser_arcsoft.append(f"激活密钥：{res.get('activeKey')}")
-
     def generator(self):
         TabWidget.textBrowser_arcsoft.clear()
         TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
@@ -998,95 +969,42 @@ class Arcsoft(QWidget):
         self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
         self.thread.start()
 
+    def check_active(self):
+        TabWidget.textBrowser_arcsoft.clear()
+        self.request.setUrl(QUrl("http://192.168.1.96:8080/system/getActiveInfo"))
+        self.manager.get(self.request)
+
+    @staticmethod
+    def check_active_slot(reply):
+        if reply.error() == QNetworkReply.NoError:
+            res = json.loads(reply.readAll().data())
+            if res.get('activeState') is not None:
+                TabWidget.textBrowser_arcsoft.append(f"激活状态：{res.get('activeState')}")
+            if res.get('appId') is not None:
+                TabWidget.textBrowser_arcsoft.append(f"App ID：{res.get('appId')}")
+            if res.get('sdkKey') is not None:
+                TabWidget.textBrowser_arcsoft.append(f"SDK Key：{res.get('sdkKey')}")
+            if res.get('activeKey') is not None:
+                TabWidget.textBrowser_arcsoft.append(f"激活密钥：{res.get('activeKey')}")
+        else:
+            TabWidget.textBrowser_arcsoft.append(reply.errorString())
+
     def activate(self):
         TabWidget.textBrowser_arcsoft.clear()
         app_id = TabWidget.lineEdit_appId.text()
         sdk_key = TabWidget.lineEdit_sdkKey.text()
         active_key = TabWidget.lineEdit_activateKey.text()
 
-        data = parse.urlencode({"AppId": app_id, "SdkKey": sdk_key, "activeKey": active_key})
-        req = request.urlopen("http://192.168.1.96:8080/system/activeFaceEngin?" + data)
-        res = req.read()
-        res = res.decode('utf8')
-        TabWidget.textBrowser_arcsoft.append(f"{res}")
+        query = QUrlQuery()
+        query.addQueryItem("AppId", app_id)
+        query.addQueryItem("SdkKey", sdk_key)
+        query.addQueryItem("activeKey", active_key)
 
-    # def upload(self):
-    #     request = QNetworkRequest()
-    #     request.setUrl(QUrl("http://localhost:8080/api/login"))
-    #     request.setRawHeader(b"Content-Type", b"application/json")
-    #     request.setRawHeader(b"Content-Length", b"54")
-    #     request.setRawHeader(b"Host", b"localhost:8080")
-    #
-    #     QJsonObject = QJsonDocument.fromJson(QByteArray()).object()  # 创建空的QJsonObject对象
-    #     QJsonObject["username"] = "admin"
-    #     QJsonObject["password"] = "admin"
-    #     QJsonObject["recaptcha"] = ""
-    #     data = QJsonDocument(QJsonObject).toJson(QJsonDocument.Compact)
-    #
-    #     manager = QNetworkAccessManager()
-    #     reply = manager.post(request, data)
-    #     # 同步
-    #     loop = QEventLoop()
-    #     reply.finished.connect(loop.quit)
-    #     loop.exec_()
-    #
-    #     if reply.error() == QNetworkReply.NoError:
-    #         print('Success')
-    #     else:
-    #         print('Error')
-    #
-    #     token = reply.readAll()
-    #     print(token)
-    #     # 异步
-    #     # reply.finished.connect(self.parse)
-    #
-    #     file_name = "midtool.ui"
-    #
-    #     request.setUrl(QUrl(f"http://localhost:8080/api/resources/{file_name}?override=ture"))
-    #
-    #     multi_part = QHttpMultiPart(QHttpMultiPart.FormDataType)
-    #
-    #     text_part = QHttpPart()
-    #     text_part.setRawHeader(b"Host", b"localhost:8080")
-    #     text_part.setRawHeader(b"X-Auth", token)
-    #     # text_part.setRawHeader(b"Content-Disposition", b'form-data; name=""')
-    #     # text_part.setBody(b"")
-    #
-    #     file_part = QHttpPart()
-    #     file_part.setRawHeader(b"Content-Type", b"text/plain")
-    #     file_part.setRawHeader(b"Content-Disposition", b'form-data; name="file"')
-    #     file = QFile(file_name)
-    #     file.open(QIODevice.ReadOnly)
-    #     file_part.setBodyDevice(file)
-    #     file.setParent(multi_part)
-    #
-    #     multi_part.append(text_part)
-    #     multi_part.append(file_part)
-    #
-    #     manager = QNetworkAccessManager()
-    #     reply = manager.post(request, multi_part)
-    #     multi_part.setParent(reply)
-    #
-    #     # 同步
-    #     loop = QEventLoop()
-    #     reply.finished.connect(loop.quit)
-    #     loop.exec_()
-    #
-    #     if reply.error() == QNetworkReply.NoError:
-    #         print('Success')
-    #     else:
-    #         print('Error')
-    #
-    #     response = reply.readAll()
-    #     print(response)
+        url = QUrl("http://192.168.1.96:8080/system/activeFaceEngin?")
+        url.setQuery(query.query())
 
-    # def parse(self):
-    #     responseData = self.reply.readAll()
-    #     print(responseData)
-    #     if self.reply.error() == QNetworkReply.NoError:
-    #         print('Success')
-    #     else:
-    #         print('Error')
+        self.request.setUrl(url)
+        self.manager.get(self.request)
 
 
 class Scan(QWidget):
@@ -1134,7 +1052,7 @@ class Scan(QWidget):
                 TabWidget.textBrowser_4.append("串口打开失败")
 
     def read(self):
-        self.thread.start()
+        self.thread.run()
 
     def close(self):
         if self.ser.isOpen():
@@ -1157,6 +1075,7 @@ class DeviceAliveCheck(QWidget):
         self.ws.disconnected.connect(self.disconnected)
         self.ws.textMessageReceived.connect(self.recv)
 
+        TabWidget.textBrowser_ws.document().setMaximumBlockCount(500)
         TabWidget.pushButton_openWs.clicked.connect(self.open)
         TabWidget.pushButton_closeWs.clicked.connect(self.close)
         TabWidget.pushButton_checkAlive.clicked.connect(self.send)
@@ -1220,6 +1139,7 @@ class DeviceAliveCheck(QWidget):
 
     def connected(self):
         TabWidget.textBrowser_ws.append('WebSocket 连接已建立')
+        TabWidget.pushButton_openWs.setEnabled(False)
         time = datetime.now()
         request_json = {
             "requestId": f"GetAllCabinetInfo-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
@@ -1233,6 +1153,7 @@ class DeviceAliveCheck(QWidget):
     def disconnected(self):
         TabWidget.textBrowser_ws.append('WebSocket 连接已断开')
         TabWidget.comboBox_deviceList.clear()
+        TabWidget.pushButton_openWs.setEnabled(True)
 
     def recv(self, message):
         status_dict = {0: '关闭', 1: '打开'}
@@ -1268,12 +1189,11 @@ class MidUpgrade(QWidget):
         super().__init__()
         self.thread = QThread()
         self.pkg_name = ''
-        self.password = ''
 
         TabWidget.chosePkgButton.clicked.connect(self.upload)
         TabWidget.mkdirButton.clicked.connect(self.mkdir)
         TabWidget.extractButton.clicked.connect(self.extrct)
-        TabWidget.installButton.clicked.connect(self.install)
+        # TabWidget.installButton.clicked.connect(self.install)
         TabWidget.upgradeButton.clicked.connect(self.upgrade)
 
     def upload(self):
@@ -1281,38 +1201,31 @@ class MidUpgrade(QWidget):
         if path:
             TabWidget.textBrowser_5.clear()
             self.pkg_name = os.path.basename(path)[:-7]
-            self.password, _ = QInputDialog.getText(self, "提升权限", "请输入当前用户密码:", QLineEdit.Normal, "")
-            TabWidget.textBrowser_5.append(self.password)
-            self.thread = Commander(f"sudo -S rsync --progress {path} /nubomed/", self.password)
+            self.thread = Commander(f"rsync --progress {path} /nubomed/")
             self.thread.stdout.connect(TabWidget.textBrowser_5.append)
             self.thread.start()
-            TabWidget.progressBar.setValue(20)
 
     def mkdir(self):
         if self.pkg_name:
-            self.thread = Commander(f"sudo -S mkdir -p /nubomed/{self.pkg_name}", self.password)
+            self.thread = Commander(f"mkdir -p /nubomed/{self.pkg_name}")
             self.thread.stdout.connect(TabWidget.textBrowser_5.append)
             self.thread.start()
-            TabWidget.progressBar.setValue(40)
 
     def extrct(self):
         if self.pkg_name:
-            self.thread = Commander(f"sudo -S tar -zxvf /nubomed/{self.pkg_name}.tar.gz -C /nubomed/{self.pkg_name}", self.password)
+            self.thread = Commander(f"tar -zxvf /nubomed/{self.pkg_name}.tar.gz -C /nubomed/{self.pkg_name}")
             self.thread.stdout.connect(TabWidget.textBrowser_5.append)
             self.thread.start()
-            TabWidget.progressBar.setValue(60)
 
     def install(self):
         self.thread = Commander(f"bash /nubomed/{self.pkg_name}/install.sh")
         self.thread.stdout.connect(TabWidget.textBrowser_5.append)
         self.thread.start()
-        TabWidget.progressBar.setValue(80)
 
     def upgrade(self):
-        self.thread = Commander(f"bash /nubomed/{self.pkg_name}/upgrade.sh")
+        self.thread = Commander(f"bash -c cd /nubomed/{self.pkg_name} && ./upgrade.sh")
         self.thread.stdout.connect(TabWidget.textBrowser_5.append)
         self.thread.start()
-        TabWidget.progressBar.setValue(100)
 
 
 if __name__ == "__main__":
