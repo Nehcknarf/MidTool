@@ -54,10 +54,11 @@ class Commander(QThread):
     stdout = Signal(str)
     verbose = Signal(str)
 
-    def __init__(self, command, password=None):
+    def __init__(self, command, password=None, wd="/nubomed"):
         super().__init__()
         self.command = command
         self.password = password
+        self.wd = wd
 
     def run(self):
         process_command = QProcess()
@@ -73,7 +74,7 @@ class Commander(QThread):
             process_echo.waitForFinished()
 
         if system == "Linux":
-            process_command.setWorkingDirectory("/nubomed")
+            process_command.setWorkingDirectory(self.wd)
         process_command.setProgram(self.command.split()[0])
         process_command.setArguments(self.command.split()[1:])
         process_command.start()
@@ -1195,6 +1196,7 @@ class MidUpgrade(QWidget):
         TabWidget.extractButton.clicked.connect(self.extrct)
         # TabWidget.installButton.clicked.connect(self.install)
         TabWidget.upgradeButton.clicked.connect(self.upgrade)
+        TabWidget.cleanButton.clicked.connect(self.clean)
 
     def upload(self):
         path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (consumable-cabinet-service_V*.tar.gz)")
@@ -1223,7 +1225,12 @@ class MidUpgrade(QWidget):
         self.thread.start()
 
     def upgrade(self):
-        self.thread = Commander(f"bash -c cd /nubomed/{self.pkg_name} && ./upgrade.sh")
+        self.thread = Commander(f"bash ./upgrade.sh", wd=f"/nubomed/{self.pkg_name}")
+        self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+        self.thread.start()
+
+    def clean(self):
+        self.thread = Commander(f"rm -rf /nubomed/consumable-cabinet-service_V*")
         self.thread.stdout.connect(TabWidget.textBrowser_5.append)
         self.thread.start()
 
