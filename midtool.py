@@ -23,7 +23,7 @@ from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QFileSystemModel, QTableWidgetItem  # QSystemTrayIcon
 from PySide2.QtCore import Qt, QThread, Signal, QFile, QIODevice, QRegExp, QProcess, QSize, \
-    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QUrlQuery, QDate  # QTimer
+    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QUrlQuery, QDate, QTranslator, QLocale  # QTimer
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor, QIcon, QGuiApplication
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
@@ -38,12 +38,20 @@ logger.setLevel(level=logging.WARN)
 
 path = os.path.abspath(os.path.dirname(__file__))
 
-# 指昂指纹模块返回码字典
+# 指昂方形指纹模块返回码字典
 code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
              6: "指纹太乱", 7: "指纹特征点太少", 8: "指纹不匹配", 9: "没搜索到指纹", 10: "特征合并失败", 11: "地址号超出指纹库范围",
              12: "从指纹库读模板出错", 13: "上传特征失败", 14: "模块不能接收后续数据包", 15: "上传图象失败", 16: "删除模板失败",
              17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象",
              -1: "发送失败", -2: "接收失败"}
+
+# 指昂圆形指纹模块返回码字典
+new_code_dict = {0: "处理成功", 1: "处理失败", 16: "与指定编号中模板的1:1比对失败", 17: "已进行1:N比对，但相同模板不存在",
+                 18: "在指定编号中不存在已注册的模板", 19: "在指定编号中已存在模板", 20: "不存在已注册的模板",
+                 21: "不存在可注册的模板ID", 22: "不存在已损坏的模板", 23: "指定的模板数据无效", 24: "该指纹已注册",
+                 25: "指纹图像质量不好", 26: "模板合成失败", 27: "没有进行通讯密码确认", 28: "外部Flash烧写出错",
+                 29: "指定模板编号无效", 34: "使用了不正确的参数", 35: "超时，没有输入指纹", 37: "指纹合成个数无效",
+                 38: "Buffer ID值不正确", 40: "采集器上没有指纹输入", 65: "指令被取消", -1: "发送失败"}
 
 device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "020a": "人体感应类"}
 # Nbtool传参选择启动标签页（参数：标签页currentIndex）
@@ -197,9 +205,9 @@ class Serial(QThread):
 class GetFingerprint(QThread):
     step = Signal(str)
 
-    def __init__(self, store_id, dll, handle):
+    def __init__(self, storage_id, dll, handle):
         super().__init__()
-        self.store_id = store_id
+        self.storage_id = storage_id
         self.libc = dll
         self.handle = handle
 
@@ -250,8 +258,42 @@ class GetFingerprint(QThread):
         ret = self.libc.ZAZRegModule(self.handle, nAddr)
         self.emit_state(ret, "合并特征")
 
-        ret = self.libc.ZAZStoreChar(self.handle, nAddr, 1, int(self.store_id))
-        self.emit_state(ret, f"保存模板(位置{self.store_id})")
+        ret = self.libc.ZAZStoreChar(self.handle, nAddr, 1, int(self.storage_id))
+        self.emit_state(ret, f"保存模板(位置{self.storage_id})")
+
+
+class GetFingerprint2(QThread):
+    step = Signal(str)
+
+    def __init__(self, dll):
+        super().__init__()
+        self.libc = dll
+
+    def emit_state(self, code, func_str):
+        if code == 0:
+            self.step.emit(f"{func_str}成功")
+        else:
+            self.step.emit(f"{func_str}失败(错误类型/代码：{new_code_dict.get(code)})")
+
+    def run(self):
+        storage_id = c_int(0)
+        for i in range(3):
+            ret = 40  # 传感器上没有手指
+            self.step.emit("请将手指平放在传感器上...")
+            while ret != 0:
+                QApplication.processEvents()
+                ret = self.libc.GetImage()
+                self.step.emit(new_code_dict.get(ret))
+            ret = self.libc.GetChar(i)
+            self.emit_state(ret, f"生成特征{i + 1}")
+            self.step.emit("请抬起手指！")
+            QThread.sleep(1)
+        ret = self.libc.MergeChar(0, 3)
+        self.emit_state(ret, "合并特征")
+        ret = self.libc.GetEmptyID(1, 500, byref(storage_id))
+        self.emit_state(ret, "获取首个可注册模板位置")
+        ret = self.libc.StoreChar(storage_id, 0, 0)
+        self.emit_state(ret, f"保存模板(位置{storage_id.value})")
 
 
 class LogBrowser(QWidget):
@@ -755,7 +797,6 @@ class FingerPrint(QWidget):
         if system == "Windows":
             self.libc = cdll.LoadLibrary(f'{path}/libapit.dll')
         elif system == "Linux":
-            # 本地测试
             self.libc = cdll.LoadLibrary(f'{path}/libapit.so')
         self.handle = c_int64(0)
 
@@ -865,18 +906,18 @@ class FingerPrint(QWidget):
 
     def get_image(self):
         TabWidget.textBrowser_3.clear()
-        store_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-1049之间的数字:", QLineEdit.Normal,
+        storage_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-1049之间的数字:", QLineEdit.Normal,
                                            str(random.randint(0, 1050)))
-        if store_id:
-            self.thread = GetFingerprint(store_id, self.libc, self.handle)
+        if storage_id:
+            self.thread = GetFingerprint(storage_id, self.libc, self.handle)
             self.thread.step.connect(TabWidget.textBrowser_3.append)
             self.thread.start()
 
     def del_flash(self):
-        store_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-1049的数字):", QLineEdit.Normal, "")
-        if store_id:
-            ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(store_id), 1)
-            TabWidget.textBrowser_3.append(f"模板{store_id}删除成功" if ret == 0 else f"模板{store_id}删除失败")
+        storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-1049的数字):", QLineEdit.Normal, "")
+        if storage_id:
+            ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(storage_id), 1)
+            TabWidget.textBrowser_3.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
 
     def clean_flash(self):
         ret = self.libc.ZAZEmpty(self.handle, c_int(0xffffffff))
@@ -886,6 +927,102 @@ class FingerPrint(QWidget):
         num = c_int(0)
         ret = self.libc.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
         TabWidget.textBrowser_3.append(f"有效模板总数为{num.value}" if ret == 0 else "获取有效模板总数失败")
+
+
+class FingerPrint2(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.libc = cdll.LoadLibrary(f'{path}/lib0a0.so')
+
+        TabWidget.pushButton_closeDevice_3.setEnabled(False)
+        TabWidget.pushButton_getfingerprint_2.setEnabled(False)
+        TabWidget.pushButton_searchfp_2.setEnabled(False)
+        TabWidget.pushButton_del_2.setEnabled(False)
+        TabWidget.pushButton_empty_2.setEnabled(False)
+        TabWidget.comboBox_BaudRate_3.addItems(self.get_baud_rate())
+        TabWidget.comboBox_BaudRate_3.setCurrentText("57600")
+        TabWidget.pushButton_refreshPort_3.clicked.connect(self.get_port)
+        TabWidget.pushButton_openDevice_3.clicked.connect(self.open_device)
+        TabWidget.pushButton_closeDevice_3.clicked.connect(self.close_device)
+        TabWidget.pushButton_getfingerprint_2.clicked.connect(self.get_image)
+        TabWidget.pushButton_searchfp_2.clicked.connect(self.search_image)
+        TabWidget.pushButton_del_2.clicked.connect(self.del_flash)
+        TabWidget.pushButton_empty_2.clicked.connect(self.clean_flash)
+
+    @staticmethod
+    def get_port():
+        TabWidget.comboBox_portName_3.clear()
+        TabWidget.comboBox_portName_3.addItems([com.systemLocation() for com in QSerialPortInfo.availablePorts()])
+
+    @staticmethod
+    def get_baud_rate():
+        return map(str, QSerialPortInfo.standardBaudRates())
+
+    def open_device(self):
+        port_name = TabWidget.comboBox_portName_3.currentText()
+        baudrate = TabWidget.comboBox_BaudRate_3.currentText()
+
+        self.libc.OpenDevice(bytes(port_name, 'utf-8'), int(baudrate))
+        ret = self.libc.TestConection()
+
+        if ret == 0:
+            TabWidget.pushButton_openDevice_3.setEnabled(False)
+            TabWidget.pushButton_closeDevice_3.setEnabled(True)
+            TabWidget.pushButton_getfingerprint_2.setEnabled(True)
+            TabWidget.pushButton_searchfp_2.setEnabled(True)
+            TabWidget.pushButton_del_2.setEnabled(True)
+            TabWidget.pushButton_empty_2.setEnabled(True)
+        else:
+            QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
+
+    def close_device(self):
+        ret = self.libc.CloseDevice()
+
+        if ret == 1:
+            TabWidget.pushButton_openDevice_3.setEnabled(True)
+            TabWidget.pushButton_closeDevice_3.setEnabled(False)
+            TabWidget.pushButton_getfingerprint_2.setEnabled(False)
+            TabWidget.pushButton_searchfp_2.setEnabled(False)
+            TabWidget.pushButton_del_2.setEnabled(False)
+            TabWidget.pushButton_empty_2.setEnabled(False)
+        else:
+            QMessageBox.critical(self, "Error", "设备未正确关闭！")
+
+    def get_image(self):
+        TabWidget.textBrowser_6.clear()
+        self.thread = GetFingerprint2(self.libc)
+        self.thread.step.connect(TabWidget.textBrowser_6.append)
+        self.thread.start()
+
+    def search_image(self):
+        TabWidget.textBrowser_6.clear()
+        TabWidget.textBrowser_6.append("请将手指平放在传感器上...")
+        storage_id = c_int(0)
+        score = c_int(0)
+        ret = 40  # 传感器上没有手指
+        while ret != 0:
+            QApplication.processEvents()
+            ret = self.libc.GetImage()
+            TabWidget.textBrowser_6.append(f"{new_code_dict.get(ret)}")
+        ret = self.libc.GetChar(0)
+        if ret == 0:
+            TabWidget.textBrowser_6.append(f"生成特征成功")
+            ret = self.libc.SearchChar(0, byref(storage_id), byref(score))
+            TabWidget.textBrowser_6.append(f"进行比对(返回类型/代码：{new_code_dict.get(ret)})")
+            TabWidget.textBrowser_6.append(f"匹配的模板位置：{storage_id.value}")
+            TabWidget.textBrowser_6.append(f"匹配得分：{score.value * 100}")
+        else:
+            TabWidget.textBrowser_6.append(f"生成特征失败(错误类型/代码：{new_code_dict.get(ret)})")
+
+    def del_flash(self):
+        storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(1-500的数字):", QLineEdit.Normal, "")
+        if storage_id:
+            ret = self.libc.DelChar(int(storage_id), int(storage_id), 0)
+            TabWidget.textBrowser_6.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
+
+    def clean_flash(self):
+        ret = self.libc.DelChar(1, 500, 0)
+        TabWidget.textBrowser_6.append(f"{new_code_dict.get(ret)}")
 
 
 class Camera(QWidget):
@@ -921,17 +1058,17 @@ class Camera(QWidget):
                 if not self.is_opened:
                     self.camera.start()
                     self.is_opened = True
-                    TabWidget.pushButton_openCam.setText("关闭摄像头")
+                    TabWidget.pushButton_openCam.setText(self.tr("关闭摄像头"))
                 else:
                     self.camera.stop()
                     self.is_opened = False
-                    TabWidget.pushButton_openCam.setText("开启摄像头")
+                    TabWidget.pushButton_openCam.setText(self.tr("开启摄像头"))
 
     def capture(self):
         cap = QCameraImageCapture(self.camera)
         cap.setCaptureDestination(QCameraImageCapture.CaptureToFile)
         cap.capture("C:/Users/Nehcknarf/PycharmProjects/midtool/test")
-        TabWidget.label_cap.setText("拍照成功，存储于工具目录下 test.jpg")
+        TabWidget.label_cap.setText(self.tr("拍照成功，存储于工具目录下 test.jpg"))
 
 
 class Arcsoft(QWidget):
@@ -1094,7 +1231,7 @@ class DeviceAliveCheck(QWidget):
         device_type = TabWidget.comboBox_wsDevice.currentText()
         time = datetime.now()
 
-        if device_type == "查询柜锁状态":
+        if device_type == "查询柜锁状态" or "查詢櫃鎖狀態":
             request_json = {
                 "requestId": f"GetCabinetLockStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
                 "cmd": "GetCabinetLockStatus",
@@ -1104,7 +1241,7 @@ class DeviceAliveCheck(QWidget):
                     "device": f"{TabWidget.comboBox_deviceList.currentText()}"
                 }
             }
-        elif device_type == "查询柜门状态":
+        elif device_type == "查询柜门状态" or "查詢櫃門狀態":
             request_json = {
                 "requestId": f"GetCabinetDoorStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
                 "cmd": "GetCabinetDoorStatus",
@@ -1114,7 +1251,7 @@ class DeviceAliveCheck(QWidget):
                     "device": f"{TabWidget.comboBox_deviceList.currentText()}"
                 }
             }
-        elif device_type == "开始消毒":
+        elif device_type == "开始消毒" or "開始消毒":
             request_json = {
                 "requestId": f"StartSterilize-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
                 "cmd": "StartSterilize",
@@ -1124,7 +1261,7 @@ class DeviceAliveCheck(QWidget):
                     "device": f"{TabWidget.comboBox_deviceList.currentText()}"
                 }
             }
-        elif device_type == "停止消毒":
+        elif device_type == "停止消毒" or "停止消毒":
             request_json = {
                 "requestId": f"StopSterilize-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
                 "cmd": "StopSterilize",
@@ -1189,14 +1326,19 @@ class MidUpgrade(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = QThread()
+        self.device_type = -1
         self.pkg_name = ''
 
         TabWidget.chosePkgButton.clicked.connect(self.upload)
         TabWidget.mkdirButton.clicked.connect(self.mkdir)
         TabWidget.extractButton.clicked.connect(self.extrct)
-        # TabWidget.installButton.clicked.connect(self.install)
+        TabWidget.buttonGroup.idClicked.connect(self.get_device_type)
+        TabWidget.installButton.clicked.connect(self.install)
         TabWidget.upgradeButton.clicked.connect(self.upgrade)
         TabWidget.cleanButton.clicked.connect(self.clean)
+
+    def get_device_type(self, btn_id):
+        self.device_type = abs(btn_id) - 1
 
     def upload(self):
         path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (consumable-cabinet-service_V*.tar.gz)")
@@ -1220,9 +1362,13 @@ class MidUpgrade(QWidget):
             self.thread.start()
 
     def install(self):
-        self.thread = Commander(f"bash /nubomed/{self.pkg_name}/install.sh")
-        self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-        self.thread.start()
+        path, _ = QFileDialog.getOpenFileName(self, "选择升级脚本", "/nubomed", "升级脚本 (install.sh)")
+        if path & self.device_type > 0:
+            self.thread = Commander(f"bash /nubomed/consumable-cabinet-service/install.sh {self.device_type}")
+            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
+            self.thread.start()
+        else:
+            TabWidget.textBrowser_5.append("请先选择柜子类型！再点击安装")
 
     def upgrade(self):
         self.thread = Commander(f"bash ./upgrade.sh", wd=f"/nubomed/{self.pkg_name}")
@@ -1240,6 +1386,10 @@ if __name__ == "__main__":
     QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     system = platform.system()
     app = QApplication(sys.argv)
+    translator = QTranslator(app)
+    if QLocale.system().name() == "zh_TW":
+        translator.load(f'{path}/lang/zh_TW.qm')
+        app.installTranslator(translator)
     # app.setStyle('Fusion')
     serverName = 'MidTool'
     socket = QLocalSocket()
@@ -1304,6 +1454,7 @@ if __name__ == "__main__":
         cfg = ConfigEditor()
         file = FileManager()
         fp = FingerPrint()
+        fp2 = FingerPrint2()
         cam = Camera()
         arc = Arcsoft()
         scan = Scan()

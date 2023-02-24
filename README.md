@@ -26,6 +26,12 @@ midtool.py
 ## Linux 版默认放置路径
 `/nubomed/midtool`
 
+## Qt 国际化
+1. 执行 `pyside2-lupdate midtool.py midtool.ui -ts lang/zh_TW.ts`
+2. 使用 Qt Linguist 打开zh_TW.ts，逐个添加译文
+3. 发布
+
+
 ## 构建 Qt 应用依赖
 `sudo apt install build-essential libgl1-mesa-dev`
 
@@ -36,4 +42,4 @@ midtool.py
 `sudo apt install qtwayland5`
 
 ## X11 依赖
-`sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xkb1`
+`sudo apt install libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0`
