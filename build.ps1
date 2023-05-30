@@ -1,1 +1,1 @@
-pyinstaller --noconfirm --noconsole --upx-dir ./upx --add-data ./midtool.ui;. --add-data ./icon.png;. --add-data ./libapit.dll;. --add-data ./virtualkeyboard/dll;./Pyside2/Qt/plugins/virtualkeyboard --icon icon.png midtool.py
+pyinstaller --noconfirm --noconsole --upx-dir ./upx --add-data ./bin/icon/icon.png;. --add-data ./bin/win/fingerprint;./bin/win/fingerprint --add-data ./bin/win/virtualkeyboard;./Pyside2/Qt/plugins/virtualkeyboard --icon icon.png midtool.py

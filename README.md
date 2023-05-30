@@ -7,30 +7,42 @@ Python 3.10
 PySide2 5.15.2.1
 ```
 
-## Linux 版快捷打包脚本
-`切换到相应的conda或pip环境下，执行./build.sh`
-
-## Linux 版打包命令
+## 创建并激活虚拟环境，安装依赖
 ```
-pyinstaller --noconfirm \
---add-data './midtool.ui:.' \
---add-data './icon.png:.' \
---add-data './virtualkeyboard:./Pyside2/Qt/plugins/virtualkeyboard' \
---add-data './libapit.so:.' \
-midtool.py
+conda create -n midtool python=3.10
+conda activate midtool
+pip install -r requirements.txt
 ```
 
-## Windows 版打包命令
-`pyinstaller --noconfirm --noconsole --add-data ./midtool.ui;. --add-data ./icon.png;. --add-data ./libapit.dll;. --icon icon.png midtool.py`
-
-## Linux 版默认放置路径
-`/nubomed/midtool`
+## 将 qrc 资源文件编译到 py 文件
+pyside2-rcc -o qrc.py midtool.qrc
 
 ## Qt 国际化
 1. 执行 `pyside2-lupdate midtool.py midtool.ui -ts lang/zh_TW.ts`
 2. 使用 Qt Linguist 打开zh_TW.ts，逐个添加译文
 3. 发布
 
+## Linux 版打包命令
+```
+pyinstaller --noconfirm \
+--add-data './bin/linux/virtualkeyboard:./Pyside2/Qt/plugins/virtualkeyboard' \
+--add-data './bin/linux/fingerprint:./bin/linux/fingerprint' \
+--add-data './bin/icon/icon.png:.' \
+--add-data './shell:./shell' \
+midtool.py
+```
+
+## Linux 版快捷打包脚本
+`切换到相应的conda或pip环境下，执行./build.sh`
+
+## Linux 版默认放置路径
+`/nubomed/midtool`
+
+## Windows 版打包命令
+`pyinstaller --noconfirm --noconsole --upx-dir ./upx --add-data ./bin/icon/icon.png;. --add-data ./bin/win/fingerprint;./bin/win/fingerprint --add-data ./bin/win/virtualkeyboard;./Pyside2/Qt/plugins/virtualkeyboard --icon icon.png midtool.py`
+
+## Windows 版快捷打包脚本
+`切换到相应的conda或pip环境下，执行./build.ps1`
 
 ## 构建 Qt 应用依赖
 `sudo apt install build-essential libgl1-mesa-dev`
