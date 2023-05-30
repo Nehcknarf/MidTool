@@ -2,6 +2,7 @@ import os
 import sys
 import platform
 import re
+import glob
 import json
 import random
 import logging
@@ -9,9 +10,10 @@ import struct
 from collections import deque
 from ctypes import *
 from datetime import datetime
+from typing import Any, List, Dict, Union
 from zipfile import ZipFile
 
-from ruamel.yaml import YAML
+from ruamel.yaml import YAML, comments
 
 import PySide2.QtQuick
 from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
@@ -21,11 +23,15 @@ from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
-    QFileSystemModel, QTableWidgetItem  # QSystemTrayIcon
+    QFileSystemModel, QTableWidgetItem, QHeaderView  # QSystemTrayIcon
 from PySide2.QtCore import Qt, QThread, Signal, QFile, QIODevice, QRegExp, QProcess, QSize, \
-    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QUrlQuery, QDate, QTranslator, QLocale  # QTimer
+    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QUrlQuery, QDate, QTranslator, \
+    QLocale, QAbstractItemModel, QObject, QSortFilterProxyModel, QItemSelectionModel  # Slot, QRunnable, QTimer
 from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor, QIcon, QGuiApplication
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
+
+import qrc
+
 
 # DEBUG
 # os.environ["QT_DEBUG_PLUGINS"] = "1"
@@ -630,12 +636,12 @@ class ConfigEditor(QWidget):
             default_url = self.browser_cfg_dict.get("DefaultURL")
             s_ter_address = self.browser_cfg_dict.get("sTerAddress")
         if self.is_cabinet:
-            TabWidget.lineEdit_cfg1.setText(main_ter_id)
+            TabWidget.lineEdit_cfg1.setText(str(main_ter_id))
             TabWidget.lineEdit_cfg2.setText(main_ter_code)
             TabWidget.lineEdit_cfg3.setText(default_url)
             TabWidget.lineEdit_cfg4.setText(s_ter_address)
         else:
-            TabWidget.lineEdit_cfg1_2.setText(main_ter_id)
+            TabWidget.lineEdit_cfg1_2.setText(str(main_ter_id))
             TabWidget.lineEdit_cfg2_2.setText(main_ter_code)
             TabWidget.lineEdit_cfg3_2.setText(default_url)
             TabWidget.lineEdit_cfg4_2.setText(s_ter_address)
@@ -795,9 +801,9 @@ class FingerPrint(QWidget):
         super().__init__()
         # self.timer = QTimer()
         if system == "Windows":
-            self.libc = cdll.LoadLibrary(f'{path}/libapit.dll')
+            self.libc = cdll.LoadLibrary(f'{path}/bin/win/fingerprint/libapit.dll')
         elif system == "Linux":
-            self.libc = cdll.LoadLibrary(f'{path}/libapit.so')
+            self.libc = cdll.LoadLibrary(f'{path}/bin/linux/fingerprint/libapit.so')
         self.handle = c_int64(0)
 
         TabWidget.pushButton_closeDevice.setEnabled(False)
@@ -932,7 +938,7 @@ class FingerPrint(QWidget):
 class FingerPrint2(QWidget):
     def __init__(self):
         super().__init__()
-        self.libc = cdll.LoadLibrary(f'{path}/lib0a0.so')
+        self.libc = cdll.LoadLibrary(f'{path}/bin/linux/fingerprint/lib0a0.so')
 
         TabWidget.pushButton_closeDevice_3.setEnabled(False)
         TabWidget.pushButton_getfingerprint_2.setEnabled(False)
@@ -1327,58 +1333,456 @@ class MidUpgrade(QWidget):
         super().__init__()
         self.thread = QThread()
         self.device_type = -1
-        self.pkg_name = ''
 
-        TabWidget.chosePkgButton.clicked.connect(self.upload)
-        TabWidget.mkdirButton.clicked.connect(self.mkdir)
-        TabWidget.extractButton.clicked.connect(self.extrct)
         TabWidget.buttonGroup.idClicked.connect(self.get_device_type)
         TabWidget.installButton.clicked.connect(self.install)
         TabWidget.upgradeButton.clicked.connect(self.upgrade)
-        TabWidget.cleanButton.clicked.connect(self.clean)
 
     def get_device_type(self, btn_id):
         self.device_type = abs(btn_id) - 1
+        # print(self.device_type)
 
-    def upload(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (consumable-cabinet-service_V*.tar.gz)")
-        if path:
+    def upgrade(self):
+        pkg_path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (consumable-cabinet-service_V*.tar.gz)")
+        if pkg_path:
             TabWidget.textBrowser_5.clear()
-            self.pkg_name = os.path.basename(path)[:-7]
-            self.thread = Commander(f"rsync --progress {path} /nubomed/")
-            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-            self.thread.start()
-
-    def mkdir(self):
-        if self.pkg_name:
-            self.thread = Commander(f"mkdir -p /nubomed/{self.pkg_name}")
-            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-            self.thread.start()
-
-    def extrct(self):
-        if self.pkg_name:
-            self.thread = Commander(f"tar -zxvf /nubomed/{self.pkg_name}.tar.gz -C /nubomed/{self.pkg_name}")
+            self.thread = Commander(f"bash {path}/shell/upgrade_version.sh {pkg_path}")
             self.thread.stdout.connect(TabWidget.textBrowser_5.append)
             self.thread.start()
 
     def install(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择升级脚本", "/nubomed", "升级脚本 (install.sh)")
-        if path & self.device_type > 0:
-            self.thread = Commander(f"bash /nubomed/consumable-cabinet-service/install.sh {self.device_type}")
+        wd_path = glob.glob("/nubomed/consumable-cabinet-service_V*/")[0]
+        if self.device_type > 0:
+            self.thread = Commander(f"bash install.sh {self.device_type}", wd=wd_path)
             self.thread.stdout.connect(TabWidget.textBrowser_5.append)
             self.thread.start()
         else:
             TabWidget.textBrowser_5.append("请先选择柜子类型！再点击安装")
 
-    def upgrade(self):
-        self.thread = Commander(f"bash ./upgrade.sh", wd=f"/nubomed/{self.pkg_name}")
-        self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-        self.thread.start()
 
-    def clean(self):
-        self.thread = Commander(f"rm -rf /nubomed/consumable-cabinet-service_V*")
-        self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-        self.thread.start()
+class TreeItem:
+    def __init__(self, parent: "TreeItem" = None):
+        self._parent = parent
+        self._key = ""
+        self._value = ""
+        self._value_type = None
+        self._comment = ""
+        self._children = []
+
+    def appendChild(self, item: "TreeItem"):
+        """Add item as a child"""
+        self._children.append(item)
+
+    def child(self, row: int) -> "TreeItem":
+        """Return the child of the current item from the given row"""
+        return self._children[row]
+
+    def parent(self) -> "TreeItem":
+        """Return the parent of the current item"""
+        return self._parent
+
+    def childCount(self) -> int:
+        """Return the number of children of the current item"""
+        return len(self._children)
+
+    def row(self) -> int:
+        """Return the row where the current item occupies in the parent"""
+        return self._parent._children.index(self) if self._parent else 0
+
+    # def columnCount(self) -> int:
+    #     """Return the number of columns"""
+    #     return 3
+
+    def insertChild(self, position: int, count: int, parent: QModelIndex = QModelIndex()) -> bool:
+        if position < 0 or position > len(self._children):
+            return False
+
+        for row in range(count):
+            item = TreeItem(parent)
+            self._children.insert(position, item)
+        return True
+
+    def removeChildren(self, position: int, count: int) -> bool:
+        if position < 0 or position + count > len(self._children):
+            return False
+
+        for row in range(count):
+            self._children.pop(position)
+
+        return True
+
+    @property
+    def key(self) -> str:
+        """Return the key name"""
+        return self._key
+
+    @key.setter
+    def key(self, key: str):
+        """Set key name of the current item"""
+        self._key = key
+
+    @property
+    def value(self) -> str:
+        """Return the value name of the current item"""
+        return self._value
+
+    @value.setter
+    def value(self, value: str):
+        """Set value name of the current item"""
+        self._value = value
+
+    @property
+    def value_type(self):
+        """Return the python type of the item's value."""
+        return self._value_type
+
+    @value_type.setter
+    def value_type(self, value):
+        """Set the python type of the item's value."""
+        self._value_type = value
+
+    @property
+    def comment(self) -> str:
+        """Return the comment name of the current item"""
+        return self._comment
+
+    @comment.setter
+    def comment(self, value: str):
+        """Set comment name of the current item"""
+        self._comment = value
+
+    @classmethod
+    def load(cls, value: Union[List, Dict], parent: "TreeItem" = None, sort=False) -> "TreeItem":
+        rootItem = TreeItem(parent)
+        rootItem.key = "root"
+
+        if isinstance(value, dict):
+            items = sorted(value.items()) if sort else value.items()
+            comment = value.ca.items
+            for key, value in items:
+                child = cls.load(value, rootItem)
+                child.key = key
+                child.value_type = type(value)
+                try:
+                    child.comment = [i.value.strip('# \n') for i in comment.get(key, []) if i is not None]
+                except AttributeError:
+                    child.comment = ""
+                rootItem.appendChild(child)
+
+        elif isinstance(value, list):
+            for index, value in enumerate(value):
+                child = cls.load(value, rootItem)
+                child.key = index
+                child.value_type = type(value)
+                rootItem.appendChild(child)
+
+        else:
+            rootItem.value = (float(value) if isinstance(value, float) else value)
+            rootItem.value_type = type(value)
+
+        return rootItem
+
+
+class JsonModel(QAbstractItemModel):
+    def __init__(self, parent: QObject = None):
+        super().__init__(parent)
+
+        self._rootItem = TreeItem()
+        self._headers = ("键", "值", "备注")
+
+    def clear(self):
+        """ Clear data from the model """
+        self.load({})
+
+    def load(self, document: dict):
+        """ Load model from a nested dictionary """
+        assert isinstance(
+            document, (dict, list, tuple)
+        ), "`document` must be of dict, list or tuple, " f"not {type(document)}"
+
+        self.beginResetModel()
+
+        self._rootItem = TreeItem.load(document)
+        self._rootItem.value_type = type(document)
+
+        self.endResetModel()
+
+        return True
+
+    def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> Any:
+        if not index.isValid():
+            return None
+
+        item = index.internalPointer()
+
+        if role == Qt.DisplayRole or role == Qt.EditRole:
+            if index.column() == 0:
+                return item.key
+
+            if index.column() == 1:
+                return item.value
+
+            if index.column() == 2:
+                return item.comment
+
+    def setData(self, index: QModelIndex, value: Any, role: Qt.ItemDataRole):
+        item = index.internalPointer()
+
+        if role == Qt.EditRole:
+            if index.column() == 0:
+                item.key = value
+                self.dataChanged.emit(index, index, [Qt.EditRole])
+                return True
+            elif index.column() == 1:
+                item.value = value
+                item.value_type = type(value)
+                self.dataChanged.emit(index, index, [Qt.EditRole])
+                return True
+            # elif index.column() == 2:
+            #     item.comment = value
+            #     self.dataChanged.emit(index, index, [Qt.EditRole])
+            #     return True
+        return False
+
+    def headerData(self, section: int, orientation: Qt.Orientation, role: Qt.ItemDataRole):
+        if role != Qt.DisplayRole:
+            return None
+
+        if orientation == Qt.Horizontal:
+            return self._headers[section]
+
+    def index(self, row: int, column: int, parent=QModelIndex()) -> QModelIndex:
+        if not self.hasIndex(row, column, parent):
+            return QModelIndex()
+
+        if not parent.isValid():
+            parentItem = self._rootItem
+        else:
+            parentItem = parent.internalPointer()
+
+        childItem = parentItem.child(row)
+        if childItem:
+            return self.createIndex(row, column, childItem)
+        else:
+            return QModelIndex()
+
+    def parent(self, index: QModelIndex()) -> QModelIndex:
+        if not index.isValid():
+            return QModelIndex()
+
+        childItem = index.internalPointer()
+        parentItem = childItem.parent()
+
+        if parentItem == self._rootItem:
+            return QModelIndex()
+
+        return self.createIndex(parentItem.row(), 0, parentItem)
+
+    def rowCount(self, parent=QModelIndex()):
+        if parent.column() > 0:
+            return 0
+
+        if not parent.isValid():
+            parentItem = self._rootItem
+        else:
+            parentItem = parent.internalPointer()
+
+        return parentItem.childCount()
+
+    def columnCount(self, parent=QModelIndex()):
+        return 3
+
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        flags = super(JsonModel, self).flags(index)
+
+        if index.column() == 1 or index.column() == 0:
+            return Qt.ItemIsEditable | flags
+        else:
+            return flags
+
+    def get_item(self, index: QModelIndex = QModelIndex()) -> TreeItem:
+        if index.isValid():
+            item = index.internalPointer()
+            if item:
+                return item
+
+        return self._rootItem
+
+    def insertRows(self, position: int, rows: int, parent: QModelIndex = QModelIndex()) -> bool:
+        parent_item = self.get_item(parent)
+        if not parent_item:
+            return False
+
+        self.beginInsertRows(parent, position, position + rows - 1)
+        success = parent_item.insertChild(position, rows, parent)
+        self.endInsertRows()
+
+        return success
+
+    def removeRows(self, position: int, rows: int, parent: QModelIndex = QModelIndex()) -> bool:
+        parent_item: TreeItem = self.get_item(parent)
+        if not parent_item:
+            return False
+
+        self.beginRemoveRows(parent, position, position + rows - 1)
+        success = parent_item.removeChildren(position, rows)
+        self.endRemoveRows()
+
+        return success
+
+    def to_yaml(self, item=None):
+        if item is None:
+            item = self._rootItem
+
+        nchild = item.childCount()
+
+        if item.value_type is comments.CommentedMap:
+            document = comments.CommentedMap()
+            for i in range(nchild):
+                ch = item.child(i)
+                document[ch.key] = self.to_yaml(ch)
+                try:
+                    document.yaml_add_eol_comment(ch.comment[0], ch.key)
+                except IndexError:
+                    pass
+            return document
+
+        elif item.value_type is comments.CommentedSeq or item.value_type is None:
+            document = comments.CommentedSeq()
+            for i in range(nchild):
+                ch = item.child(i)
+                document.append(self.to_yaml(ch))
+            return document
+
+        else:
+            if isinstance(item.value, item.value_type):
+                return item.value
+            else:
+                return eval(str(item.value))
+
+
+class MySortFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self):
+        super().__init__()
+        self.key = ''
+
+    def setFilterKey(self, key):
+        self.key = key
+        self.invalidateFilter()
+        TabWidget.treeView_2.expandAll()
+
+    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
+        index = self.sourceModel().index(source_row, 0, source_parent)
+
+        if self.key in str(index.data(Qt.DisplayRole)):
+            return True
+        else:
+            for i in range(self.sourceModel().rowCount(index)):
+                if self.filterAcceptsRow(i, index):
+                    return True
+            return False
+
+
+class ConfigEditor2(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.yaml = YAML()
+        self.yaml.preserve_quotes = True
+        self.yaml.default_flow_style = False
+        self.yaml.indent(mapping=2, sequence=4, offset=2)
+
+        self.path = ''
+        self.document = {}
+
+        self.model = JsonModel()
+        self.proxy_model = MySortFilterProxyModel()
+        self.proxy_model.setSourceModel(self.model)
+        TabWidget.treeView_2.setModel(self.proxy_model)
+
+        selection_model = TabWidget.treeView_2.selectionModel()
+        selection_model.selectionChanged.connect(self.update_actions)
+
+        # TabWidget.treeView_2.setSortingEnabled(True)
+        TabWidget.treeView_2.header().setSectionResizeMode(0, QHeaderView.Stretch)
+        TabWidget.treeView_2.header().setSectionResizeMode(1, QHeaderView.Stretch)
+        TabWidget.treeView_2.setAlternatingRowColors(True)
+        # TabWidget.treeView_2.setSelectionBehavior(QAbstractItemView.SelectItems)
+
+        TabWidget.openButton.clicked.connect(self.open_dir)
+        TabWidget.savecfgButton.clicked.connect(self.save_cfg)
+        TabWidget.comboBox.currentTextChanged.connect(self.read_cfg)
+        TabWidget.lineEdit_filter.textChanged.connect(self.proxy_model.setFilterKey)
+        TabWidget.insert_row_button.clicked.connect(self.insert_row)
+        TabWidget.remove_row_button.clicked.connect(self.remove_row)
+        TabWidget.insert_child_button.clicked.connect(self.insert_child)
+
+
+    def open_dir(self):
+        self.path = QFileDialog.getExistingDirectory(self, "打开文件夹", "/home", QFileDialog.ShowDirsOnly)
+        if self.path:
+            TabWidget.comboBox.clear()
+            TabWidget.comboBox.addItems([f for f in os.listdir(self.path) if f.endswith('yml')])
+
+    def read_cfg(self):
+        file_name = TabWidget.comboBox.currentText()
+        with open(f"{self.path}/{file_name}", mode='r', encoding="UTF-8") as f:
+            # TODO 判断文件类型
+            self.document = self.yaml.load(f)
+            self.model.load(self.document)
+            TabWidget.treeView_2.expandAll()
+
+    def save_cfg(self):
+        with open(f"{self.path}/{TabWidget.comboBox.currentText()}", mode='w', encoding="UTF-8") as f:
+            doc = self.model.to_yaml()
+            self.document.update(doc)
+            self.yaml.dump(self.document, f)
+
+    def update_actions(self):
+        selection_model = TabWidget.treeView_2.selectionModel()
+        has_selection = not selection_model.selection().isEmpty()
+        TabWidget.remove_row_button.setEnabled(has_selection)
+
+        current_index = selection_model.currentIndex()
+        has_current = current_index.isValid()
+        TabWidget.insert_row_button.setEnabled(has_current)
+
+        if has_current:
+            TabWidget.treeView_2.closePersistentEditor(current_index)
+
+    def insert_child(self):
+        selection_model = TabWidget.treeView_2.selectionModel()
+        index = selection_model.currentIndex()
+        model = TabWidget.treeView_2.model()
+
+        if not model.insertRow(0, index):
+            return
+
+        child = model.index(0, 0, index)
+        model.setData(child, "请填写", Qt.EditRole)
+
+        selection_model.setCurrentIndex(model.index(0, 0, index), QItemSelectionModel.ClearAndSelect)
+        self.update_actions()
+
+    def insert_row(self):
+        index = TabWidget.treeView_2.selectionModel().currentIndex()
+        model = TabWidget.treeView_2.model()
+        parent = index.parent()
+
+        if not model.insertRow(index.row() + 1, parent):
+            return
+
+        self.update_actions()
+
+        for column in range(model.columnCount(parent)):
+            child = model.index(index.row() + 1, column, parent)
+            model.setData(child, "请填写", Qt.EditRole)
+
+    def remove_row(self):
+        index = TabWidget.treeView_2.selectionModel().currentIndex()
+        model = TabWidget.treeView_2.model()
+
+        if model.removeRow(index.row(), index.parent()):
+            self.update_actions()
 
 
 if __name__ == "__main__":
@@ -1388,7 +1792,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     translator = QTranslator(app)
     if QLocale.system().name() == "zh_TW":
-        translator.load(f'{path}/lang/zh_TW.qm')
+        translator.load(':/i18n/lang/zh_TW.qm')
         app.installTranslator(translator)
     # app.setStyle('Fusion')
     serverName = 'MidTool'
@@ -1401,8 +1805,8 @@ if __name__ == "__main__":
         localServer.listen(serverName)
 
         loader = QUiLoader()
-        TabWidget = loader.load(f'{path}/midtool.ui')
-        TabWidget.setWindowIcon(QIcon(f'{path}/icon.png'))
+        TabWidget = loader.load(':/ui/midtool.ui')
+        TabWidget.setWindowIcon(QIcon(':/icon/bin/icon/icon.png'))
         # 使窗口显示在屏幕中心
         center = QGuiApplication.primaryScreen().availableGeometry().center()  # 获取屏幕的中心点
         geometry = TabWidget.geometry()
@@ -1410,19 +1814,20 @@ if __name__ == "__main__":
         TabWidget.setGeometry(geometry)
 
         # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能
-        TabWidget.setTabVisible(2, False)  # 文件管理器 Tab
-        TabWidget.setTabVisible(10, False)  # 设置 Tab
+        TabWidget.setTabVisible(10, False)  # 文件管理器 Tab
+        TabWidget.setTabVisible(11, False)  # 设置 Tab
         # 多系统兼容
         if system == "Windows":
             # system_tray_icon = QSystemTrayIcon()
             # system_tray_icon.setIcon(QIcon(f'{path}/icon.png'))
             # system_tray_icon.show()
             # 关闭部分不支持的功能的标签/按钮
+            TabWidget.setTabVisible(1, False)  # 部署升级 Tab
             TabWidget.setTabVisible(3, False)  # 配置文件修改 Tab
-            TabWidget.setTabVisible(7, False)  # 人脸识别 Tab
-            TabWidget.setTabVisible(9, False)  # 部署升级 Tab
+            TabWidget.setTabVisible(4, False)  # 通用配置文件修改 Tab
+            TabWidget.setTabVisible(8, False)  # 人脸识别 Tab
             # TODO 更新win监控功能
-            TabWidget.tableWidget.setEnabled(False)
+            TabWidget.tabWidget_2.setTabVisible(1, False)
             TabWidget.reflashButton.setEnabled(False)
             TabWidget.listButton.setEnabled(False)
             TabWidget.restartButton.setEnabled(False)
@@ -1440,6 +1845,7 @@ if __name__ == "__main__":
             # os.environ["QT_QPA_PLATFORM"] = "wayland"
             # Ubuntu 20.04
             os.environ["QT_QPA_PLATFORM"] = "xcb"
+            fp2 = FingerPrint2()
         # 外部传参支持
         parser = QCommandLineParser()
         tab = QCommandLineOption(["t", "tab"], "Choice which tab to be shown at start up", "tab")
@@ -1452,9 +1858,9 @@ if __name__ == "__main__":
         log = LogBrowser()
         ter = Terminal()
         cfg = ConfigEditor()
-        file = FileManager()
+        cfg2 = ConfigEditor2()
+        # file = FileManager()
         fp = FingerPrint()
-        fp2 = FingerPrint2()
         cam = Camera()
         arc = Arcsoft()
         scan = Scan()
@@ -1462,6 +1868,7 @@ if __name__ == "__main__":
         mu = MidUpgrade()
         # 置顶
         # TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
+        TabWidget.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
         TabWidget.activateWindow()
         TabWidget.raise_()
         TabWidget.show()
