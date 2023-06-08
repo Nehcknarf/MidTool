@@ -34,6 +34,6 @@ elif [ "$(echo $soft_pkg | grep ".sh")" != "" ]; then
     bash $soft_pkg
     echo "执行完成，请检查！！！"
 else
-    echo "未知类型,请选择准备的升级/补丁包"
+    echo "未知类型,请重新选择！！！"
 fi
 

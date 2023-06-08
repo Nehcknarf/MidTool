@@ -17,5 +17,5 @@ midtool.py
 echo "remove previous version..."
 sudo rm -rf /nubomed/*
 
-echo "Start copying..."
-sudo cp -r /mnt/c/Users/Nehcknarf/PycharmProjects/midtool/dist/midtool /nubomed
+#echo "Start copying..."
+#sudo cp -r /mnt/e/PycharmProjects/midtool/dist/midtool /nubomed

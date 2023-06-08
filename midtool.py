@@ -7,13 +7,10 @@ import json
 import random
 import logging
 import struct
-from collections import deque
 from ctypes import *
 from datetime import datetime
-from typing import Any, List, Dict, Union
-from zipfile import ZipFile
 
-from ruamel.yaml import YAML, comments
+from ruamel.yaml import YAML
 
 import PySide2.QtQuick
 from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
@@ -21,13 +18,11 @@ from PySide2.QtMultimediaWidgets import QCameraViewfinder
 from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
 from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
-from PySide2.QtWebSockets import QWebSocket
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
-    QFileSystemModel, QTableWidgetItem, QHeaderView  # QSystemTrayIcon
-from PySide2.QtCore import Qt, QThread, Signal, QFile, QIODevice, QRegExp, QProcess, QSize, \
-    QModelIndex, QCoreApplication, QCommandLineParser, QCommandLineOption, QUrl, QUrlQuery, QDate, QTranslator, \
-    QLocale, QAbstractItemModel, QObject, QSortFilterProxyModel, QItemSelectionModel  # Slot, QRunnable, QTimer
-from PySide2.QtGui import QTextCursor, QTextCharFormat, QColor, QIcon, QGuiApplication
+    QTableWidgetItem, QHeaderView
+from PySide2.QtCore import Qt, QThread, Signal, QIODevice, QProcess, QCoreApplication, QCommandLineParser, \
+    QCommandLineOption, QUrl, QTranslator, QLocale, QObject, QRunnable, Slot, QThreadPool, QRegExp
+from PySide2.QtGui import QIcon, QGuiApplication, QRegExpValidator
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
 import qrc
@@ -63,17 +58,40 @@ device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "
 # Nbtool传参选择启动标签页（参数：标签页currentIndex）
 tab_dict = {"face": 7, "camera": 6, "fingerprint": 5, "serial_device": 4}
 
+# 线程池
+threadpool = QThreadPool.globalInstance()
 
-class Commander(QThread):
+class WorkerSignals(QObject):
     stdout = Signal(str)
     verbose = Signal(str)
+    context = Signal(str)
+    step = Signal(str)
+    pinout = Signal(str)
 
+
+class General(QRunnable):
+    def __init__(self, func, *args):
+        super().__init__()
+        self.signals = WorkerSignals()
+        self.func = func
+        self.args = args
+
+    @Slot()
+    def run(self):
+        ret = self.func(*self.args)
+        self.signals.step.emit(ret)
+
+
+class Commander(QRunnable):
     def __init__(self, command, password=None, wd="/nubomed"):
         super().__init__()
+        self.signals = WorkerSignals()
+        self.need_kill = False
         self.command = command
         self.password = password
         self.wd = wd
 
+    @Slot()
     def run(self):
         process_command = QProcess()
         process_command.setProcessChannelMode(QProcess.MergedChannels)
@@ -96,55 +114,37 @@ class Commander(QThread):
         process_command.waitForStarted()
         string = ""
         while process_command.state() != QProcess.NotRunning:
-            QApplication.processEvents()
-            if QThread.currentThread().isInterruptionRequested():
+            # QApplication.processEvents()
+            # if QThread.currentThread().isInterruptionRequested():
+            if self.need_kill:
                 break
             if process_command.waitForReadyRead():
                 if system == "Windows":
                     stdout = bytes(process_command.readAllStandardOutput()).decode("gbk").rstrip('\r\n')
                 elif system == "Linux":
                     stdout = bytes(process_command.readAllStandardOutput()).decode("utf8").rstrip('\n')
-                self.stdout.emit(stdout)
+                self.signals.stdout.emit(stdout)
                 string += f"{stdout}\n"
 
-        self.verbose.emit(string)
-        self.stdout.emit("指令已执行")
+        self.signals.verbose.emit(string)
+        self.signals.stdout.emit("指令已执行")
+
+    def kill(self):
+        self.need_kill = True
 
 
-class Reader(QThread):
-    context = Signal(str)
-
-    def __init__(self, path, chunk=524288):  # 512KB
-        super().__init__()
-        self.path = path
-        self.chunk = chunk
-
-    def run(self):
-        file = QFile(self.path)
-        if not file.open(QIODevice.ReadOnly | QIODevice.Text):
-            return
-        file.seek(file.size() - self.chunk)
-        # while not file.atEnd():
-        #     QApplication.processEvents()
-        # mem = file.map(-1, self.pos)
-        # file.unmap(mem)
-        log = bytes(file.readAll()).decode('utf8')
-        self.context.emit(log)
-        file.close()
-
-
-class Serial(QThread):
-    pinout = Signal(str)
-
+class Serial(QRunnable):
     def __init__(self, ser):
         super().__init__()
+        self.signals = WorkerSignals()
         self.ser = ser
         self.total_data = b''
 
+    @Slot()
     def run(self):
         bytes_data = self.ser.readAll().data()  # bytes
         self.total_data += bytes_data
-        # self.pinout.emit("数据流：" + self.total_data.hex() + "字符串：" + str(self.total_data))
+        self.signals.pinout.emit("数据流：" + self.total_data.hex() + "字符串：" + str(self.total_data))
         if length_domain := re.findall(b'~(.{2})\x02', self.total_data):
             try:
                 length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
@@ -153,7 +153,7 @@ class Serial(QThread):
             else:
                 if pack_data := re.findall(b'~.{'+f'{length}'.encode()+b'}\xe7', self.total_data, re.DOTALL):
                     pack_data = pack_data[0]
-                    # self.pinout.emit("接收到的原始数据包：" + pack_data.hex())
+                    # self.signals.pinout.emit("接收到的原始数据包：" + pack_data.hex())
                     try:
                         header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", pack_data[:26])  # 起始域到参数长度域
                     except struct.error as err:
@@ -199,62 +199,62 @@ class Serial(QThread):
                                 sig_data = f"设备类型：{device_dict.get(device_type)}，{state_dict.get(payload_tuple[0])}"
                         else:
                             sig_data = "尚未支持解析的设备类型"
-                        self.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
+                        self.signals.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
                 else:
                     pass
-                    # self.pinout.emit("未匹配到数据包")
+                    # self.signals.pinout.emit("未匹配到数据包")
         else:
             self.total_data = b''
-            # self.pinout.emit("未找到特征（长度域）")
+            # self.signals.pinout.emit("未找到特征（长度域）")
 
 
-class GetFingerprint(QThread):
-    step = Signal(str)
-
+class GetFingerprint(QRunnable):
     def __init__(self, storage_id, dll, handle):
         super().__init__()
+        self.signals = WorkerSignals()
         self.storage_id = storage_id
         self.libc = dll
         self.handle = handle
 
     def emit_state(self, code, func_str):
         if code == 0:
-            self.step.emit(f"{func_str}成功")
+            self.signals.step.emit(f"{func_str}成功")
         else:
-            self.step.emit(f"{func_str}失败(错误类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))})")
+            self.signals.step.emit(f"{func_str}失败(错误类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))})")
             return
 
+    @Slot()
     def run(self):
         nAddr = c_int(0xffffffff)
-        self.step.emit("请将手指平放在传感器上...")
+        self.signals.step.emit("请将手指平放在传感器上...")
         ret = 2  # 传感器上没有手指
         timeout = 0
         while ret == 2 and timeout <= 99:
-            QApplication.processEvents()
-            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            # QApplication.processEvents()
+            self.signals.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
-            self.step.emit("超时！请重新采集")
+            self.signals.step.emit("超时！请重新采集")
             return
         self.emit_state(ret, "第一次采集指纹")
 
         ret = self.libc.ZAZGenChar(self.handle, nAddr, 2)
         self.emit_state(ret, "生成特征A")
 
-        self.step.emit("请抬起手指！")
+        self.signals.step.emit("请抬起手指！")
         QThread.sleep(1)
-        self.step.emit("请再次将手指平放在传感器上...")
+        self.signals.step.emit("请再次将手指平放在传感器上...")
 
         ret = 2  # 传感器上没有手指
         timeout = 0
         while ret == 2 and timeout <= 99:
-            QApplication.processEvents()
-            self.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            # QApplication.processEvents()
+            self.signals.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
-            self.step.emit("超时！请重新采集")
+            self.signals.step.emit("超时！请重新采集")
             return
         self.emit_state(ret, "第二次采集指纹")
 
@@ -268,31 +268,31 @@ class GetFingerprint(QThread):
         self.emit_state(ret, f"保存模板(位置{self.storage_id})")
 
 
-class GetFingerprint2(QThread):
-    step = Signal(str)
-
+class GetFingerprint2(QRunnable):
     def __init__(self, dll):
+        self.signals = WorkerSignals()
         super().__init__()
         self.libc = dll
 
     def emit_state(self, code, func_str):
         if code == 0:
-            self.step.emit(f"{func_str}成功")
+            self.signals.step.emit(f"{func_str}成功")
         else:
-            self.step.emit(f"{func_str}失败(错误类型/代码：{new_code_dict.get(code)})")
+            self.signals.step.emit(f"{func_str}失败(错误类型/代码：{new_code_dict.get(code)})")
 
+    @Slot()
     def run(self):
         storage_id = c_int(0)
         for i in range(3):
             ret = 40  # 传感器上没有手指
-            self.step.emit("请将手指平放在传感器上...")
+            self.signals.step.emit("请将手指平放在传感器上...")
             while ret != 0:
-                QApplication.processEvents()
+                # QApplication.processEvents()
                 ret = self.libc.GetImage()
-                self.step.emit(new_code_dict.get(ret))
+                self.signals.step.emit(new_code_dict.get(ret))
             ret = self.libc.GetChar(i)
             self.emit_state(ret, f"生成特征{i + 1}")
-            self.step.emit("请抬起手指！")
+            self.signals.step.emit("请抬起手指！")
             QThread.sleep(1)
         ret = self.libc.MergeChar(0, 3)
         self.emit_state(ret, "合并特征")
@@ -302,159 +302,10 @@ class GetFingerprint2(QThread):
         self.emit_state(ret, f"保存模板(位置{storage_id.value})")
 
 
-class LogBrowser(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.q = deque()
-        self.keyword_len = 0
-        self.thread = QThread()
-        self.thread_read = QThread()
-        # self.thread_search = QThread()
-        # UI
-        TabWidget.textBrowser.ensureCursorVisible()
-        TabWidget.textBrowser.document().setMaximumBlockCount(500)
-        TabWidget.StartDateEdit.setMinimumDate(QDate.currentDate().addDays(-7))
-        TabWidget.EndDateEdit.setMinimumDate(QDate.currentDate().addDays(-7))
-        TabWidget.StartDateEdit.setMaximumDate(QDate.currentDate().addDays(-1))
-        TabWidget.EndDateEdit.setMaximumDate(QDate.currentDate().addDays(-1))
-        TabWidget.StartDateEdit.setDate(QDate.currentDate().addDays(-1))
-        TabWidget.EndDateEdit.setDate(QDate.currentDate().addDays(-1))
-
-        TabWidget.openfileButton.clicked.connect(self.open_log)
-        TabWidget.tailButton.clicked.connect(self.tail_log)
-        TabWidget.stoptailButton.clicked.connect(self.kill_tail)
-        TabWidget.clearButton.clicked.connect(TabWidget.lineEdit.clear)
-        TabWidget.searchButton.clicked.connect(self.search)
-        TabWidget.prevButton.clicked.connect(self.prev)
-        TabWidget.nextButton.clicked.connect(self.next)
-        # TabWidget.lineEdit.textChanged.connect(self.search)
-        TabWidget.match_case.stateChanged.connect(self.search)
-        TabWidget.match_word.stateChanged.connect(self.search)
-        # TabWidget.textBrowser.verticalScrollBar().valueChanged.connect(self.auto_load)
-        # TabWidget.StartDateEdit.dateChanged.connect(self.date_valid_checker)
-        TabWidget.EndDateEdit.dateChanged.connect(self.date_valid_checker)
-        TabWidget.downlogButton.clicked.connect(self.download_log)
-
-    def auto_load(self):
-        v_value = TabWidget.textBrowser.verticalScrollBar().value()
-        if v_value < 100:
-            TabWidget.textBrowser.moveCursor(QTextCursor.Start)
-            # TabWidget.textBrowser.insertPlainText("test")
-
-    def open_log(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择日志文件", TabWidget.logpathlineEdit.text(), "日志文件 (*.log)")
-        if path:
-            TabWidget.textBrowser.clear()
-            self.thread_read = Reader(path)
-            self.thread_read.context.connect(TabWidget.textBrowser.append, Qt.BlockingQueuedConnection)
-            # self.thread_read.context.connect(TabWidget.textBrowser.setText)
-            self.thread_read.start()
-
-    def tail_log(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择待监控的日志文件", TabWidget.logpathlineEdit.text(), "日志文件 (*.log)")
-        if path:
-            TabWidget.textBrowser.clear()
-            if system == "Windows":
-                self.thread = Commander(f"powershell Get-Content {path} -tail 30 -Wait")
-            elif system == "Linux":
-                self.thread = Commander(f"tail -f -n 30 {path}")
-            self.thread.stdout.connect(TabWidget.textBrowser.append)
-            self.thread.start()
-
-    def kill_tail(self):
-        if self.thread.isRunning():
-            self.thread.requestInterruption()
-            self.thread.quit()
-            self.thread.wait()
-        self.thread.deleteLater()
-        TabWidget.textBrowser.append("终止命令执行成功，线程释放")
-
-    def highlight(self, pos):
-        cursor = TabWidget.textBrowser.textCursor()
-        cursor.setPosition(pos)
-        cursor.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor, self.keyword_len)
-        # Set the visible cursor
-        TabWidget.textBrowser.setTextCursor(cursor)
-
-    def prev(self):
-        pos = self.q.pop()
-        self.q.appendleft(pos)
-        self.highlight(pos)
-
-    def next(self):
-        pos = self.q.popleft()
-        self.q.append(pos)
-        self.highlight(pos)
-
-    def search(self):
-        keyword = TabWidget.lineEdit.text()
-        self.keyword_len = len(keyword)
-        if not keyword:
-            return
-        context = TabWidget.textBrowser.toPlainText()
-        # 恢复默认的颜色
-        cursor = TabWidget.textBrowser.textCursor()
-        cursor.select(QTextCursor.Document)
-        cursor.setCharFormat(QTextCharFormat())
-        cursor.clearSelection()
-        TabWidget.textBrowser.setTextCursor(cursor)
-        TabWidget.textBrowser.moveCursor(QTextCursor.Start)
-
-        fmt = QTextCharFormat()
-        fmt.setBackground(QColor.fromRgbF(1.000000, 1.000000, 0.000000, 1.000000))
-
-        if TabWidget.match_case.isChecked():
-            match_case = Qt.CaseSensitive
-        else:
-            match_case = Qt.CaseInsensitive
-
-        if TabWidget.match_word.isChecked():
-            keyword = f"\\b{keyword}\\b"
-
-        self.q.clear()
-        # Returns the position of the first match, or -1 if there was no match.
-        rx = QRegExp(keyword, match_case)
-        pos = rx.indexIn(context, 0)
-        if pos != -1:
-            self.q.append(pos)
-        while pos != -1:
-            QApplication.processEvents()
-            cursor.setPosition(pos)
-            cursor.movePosition(QTextCursor.Right, QTextCursor.KeepAnchor, self.keyword_len)
-            cursor.mergeCharFormat(fmt)
-            pos += rx.matchedLength()
-            pos = rx.indexIn(context, pos)
-            if pos != -1:
-                self.q.append(pos)
-
-        TabWidget.label.setText(f"找到{len(self.q)}处")
-
-    @staticmethod
-    def date_valid_checker():
-        start_date = TabWidget.StartDateEdit.date()
-        end_date = TabWidget.EndDateEdit.date()
-        if end_date < start_date:
-            TabWidget.EndDateEdit.setDate(start_date)
-
-    def download_log(self):
-        start_date = TabWidget.StartDateEdit.date()
-        end_date = TabWidget.EndDateEdit.date()
-        diff = start_date.daysTo(end_date) + 1
-        date_list = [end_date.addDays(-i).toString("yyyy-MM-dd") for i in range(diff)]
-        path = QFileDialog.getExistingDirectory(self, "保存到文件夹", "/media", QFileDialog.ShowDirsOnly)
-        time = datetime.now()
-        if path:
-            with ZipFile(f"{path}/log-save-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}.zip", 'a') as myzip:
-                for data in date_list:
-                    myzip.write(f"/nubomed/consumable-cabinet-service/logs/mid-{data}-1.log.gz")
-            TabWidget.textBrowser.append("压缩完成并拷贝到指定目录！")
-
-
 class Terminal(QWidget):
     def __init__(self):
         super().__init__()
-        self.thread = QThread()
-        self.thread_cc = QThread()
+        self.thread = None
         # self.timer = QTimer()
         # self.timer.timeout.connect(self.check_midware_status)
         # self.timer.start(3000)
@@ -483,13 +334,21 @@ class Terminal(QWidget):
             TabWidget.textBrowser_2.clear()
             TabWidget.textBrowser_2.setPlainText(f"执行脚本：{path}")
             self.thread = Commander(f"bash {path}")
-            self.thread.stdout.connect(TabWidget.textBrowser_2.append)
-            self.thread.start()
+            self.thread.signals.stdout.connect(TabWidget.textBrowser_2.append)
+            threadpool.start(self.thread)
 
     def promote(self, command):
         if command.__contains__("sudo"):
             command = command.replace("sudo", "sudo -S")
-            password, _ = QInputDialog.getText(self, "提升权限", "请输入当前用户密码:", QLineEdit.Normal, "")
+            dialog = QInputDialog()
+            dialog.setWindowModality(Qt.WindowModal)
+            dialog.setTextEchoMode(QLineEdit.Normal)
+            dialog.setOkButtonText("确定")
+            dialog.setCancelButtonText("取消")
+            dialog.setWindowTitle("提升权限")
+            dialog.setLabelText("请输入当前用户密码:")
+            dialog.exec_()
+            password = dialog.textValue()
         else:
             password = None
         return command, password
@@ -503,19 +362,19 @@ class Terminal(QWidget):
         TabWidget.textBrowser_2.clear()
         TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
         self.thread = Commander(command, password)
-        self.thread.stdout.connect(TabWidget.textBrowser_2.append)
-        self.thread.start()
+        self.thread.signals.stdout.connect(TabWidget.textBrowser_2.append)
+        threadpool.start(self.thread)
 
     def common_command(self, command, verbose=True):
         command, password = self.promote(command)
-        self.thread_cc = Commander(command, password)
+        self.thread = Commander(command, password)
         if verbose:
             TabWidget.textBrowser_2.clear()
             TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
-            self.thread_cc.stdout.connect(TabWidget.textBrowser_2.append)
+            self.thread.signals.stdout.connect(TabWidget.textBrowser_2.append)
         else:
-            self.thread_cc.verbose.connect(self.parse)
-        self.thread_cc.start()
+            self.thread.signals.verbose.connect(self.parse)
+        threadpool.start(self.thread)
 
     @staticmethod
     def parse(string):
@@ -559,17 +418,26 @@ class Terminal(QWidget):
         self.common_command("sudo systemctl restart gdm")
 
     def ws(self):
-        port, _ = QInputDialog.getText(self, "设定端口", "请输入WebSocket端口号:", QLineEdit.Normal, "")
-        if port:
-            self.common_command(f"wscat -c ws://localhost:{port}")
+        dialog = QInputDialog()
+        dialog.setWindowModality(Qt.WindowModal)
+        dialog.setTextEchoMode(QLineEdit.Normal)
+        dialog.setOkButtonText("确定")
+        dialog.setCancelButtonText("取消")
+        dialog.setWindowTitle("设定端口")
+        dialog.setLabelText("请输入WebSocket端口号:")
+        dialog.setTextValue("8080")
+        dialog.exec_()
+        port = dialog.textValue()
+        self.common_command(f"wscat -c ws://localhost:{port}/websocket")
 
     def kill(self):
-        if self.thread.isRunning():
-            self.thread.requestInterruption()
-            self.thread.quit()
-            self.thread.wait()
-        self.thread.deleteLater()
-        TabWidget.textBrowser_2.append("终止命令执行成功，线程释放")
+        # if self.thread.isRunning():
+        #     self.thread.requestInterruption()
+        #     self.thread.quit()
+        #     self.thread.wait()
+        # self.thread.deleteLater()
+        self.thread.kill()
+        TabWidget.textBrowser_2.append("正在终止命令执行...")
 
 
 class ConfigEditor(QWidget):
@@ -577,41 +445,52 @@ class ConfigEditor(QWidget):
         super().__init__()
         self.yaml = YAML()
         self.yaml.preserve_quotes = True
-        self.yaml.default_flow_style = None
+        self.yaml.default_flow_style = False
         self.yaml.indent(mapping=2, sequence=4, offset=2)
-        self.is_cabinet = False
+
+        self.cabinet_root_path = "/nubomed/consumable-cabinet-service/conf/"
+        self.drug_root_path = "/nubomed/midpkg/drug-middleware/conf/"
         self.browser_cfg_path = "/nubomed/nbrowser/static/localize.json"
-        # 根据路径判断产品类型，隐藏选项卡
-        if os.path.exists("/nubomed/consumable-cabinet-service/"):
-            # 耗材 4.0
-            self.is_cabinet = True
-            TabWidget.tabWidget.setTabVisible(4, False)
-            TabWidget.tabWidget.setTabVisible(5, False)
-            TabWidget.tabWidget.setTabVisible(6, False)
-            self.sync_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-sync.yml"
-            self.nvr_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-nvr.yml"
-            self.extern_cfg_path = "/nubomed/consumable-cabinet-service/conf/application-extern.yml"
-        else:
-            # 药品 4.0
-            TabWidget.tabWidget.setTabVisible(0, False)
-            TabWidget.tabWidget.setTabVisible(1, False)
-            TabWidget.tabWidget.setTabVisible(2, False)
-            TabWidget.tabWidget.setTabVisible(3, False)
-            self.sync_cfg_path = "/nubomed/midpkg/drug-middleware/conf/application-sync.yml"
-            self.nvr_cfg_path = "/nubomed/midpkg/drug-middleware/conf/application-nvr.yml"
+        self.device_identify()
+        self.read_cfg()
 
-        self.browser_cfg_dict = {}
-        self.sync_cfg_dict = {}
-        self.nvr_cfg_dict = {}
-        self.extern_cfg_dict = {}
-
-        TabWidget.readButton.clicked.connect(self.read_cfg)
+        TabWidget.tableWidget_ext.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        TabWidget.tableWidget_2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         TabWidget.saveButton.clicked.connect(self.save_cfg)
         TabWidget.addlineButton.clicked.connect(self.insert)
         TabWidget.dellineButton.clicked.connect(self.remove)
         TabWidget.checkBox.stateChanged.connect(self.switch)
-        TabWidget.saveButton.setEnabled(False)
+        # TabWidget.saveButton.setEnabled(False)
         TabWidget.tableWidget_ext.setEnabled(False)
+        TabWidget.addButton.clicked.connect(self.add_line)
+        TabWidget.delButton.clicked.connect(self.del_line)
+
+    def device_identify(self):
+        # 根据路径判断产品类型，隐藏选项卡
+        if os.path.exists(self.cabinet_root_path):
+            # 耗材
+            self.device_type = 0
+            TabWidget.tabWidget.setTabVisible(4, False)
+            TabWidget.tabWidget.setTabVisible(5, False)
+            TabWidget.tabWidget.setTabVisible(6, False)
+            TabWidget.tabWidget.setTabVisible(7, False)
+            TabWidget.tabWidget.setTabVisible(8, False)
+            self.sync_cfg_path = self.cabinet_root_path + "application-sync.yml"
+            self.nvr_cfg_path = self.cabinet_root_path + "application-nvr.yml"
+            self.extern_cfg_path = self.cabinet_root_path + "application-extern.yml"
+        elif os.path.exists(self.drug_root_path):
+            # 药品
+            self.device_type = 1
+            TabWidget.tabWidget.setTabVisible(0, False)
+            TabWidget.tabWidget.setTabVisible(1, False)
+            TabWidget.tabWidget.setTabVisible(2, False)
+            TabWidget.tabWidget.setTabVisible(3, False)
+            self.sync_cfg_path = self.drug_root_path + "application-sync.yml"
+            self.nvr_cfg_path = self.drug_root_path + "application-nvr.yml"
+            self.extern_cfg_path = self.drug_root_path + "application-extern.yml"
+            self.ws_cfg_path = self.drug_root_path + "application-ws.yml"
+            self.mcc_cfg_path = self.drug_root_path + "application-mcc.yml"
+            self.delay_cfg_path = self.drug_root_path + "application-action-delay.yml"
 
     @staticmethod
     def insert():
@@ -628,177 +507,295 @@ class ConfigEditor(QWidget):
         elif state == 0:
             TabWidget.tableWidget_ext.setEnabled(False)
 
+    @staticmethod
+    def add_line():
+        TabWidget.tableWidget_2.insertRow(TabWidget.tableWidget_2.rowCount())
+
+    @staticmethod
+    def del_line():
+        TabWidget.tableWidget_2.removeRow(TabWidget.tableWidget_2.currentIndex().row())
+
     def read_cfg(self):
-        with open(self.browser_cfg_path, mode='r', encoding="UTF-8") as f:
-            self.browser_cfg_dict = json.load(f)
-            main_ter_id = self.browser_cfg_dict.get("MAIN_TER_ID")
-            main_ter_code = self.browser_cfg_dict.get("MAIN_TER_CODE")
-            default_url = self.browser_cfg_dict.get("DefaultURL")
-            s_ter_address = self.browser_cfg_dict.get("sTerAddress")
-        if self.is_cabinet:
-            TabWidget.lineEdit_cfg1.setText(str(main_ter_id))
-            TabWidget.lineEdit_cfg2.setText(main_ter_code)
-            TabWidget.lineEdit_cfg3.setText(default_url)
-            TabWidget.lineEdit_cfg4.setText(s_ter_address)
-        else:
-            TabWidget.lineEdit_cfg1_2.setText(str(main_ter_id))
-            TabWidget.lineEdit_cfg2_2.setText(main_ter_code)
-            TabWidget.lineEdit_cfg3_2.setText(default_url)
-            TabWidget.lineEdit_cfg4_2.setText(s_ter_address)
+        try:
+            with open(self.browser_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.browser_cfg_dict = json.load(f)
+                main_ter_id = self.browser_cfg_dict.get("MAIN_TER_ID")
+                main_ter_code = self.browser_cfg_dict.get("MAIN_TER_CODE")
+                default_url = self.browser_cfg_dict.get("DefaultURL")
+                s_ter_address = self.browser_cfg_dict.get("sTerAddress")
+            if self.device_type == 0:
+                TabWidget.lineEdit_cfg1.setText(str(main_ter_id))
+                TabWidget.lineEdit_cfg2.setText(main_ter_code)
+                TabWidget.lineEdit_cfg3.setText(default_url)
+                TabWidget.lineEdit_cfg4.setText(s_ter_address)
+            elif self.device_type == 1:
+                TabWidget.lineEdit_cfg1_2.setText(str(main_ter_id))
+                TabWidget.lineEdit_cfg2_2.setText(main_ter_code)
+                TabWidget.lineEdit_cfg3_2.setText(default_url)
+                TabWidget.lineEdit_cfg4_2.setText(s_ter_address)
+        except FileNotFoundError:
+            pass
 
-        with open(self.nvr_cfg_path, mode='r', encoding="UTF-8") as f:
-            self.nvr_cfg_dict = self.yaml.load(f)
-            nvr_ip = self.nvr_cfg_dict.get("nvr").get("nvrIp")
-            product_no = self.nvr_cfg_dict.get("nvr").get("reader")[0].get("productNo")
-            terminale_id = self.nvr_cfg_dict.get("nvr").get("terminale-id")
-            server_ip = self.nvr_cfg_dict.get("nvr").get("mcc").get("server-ip")
-        if self.is_cabinet:
-            TabWidget.lineEdit_cfg5.setText(nvr_ip)
-            TabWidget.lineEdit_cfg6.setText(product_no)
-            TabWidget.lineEdit_cfg7_3.setText(terminale_id)
-            TabWidget.lineEdit_cfg8.setText(server_ip)
-        else:
-            TabWidget.lineEdit_cfg5_2.setText(nvr_ip)
-            TabWidget.lineEdit_cfg6_2.setText(product_no)
+        try:
+            with open(self.nvr_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.nvr_cfg_dict = self.yaml.load(f)
+            if self.device_type == 0:
+                nvr_ip = self.nvr_cfg_dict.get("nvr").get("nvrIp")
+                product_no = self.nvr_cfg_dict.get("nvr").get("reader")[0].get("productNo")
+                terminale_id = self.nvr_cfg_dict.get("nvr").get("terminale-id")
+                server_ip = self.nvr_cfg_dict.get("nvr").get("mcc").get("server-ip")
 
-        with open(self.sync_cfg_path, mode='r', encoding="UTF-8") as f:
-            self.sync_cfg_dict = self.yaml.load(f)
-            host = self.sync_cfg_dict.get("sync").get("server").get("host")
-        if self.is_cabinet:
-            TabWidget.lineEdit_cfg7.setText(host)
-        else:
-            TabWidget.lineEdit_cfg7_2.setText(host)
+                TabWidget.lineEdit_cfg5.setText(nvr_ip)
+                TabWidget.lineEdit_cfg6.setText(product_no)
+                TabWidget.lineEdit_cfg7_3.setText(terminale_id)
+                TabWidget.lineEdit_cfg8.setText(server_ip)
+            elif self.device_type == 1:
+                enabled = self.nvr_cfg_dict.get("nvr").get("enabled")
+                server_ip = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("server-ip")
+                username = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("username")
+                password = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("password")
+                enabled_upload = self.nvr_cfg_dict.get("nvr").get("video").get("enabled-upload")
+                upload_save_dir = self.nvr_cfg_dict.get("nvr").get("video").get("upload-save-dir")
+                product_channels = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("productChannels")
 
-        if self.is_cabinet:
+                TabWidget.tableWidget_2.setRowCount(len(product_channels))
+                for idx, child in enumerate(product_channels):
+                    item1 = QTableWidgetItem(child.get("productNo"))
+                    item1.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                    item2 = QTableWidgetItem(str(child.get("channel")))
+                    item2.setTextAlignment(Qt.AlignHCenter | Qt.AlignVCenter)
+                    TabWidget.tableWidget_2.setItem(idx, 0, item1)
+                    TabWidget.tableWidget_2.setItem(idx, 1, item2)
+
+                TabWidget.comboBox_2.setCurrentIndex(enabled)
+                TabWidget.comboBox_3.setCurrentIndex(enabled_upload)
+                TabWidget.lineEdit_5.setText(server_ip)
+                my_regex = QRegExp(r'((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}')
+                my_validator = QRegExpValidator(my_regex, TabWidget.lineEdit_5)
+                TabWidget.lineEdit_5.setValidator(my_validator)
+                TabWidget.lineEdit_6.setText(username)
+                TabWidget.lineEdit_7.setText(password)
+                TabWidget.lineEdit_8.setText(upload_save_dir)
+        except FileNotFoundError:
+            pass
+
+        try:
+            with open(self.sync_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.sync_cfg_dict = self.yaml.load(f)
+                host = self.sync_cfg_dict.get("sync").get("server").get("host")
+            if self.device_type == 0:
+                TabWidget.lineEdit_cfg7.setText(host)
+            elif self.device_type == 1:
+                regex = QRegExp(r'((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}')
+                validator = QRegExpValidator(regex, TabWidget.lineEdit_cfg7_2)
+                TabWidget.lineEdit_cfg7_2.setValidator(validator)
+                TabWidget.lineEdit_cfg7_2.setText(host)
+        except FileNotFoundError:
+            pass
+
+        try:
             with open(self.extern_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.extern_cfg_dict = self.yaml.load(f)
-                if self.extern_cfg_dict.get("rodin") is not None:
-                    enabled = self.extern_cfg_dict.get("rodin").get("server").get("enabled")
-                    TabWidget.checkBox.setChecked(enabled)
-                    readers = self.extern_cfg_dict.get("rodin").get("server").get("readers")
-                    TabWidget.tableWidget_ext.setRowCount(len(readers))
-                    for idx, reader in enumerate(readers):
-                        TabWidget.tableWidget_ext.setItem(idx, 0, QTableWidgetItem(reader.get("cabinet-id")))
-                        TabWidget.tableWidget_ext.setItem(idx, 1, QTableWidgetItem(reader.get("host")))
-                        if reader.get("antennaNos") is not None:
-                            TabWidget.tableWidget_ext.setItem(idx, 2, QTableWidgetItem(str(reader.get("antennaNos"))))
-                else:
-                    TabWidget.tableWidget_ext.setEnabled(False)
+                if self.device_type == 0:
+                    if self.extern_cfg_dict.get("rodin") is not None:
+                        enabled = self.extern_cfg_dict.get("rodin").get("server").get("enabled")
+                        TabWidget.checkBox.setChecked(enabled)
+                        readers = self.extern_cfg_dict.get("rodin").get("server").get("readers")
+                        TabWidget.tableWidget_ext.setRowCount(len(readers))
+                        for idx, reader in enumerate(readers):
+                            TabWidget.tableWidget_ext.setItem(idx, 0, QTableWidgetItem(reader.get("cabinet-id")))
+                            TabWidget.tableWidget_ext.setItem(idx, 1, QTableWidgetItem(reader.get("host")))
+                            if reader.get("antennaNos") is not None:
+                                TabWidget.tableWidget_ext.setItem(idx, 2, QTableWidgetItem(str(reader.get("antennaNos"))))
+                    else:
+                        TabWidget.tableWidget_ext.setEnabled(False)
+                elif self.device_type == 1:
+                    zaz_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("enabled")
+                    zaz0a0_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz0a0").get("enabled")
+                    legacy_enabled = self.extern_cfg_dict.get("serial").get("finger").get("legacy").get("enabled")
+                    idx = [zaz_enabled, zaz0a0_enabled, legacy_enabled].index(True)
+                    baud_no = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("baud-no")
+                    match_threshold = self.extern_cfg_dict.get("serial").get("finger").get("match-threshold")
 
-        TabWidget.saveButton.setEnabled(True)
+                    TabWidget.comboBox_4.setCurrentIndex(idx)
+                    TabWidget.comboBox_5.setCurrentText(str(baud_no))
+                    # TabWidget.lineEdit_9.setValidator(QIntValidator(0, 100))
+                    regex = QRegExp(r'^([1-9][0-9]{0,1}|100)$')
+                    validator = QRegExpValidator(regex, TabWidget.lineEdit_9)
+                    TabWidget.lineEdit_9.setValidator(validator)
+                    TabWidget.lineEdit_9.setText(str(match_threshold))
+        except FileNotFoundError:
+            pass
+
+        try:
+            with open(self.delay_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.delay_cfg_dict = self.yaml.load(f)
+            if self.device_type == 0:
+                pass
+            elif self.device_type == 1:
+                delay_millis = self.delay_cfg_dict.get("actions").get("delay").get("delay-millis")
+                delay_lock = self.delay_cfg_dict.get("actions").get("delay").get("delay-lock")
+                time_out_no_lock = self.delay_cfg_dict.get("actions").get("delay").get("time-out-no-lock")
+
+                TabWidget.lineEdit_10.setText(str(delay_millis))
+                TabWidget.lineEdit_11.setText(str(delay_lock))
+                TabWidget.lineEdit_12.setText(str(time_out_no_lock))
+        except FileNotFoundError:
+            pass
+
+        try:
+            with open(self.mcc_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.mcc_cfg_dict = self.yaml.load(f)
+            if self.device_type == 0:
+                pass
+            elif self.device_type == 1:
+                enable = self.mcc_cfg_dict.get("mcc").get("enable")
+                host = self.mcc_cfg_dict.get("mcc").get("hub").get("host")
+
+                TabWidget.comboBox_6.setCurrentIndex(enable)
+                regex = QRegExp(r'((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}')
+                validator = QRegExpValidator(regex, TabWidget.lineEdit_cfg7_4)
+                TabWidget.lineEdit_cfg7_4.setValidator(validator)
+                TabWidget.lineEdit_cfg7_4.setText(host)
+        except FileNotFoundError:
+            pass
+
+        try:
+            with open(self.ws_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.ws_cfg_dict = self.yaml.load(f)
+            if self.device_type == 0:
+                pass
+            elif self.device_type == 1:
+                restructure = self.ws_cfg_dict.get("protocol").get("restructure")
+                TabWidget.comboBox_7.setCurrentIndex(restructure)
+        except FileNotFoundError:
+            pass
 
     def save_cfg(self):
-        with open(self.browser_cfg_path, mode='w', encoding="UTF-8") as f:
-            if self.is_cabinet:
-                self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1.text()
-                self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2.text()
-                self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3.text()
-                self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4.text()
-            else:
-                self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1_2.text()
-                self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2_2.text()
-                self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3_2.text()
-                self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4_2.text()
-            json.dump(self.browser_cfg_dict, f, ensure_ascii=False, indent=4)
-        TabWidget.label_status.setText("保存成功！")
+        try:
+            with open(self.browser_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.device_type == 0:
+                    self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1.text()
+                    self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2.text()
+                    self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3.text()
+                    self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4.text()
+                elif self.device_type == 1:
+                    self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1_2.text()
+                    self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2_2.text()
+                    self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3_2.text()
+                    self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4_2.text()
+                json.dump(self.browser_cfg_dict, f, ensure_ascii=False, indent=4)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
 
-        with open(self.nvr_cfg_path, mode='w', encoding="UTF-8") as f:
-            if self.is_cabinet:
-                self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5.text()
-                self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6.text()
-                self.nvr_cfg_dict["nvr"]["terminale-id"] = TabWidget.lineEdit_cfg7_3.text()
-                self.nvr_cfg_dict["nvr"]["mcc"]["server-ip"] = TabWidget.lineEdit_cfg8.text()
-            else:
-                self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5_2.text()
-                self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6_2.text()
-            self.yaml.dump(self.nvr_cfg_dict, f)
-        TabWidget.label_status.setText("保存成功！")
+        try:
+            with open(self.nvr_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.device_type == 0:
+                    self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5.text()
+                    self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6.text()
+                    self.nvr_cfg_dict["nvr"]["terminale-id"] = TabWidget.lineEdit_cfg7_3.text()
+                    self.nvr_cfg_dict["nvr"]["mcc"]["server-ip"] = TabWidget.lineEdit_cfg8.text()
+                elif self.device_type == 1:
+                    self.nvr_cfg_dict["nvr"]["enabled"] = bool(TabWidget.comboBox_2.currentIndex())
+                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["server-ip"] = TabWidget.lineEdit_5.text()
+                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["username"] = TabWidget.lineEdit_6.text()
+                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["password"] = TabWidget.lineEdit_7.text()
+                    self.nvr_cfg_dict["nvr"]["video"]["enabled-upload"] = bool(TabWidget.comboBox_3.currentIndex())
+                    self.nvr_cfg_dict["nvr"]["video"]["upload-save-dir"] = TabWidget.lineEdit_8.text()
+                    product_channels = []
+                    for i in range(TabWidget.tableWidget_2.rowCount()):
+                        product_no = TabWidget.tableWidget_2.item(i, 0).text()
+                        channel = TabWidget.tableWidget_2.item(i, 1).text()
+                        product_channels.append({"productNo": product_no, "channel": int(channel)})
+                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["productChannels"] = product_channels
+                self.yaml.dump(self.nvr_cfg_dict, f)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
 
-        with open(self.sync_cfg_path, mode='w', encoding="UTF-8") as f:
-            if self.is_cabinet:
-                self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7.text()
-            else:
-                self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7_2.text()
-            self.yaml.dump(self.sync_cfg_dict, f)
-        TabWidget.label_status.setText("保存成功！")
+        try:
+            with open(self.sync_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.device_type == 0:
+                    self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7.text()
+                elif self.device_type == 1:
+                    self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7_2.text()
+                self.yaml.dump(self.sync_cfg_dict, f)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
 
-        if self.is_cabinet:
+        try:
+            with open(self.mcc_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.device_type == 0:
+                    pass
+                elif self.device_type == 1:
+                    self.mcc_cfg_dict["mcc"]["enable"] = bool(TabWidget.comboBox_6.currentIndex())
+                    self.mcc_cfg_dict["mcc"]["hub"]["host"] = TabWidget.lineEdit_cfg7_4.text()
+                self.yaml.dump(self.mcc_cfg_dict, f)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
+
+        try:
+            with open(self.ws_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.device_type == 0:
+                    pass
+                elif self.device_type == 1:
+                    self.ws_cfg_dict["protocol"]["restructure"] = bool(TabWidget.comboBox_7.currentIndex())
+                self.yaml.dump(self.ws_cfg_dict, f)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
+
+        try:
+            with open(self.delay_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.device_type == 0:
+                    pass
+                elif self.device_type == 1:
+                    self.delay_cfg_dict["actions"]["delay"]["delay-millis"] = int(TabWidget.lineEdit_10.text())
+                    self.delay_cfg_dict["actions"]["delay"]["delay-lock"] = int(TabWidget.lineEdit_11.text())
+                    self.delay_cfg_dict["actions"]["delay"]["time-out-no-lock"] = int(TabWidget.lineEdit_12.text())
+                self.yaml.dump(self.delay_cfg_dict, f)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
+
+        try:
             with open(self.extern_cfg_path, mode='w', encoding="UTF-8") as f:
-                if self.extern_cfg_dict.get("rodin") is not None:
-                    self.extern_cfg_dict["rodin"]["server"]["enabled"] = TabWidget.checkBox.isChecked()
-                    readers = []
-                    for i in range(TabWidget.tableWidget_ext.rowCount()):
-                        cabinet_id = TabWidget.tableWidget_ext.item(i, 0).text()
-                        host = TabWidget.tableWidget_ext.item(i, 1).text()
-                        if TabWidget.tableWidget_ext.item(i, 2) is not None:
-                            antenna_nos = eval(TabWidget.tableWidget_ext.item(i, 2).text())
-                            readers.append({"antennaNos": antenna_nos, "cabinet-id": cabinet_id, "host": host,
-                                            "port": 4001})
-                        else:
-                            readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
-                    self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
+                if self.device_type == 0:
+                    if self.extern_cfg_dict.get("rodin") is not None:
+                        self.extern_cfg_dict["rodin"]["server"]["enabled"] = TabWidget.checkBox.isChecked()
+                        readers = []
+                        for i in range(TabWidget.tableWidget_ext.rowCount()):
+                            cabinet_id = TabWidget.tableWidget_ext.item(i, 0).text()
+                            host = TabWidget.tableWidget_ext.item(i, 1).text()
+                            if TabWidget.tableWidget_ext.item(i, 2) is not None:
+                                antenna_nos = eval(TabWidget.tableWidget_ext.item(i, 2).text())
+                                readers.append({"antennaNos": antenna_nos, "cabinet-id": cabinet_id, "host": host,
+                                                "port": 4001})
+                            else:
+                                readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
+                        self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
+                elif self.device_type == 1:
+                    if TabWidget.comboBox_7.currentText() == '方形指纹':
+                        self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = True
+                    elif TabWidget.comboBox_7.currentText() == '圆形指纹':
+                        self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = True
+                    elif TabWidget.comboBox_7.currentText() == '光学指纹':
+                        self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = True
+                    self.extern_cfg_dict["serial"]["finger"]["zaz"]["baud-no"] = int(TabWidget.comboBox_7.currentText())
+                    self.extern_cfg_dict["serial"]["finger"]["match-threshold"] = int(TabWidget.lineEdit_9.text())
                 self.yaml.dump(self.extern_cfg_dict, f)
-        TabWidget.label_status.setText("保存成功！")
-
-
-class FileManager(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.model_index = QModelIndex()
-        self.model = QFileSystemModel()
-        self.model.setRootPath("/media")
-        self.model.setReadOnly(False)
-
-        TabWidget.treeView.setModel(self.model)
-        TabWidget.treeView.setRootIndex(self.model.index("/nubomed"))
-        TabWidget.treeView.setColumnWidth(0, 200)
-        TabWidget.treeView.setIconSize(QSize(30, 30))
-
-        TabWidget.treeView_driver.setModel(self.model)
-        TabWidget.treeView_driver.setRootIndex(self.model.index("/media"))
-        TabWidget.treeView_driver.setColumnWidth(0, 200)
-        TabWidget.treeView_driver.setIconSize(QSize(30, 30))
-
-        TabWidget.treeView.clicked.connect(self.left)
-        TabWidget.treeView_driver.clicked.connect(self.right)
-        TabWidget.pushButton_open.clicked.connect(self.open)
-        TabWidget.pushButton_mkdir.clicked.connect(self.mkdir)
-        TabWidget.pushButton_remove.clicked.connect(self.rm)
-        # TabWidget.pushButton_copy.clicked.connect()
-
-    def left(self, index):
-        TabWidget.treeView_driver.clearSelection()
-        self.path = self.model.filePath(index)
-
-    def right(self, index):
-        TabWidget.treeView.clearSelection()
-        self.path = self.model.filePath(index)
-
-    def popup(self):
-        msg_box = QMessageBox()
-        msg_box.setWindowTitle("错误")
-        msg_box.setText("文件已经存在")
-        msg_box.setStandardButtons(QMessageBox.Ok)
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.exec()
-
-    def open(self):
-        path = QFileDialog.getExistingDirectory(self, "打开文件夹", "/home", QFileDialog.ShowDirsOnly)
-        if path:
-            TabWidget.treeView.setRootIndex(self.model.index(path))
-
-    def mkdir(self):
-        dir_name, _ = QInputDialog.getText(self, "新建文件夹", "请输入文件夹名称", QLineEdit.Normal, "")
-        if dir_name:
-            self.model.mkdir(self.model_index.parent(), dir_name)
-
-    def rm(self):
-        self.model.remove(self.model_index)
+            TabWidget.label_status.setText("保存成功！")
+        except Exception:
+            TabWidget.label_status.setText("保存失败！")
 
 
 class FingerPrint(QWidget):
     def __init__(self):
         super().__init__()
+        self.thread = None
         # self.timer = QTimer()
         if system == "Windows":
             self.libc = cdll.LoadLibrary(f'{path}/bin/win/fingerprint/libapit.dll')
@@ -882,7 +879,7 @@ class FingerPrint(QWidget):
         ret = 2  # 传感器上没有手指
         timeout = 0
         while ret == 2 and timeout <= 99:
-            QApplication.processEvents()
+            # QApplication.processEvents()
             TabWidget.textBrowser_3.append(f"获取指纹图像中...第{timeout + 1}次尝试，"
                                            f"返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
@@ -912,15 +909,34 @@ class FingerPrint(QWidget):
 
     def get_image(self):
         TabWidget.textBrowser_3.clear()
-        storage_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-1049之间的数字:", QLineEdit.Normal,
-                                           str(random.randint(0, 1050)))
+        # storage_id, _ = QInputDialog.getText(self, "设定Flash存放地址", "请输入一个0-1049之间的数字:", QLineEdit.Normal,
+        #                                    str(random.randint(0, 1050)))
+        dialog = QInputDialog()
+        dialog.setWindowModality(Qt.WindowModal)
+        dialog.setTextEchoMode(QLineEdit.Normal)
+        dialog.setOkButtonText("确定")
+        dialog.setCancelButtonText("取消")
+        dialog.setWindowTitle("设定Flash存放地址")
+        dialog.setLabelText("请输入一个0-1049之间的数字:")
+        dialog.setTextValue(str(random.randint(0, 1050)))
+        dialog.exec_()
+        storage_id = dialog.textValue()
         if storage_id:
             self.thread = GetFingerprint(storage_id, self.libc, self.handle)
-            self.thread.step.connect(TabWidget.textBrowser_3.append)
-            self.thread.start()
+            self.thread.signals.step.connect(TabWidget.textBrowser_3.append)
+            threadpool.start(self.thread)
 
     def del_flash(self):
-        storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-1049的数字):", QLineEdit.Normal, "")
+        # storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(0-1049的数字):", QLineEdit.Normal, "")
+        dialog = QInputDialog()
+        dialog.setWindowModality(Qt.WindowModal)
+        dialog.setTextEchoMode(QLineEdit.Normal)
+        dialog.setOkButtonText("确定")
+        dialog.setCancelButtonText("取消")
+        dialog.setWindowTitle("删除指定模板")
+        dialog.setLabelText("请输入要删除的模板ID(0-1049的数字):")
+        dialog.exec_()
+        storage_id = dialog.textValue()
         if storage_id:
             ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(storage_id), 1)
             TabWidget.textBrowser_3.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
@@ -932,11 +948,14 @@ class FingerPrint(QWidget):
     def get_template_num(self):
         num = c_int(0)
         ret = self.libc.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
+        # self.thread = General(self.libc.ZAZTemplateNum, self.handle, c_int(0xffffffff), byref(num))
+        # self.thread.signals.step.connect(TabWidget.textBrowser_3.append)
         TabWidget.textBrowser_3.append(f"有效模板总数为{num.value}" if ret == 0 else "获取有效模板总数失败")
 
 
 class FingerPrint2(QWidget):
     def __init__(self):
+        self.thread = None
         super().__init__()
         self.libc = cdll.LoadLibrary(f'{path}/bin/linux/fingerprint/lib0a0.so')
 
@@ -997,8 +1016,8 @@ class FingerPrint2(QWidget):
     def get_image(self):
         TabWidget.textBrowser_6.clear()
         self.thread = GetFingerprint2(self.libc)
-        self.thread.step.connect(TabWidget.textBrowser_6.append)
-        self.thread.start()
+        self.thread.signals.step.connect(TabWidget.textBrowser_6.append)
+        threadpool.start(self.thread)
 
     def search_image(self):
         TabWidget.textBrowser_6.clear()
@@ -1007,7 +1026,7 @@ class FingerPrint2(QWidget):
         score = c_int(0)
         ret = 40  # 传感器上没有手指
         while ret != 0:
-            QApplication.processEvents()
+            # QApplication.processEvents()
             ret = self.libc.GetImage()
             TabWidget.textBrowser_6.append(f"{new_code_dict.get(ret)}")
         ret = self.libc.GetChar(0)
@@ -1021,7 +1040,16 @@ class FingerPrint2(QWidget):
             TabWidget.textBrowser_6.append(f"生成特征失败(错误类型/代码：{new_code_dict.get(ret)})")
 
     def del_flash(self):
-        storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(1-500的数字):", QLineEdit.Normal, "")
+        # storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(1-500的数字):", QLineEdit.Normal, "")
+        dialog = QInputDialog()
+        dialog.setWindowModality(Qt.WindowModal)
+        dialog.setTextEchoMode(QLineEdit.Normal)
+        dialog.setOkButtonText("确定")
+        dialog.setCancelButtonText("取消")
+        dialog.setWindowTitle("删除指定模板")
+        dialog.setLabelText("请输入要删除的模板ID(1-500的数字):")
+        dialog.exec_()
+        storage_id = dialog.textValue()
         if storage_id:
             ret = self.libc.DelChar(int(storage_id), int(storage_id), 0)
             TabWidget.textBrowser_6.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
@@ -1080,7 +1108,7 @@ class Camera(QWidget):
 class Arcsoft(QWidget):
     def __init__(self):
         super().__init__()
-        self.thread = QThread()
+        self.thread = None
         self.yaml = YAML()
         self.request = QNetworkRequest()
         self.manager = QNetworkAccessManager()
@@ -1091,31 +1119,40 @@ class Arcsoft(QWidget):
         TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
         TabWidget.pushButton_activateOline.clicked.connect(self.activate)
 
-        if system == "Linux":
-            try:
-                with open("/nubomed/consumable-cabinet-service/conf/application-camera.yml", mode='r', encoding="UTF-8") as f:
-                    self.camera_cfg_dict = self.yaml.load(f)
-                    app_id = self.camera_cfg_dict.get("arcsoft").get("AppId")
-                    sdk_key = self.camera_cfg_dict.get("arcsoft").get("SdkKey")
-                    active_key = self.camera_cfg_dict.get("arcsoft").get("ActiveKey")
-                    TabWidget.lineEdit_appId.setText(app_id)
-                    TabWidget.lineEdit_sdkKey.setText(sdk_key)
-                    TabWidget.lineEdit_activateKey.setText(active_key)
-            except FileNotFoundError:
-                TabWidget.textBrowser_arcsoft.append(f"未找到摄像头配置文件 application-camera.yml")
+        # if system == "Linux":
+        #     try:
+        #         with open("/nubomed/consumable-cabinet-service/conf/application-camera.yml", mode='r', encoding="UTF-8") as f:
+        #             self.camera_cfg_dict = self.yaml.load(f)
+        #             app_id = self.camera_cfg_dict.get("arcsoft").get("AppId")
+        #             sdk_key = self.camera_cfg_dict.get("arcsoft").get("SdkKey")
+        #             active_key = self.camera_cfg_dict.get("arcsoft").get("ActiveKey")
+        #             TabWidget.lineEdit_appId.setText(app_id)
+        #             TabWidget.lineEdit_sdkKey.setText(sdk_key)
+        #             TabWidget.lineEdit_activateKey.setText(active_key)
+        #     except FileNotFoundError:
+        #         TabWidget.textBrowser_arcsoft.append(f"未找到摄像头配置文件 application-camera.yml")
 
     def generator(self):
         TabWidget.textBrowser_arcsoft.clear()
         TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
-        password, _ = QInputDialog.getText(self, "提升权限", "请输入当前账户密码:", QLineEdit.Normal, "")
+        # password, _ = QInputDialog.getText(self, "提升权限", "请输入当前账户密码:", QLineEdit.Normal, "")
+        dialog = QInputDialog()
+        dialog.setWindowModality(Qt.WindowModal)
+        dialog.setTextEchoMode(QLineEdit.Normal)
+        dialog.setOkButtonText("确定")
+        dialog.setCancelButtonText("取消")
+        dialog.setWindowTitle("提升权限")
+        dialog.setLabelText("请输入当前账户密码:")
+        dialog.exec_()
+        password = dialog.textValue()
 
         self.thread = Commander(f"bash /nubomed/arcsoft/arcsoftsetup.sh {password}")
-        self.thread.stdout.connect(TabWidget.textBrowser_arcsoft.append)
-        self.thread.start()
+        self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
+        threadpool.start(self.thread)
 
     def check_active(self):
         TabWidget.textBrowser_arcsoft.clear()
-        self.request.setUrl(QUrl("http://192.168.1.96:8080/system/getActiveInfo"))
+        self.request.setUrl(QUrl("http://localhost:8080/system/getActiveInfo"))
         self.manager.get(self.request)
 
     @staticmethod
@@ -1135,20 +1172,23 @@ class Arcsoft(QWidget):
 
     def activate(self):
         TabWidget.textBrowser_arcsoft.clear()
-        app_id = TabWidget.lineEdit_appId.text()
-        sdk_key = TabWidget.lineEdit_sdkKey.text()
         active_key = TabWidget.lineEdit_activateKey.text()
 
-        query = QUrlQuery()
-        query.addQueryItem("AppId", app_id)
-        query.addQueryItem("SdkKey", sdk_key)
-        query.addQueryItem("activeKey", active_key)
+        # query = QUrlQuery()
+        # query.addQueryItem("AppId", app_id)
+        # query.addQueryItem("SdkKey", sdk_key)
+        # query.addQueryItem("activeKey", active_key)
+        #
+        # url = QUrl("http://localhost:8080/system/activeFaceEngin?")
+        # url.setQuery(query.query())
+        #
+        # self.request.setUrl(url)
+        # self.manager.get(self.request)
 
-        url = QUrl("http://192.168.1.96:8080/system/activeFaceEngin?")
-        url.setQuery(query.query())
-
-        self.request.setUrl(url)
-        self.manager.get(self.request)
+        if active_key:
+            self.thread = Commander(f"bash {path}/shell/arsoft_Active.sh 'F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca' '8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v' {active_key}")
+            self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
+            threadpool.start(self.thread)
 
 
 class Scan(QWidget):
@@ -1157,7 +1197,7 @@ class Scan(QWidget):
         self.ser = QSerialPort()
         self.ser.readyRead.connect(self.read)
         self.thread = Serial(self.ser)
-        self.thread.pinout.connect(TabWidget.textBrowser_4.append)
+        self.thread.signals.pinout.connect(TabWidget.textBrowser_4.append)
 
         TabWidget.pushButton_refreshPort_2.clicked.connect(self.get_port)
         TabWidget.comboBox_BaudRate_2.addItems(self.get_baud_rate())
@@ -1197,6 +1237,8 @@ class Scan(QWidget):
 
     def read(self):
         self.thread.run()
+        # TODO 关注
+        # threadpool.start(self.thread)
 
     def close(self):
         if self.ser.isOpen():
@@ -1210,579 +1252,42 @@ class Scan(QWidget):
         TabWidget.textBrowser_4.clear()
 
 
-class DeviceAliveCheck(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.ws = QWebSocket()
-
-        self.ws.connected.connect(self.connected)
-        self.ws.disconnected.connect(self.disconnected)
-        self.ws.textMessageReceived.connect(self.recv)
-
-        TabWidget.textBrowser_ws.document().setMaximumBlockCount(500)
-        TabWidget.pushButton_openWs.clicked.connect(self.open)
-        TabWidget.pushButton_closeWs.clicked.connect(self.close)
-        TabWidget.pushButton_checkAlive.clicked.connect(self.send)
-        TabWidget.pushButton_clear.clicked.connect(TabWidget.textBrowser_ws.clear)
-
-    def open(self):
-        TabWidget.textBrowser_ws.append('建立 WebSocket 连接...')
-        self.ws.open(QUrl("ws://127.0.0.1:8080/websocket"))
-
-    def close(self):
-        TabWidget.textBrowser_ws.append('关闭 WebSocket 连接...')
-        self.ws.abort()
-
-    def send(self):
-        device_type = TabWidget.comboBox_wsDevice.currentText()
-        time = datetime.now()
-
-        if device_type == "查询柜锁状态" or "查詢櫃鎖狀態":
-            request_json = {
-                "requestId": f"GetCabinetLockStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
-                "cmd": "GetCabinetLockStatus",
-                "seq": 1,
-                "ackSeq": 0,
-                "params": {
-                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
-                }
-            }
-        elif device_type == "查询柜门状态" or "查詢櫃門狀態":
-            request_json = {
-                "requestId": f"GetCabinetDoorStatus-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
-                "cmd": "GetCabinetDoorStatus",
-                "seq": 1,
-                "ackSeq": 0,
-                "params": {
-                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
-                }
-            }
-        elif device_type == "开始消毒" or "開始消毒":
-            request_json = {
-                "requestId": f"StartSterilize-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
-                "cmd": "StartSterilize",
-                "seq": 1,
-                "ackSeq": 0,
-                "params": {
-                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
-                }
-            }
-        elif device_type == "停止消毒" or "停止消毒":
-            request_json = {
-                "requestId": f"StopSterilize-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
-                "cmd": "StopSterilize",
-                "seq": 1,
-                "ackSeq": 0,
-                "params": {
-                    "device": f"{TabWidget.comboBox_deviceList.currentText()}"
-                }
-            }
-        request = json.dumps(request_json)
-        ret = self.ws.sendTextMessage(request)
-        TabWidget.textBrowser_ws.append(f'已发送请求：{request}，共{ret}比特')
-
-    def connected(self):
-        TabWidget.textBrowser_ws.append('WebSocket 连接已建立')
-        TabWidget.pushButton_openWs.setEnabled(False)
-        time = datetime.now()
-        request_json = {
-            "requestId": f"GetAllCabinetInfo-{time.strftime('%Y%m%d%H%M%S%f')[:-3]}",
-            "cmd": "GetAllCabinetInfo",
-            "seq": 1,
-            "ackSeq": 0
-        }
-        request = json.dumps(request_json)
-        ret = self.ws.sendTextMessage(request)
-
-    def disconnected(self):
-        TabWidget.textBrowser_ws.append('WebSocket 连接已断开')
-        TabWidget.comboBox_deviceList.clear()
-        TabWidget.pushButton_openWs.setEnabled(True)
-
-    def recv(self, message):
-        status_dict = {0: '关闭', 1: '打开'}
-        msg = json.loads(message)
-        TabWidget.textBrowser_ws.append(f'接收响应：{str(msg)}')
-        cmd_type = msg.get("cmd")
-        if cmd_type == 'GetAllCabinetInfoResult':
-            device_list = msg.get('params').get('devices')
-            TabWidget.comboBox_deviceList.addItems(device_list)
-        elif cmd_type == 'GetCabinetLockStatusResult':
-            lock_status = msg.get('params').get('lockStatus')
-            lock_status = status_dict.get(lock_status)
-            TabWidget.textBrowser_ws.append(f'锁状态：{lock_status}')
-        elif cmd_type == 'GetCabinetDoorStatusResult':
-            door_status = msg.get('params').get('doorStatus')
-            door_status = status_dict.get(door_status)
-            TabWidget.textBrowser_ws.append(f'门状态：{door_status}')
-        elif cmd_type == 'ReportTemperature' or 'ReportHumidity':
-            temperature = msg.get('params').get('temperature')
-            if temperature:
-                TabWidget.textBrowser_ws.append(f'温度：{temperature}')
-            humidity = msg.get('params').get('humidity')
-            if humidity:
-                TabWidget.textBrowser_ws.append(f'湿度：{humidity}')
-        elif cmd_type == 'NotifyUVLampStatusChanged':
-            uv_lamp_status = msg.get('params').get('uvLampStatus')
-            uv_lamp_status = status_dict.get(uv_lamp_status)
-            TabWidget.textBrowser_ws.append(f'紫外灯状态：{uv_lamp_status}')
-
-
 class MidUpgrade(QWidget):
     def __init__(self):
         super().__init__()
-        self.thread = QThread()
+        self.thread = None
         self.device_type = -1
+        self.pkg_path = None
 
         TabWidget.buttonGroup.idClicked.connect(self.get_device_type)
         TabWidget.installButton.clicked.connect(self.install)
+        TabWidget.chooseButton.clicked.connect(self.choose_upgrade_pkg)
         TabWidget.upgradeButton.clicked.connect(self.upgrade)
 
     def get_device_type(self, btn_id):
         self.device_type = abs(btn_id) - 1
         # print(self.device_type)
 
-    def upgrade(self):
-        pkg_path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (consumable-cabinet-service_V*.tar.gz)")
-        if pkg_path:
-            TabWidget.textBrowser_5.clear()
-            self.thread = Commander(f"bash {path}/shell/upgrade_version.sh {pkg_path}")
-            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-            self.thread.start()
-
     def install(self):
         wd_path = glob.glob("/nubomed/consumable-cabinet-service_V*/")[0]
         if self.device_type > 0:
             self.thread = Commander(f"bash install.sh {self.device_type}", wd=wd_path)
-            self.thread.stdout.connect(TabWidget.textBrowser_5.append)
-            self.thread.start()
+            self.thread.signals.stdout.connect(TabWidget.textBrowser_5.append)
+            threadpool.start(self.thread)
         else:
             TabWidget.textBrowser_5.append("请先选择柜子类型！再点击安装")
 
-
-class TreeItem:
-    def __init__(self, parent: "TreeItem" = None):
-        self._parent = parent
-        self._key = ""
-        self._value = ""
-        self._value_type = None
-        self._comment = ""
-        self._children = []
-
-    def appendChild(self, item: "TreeItem"):
-        """Add item as a child"""
-        self._children.append(item)
-
-    def child(self, row: int) -> "TreeItem":
-        """Return the child of the current item from the given row"""
-        return self._children[row]
-
-    def parent(self) -> "TreeItem":
-        """Return the parent of the current item"""
-        return self._parent
-
-    def childCount(self) -> int:
-        """Return the number of children of the current item"""
-        return len(self._children)
-
-    def row(self) -> int:
-        """Return the row where the current item occupies in the parent"""
-        return self._parent._children.index(self) if self._parent else 0
-
-    # def columnCount(self) -> int:
-    #     """Return the number of columns"""
-    #     return 3
-
-    def insertChild(self, position: int, count: int, parent: QModelIndex = QModelIndex()) -> bool:
-        if position < 0 or position > len(self._children):
-            return False
-
-        for row in range(count):
-            item = TreeItem(parent)
-            self._children.insert(position, item)
-        return True
-
-    def removeChildren(self, position: int, count: int) -> bool:
-        if position < 0 or position + count > len(self._children):
-            return False
-
-        for row in range(count):
-            self._children.pop(position)
-
-        return True
-
-    @property
-    def key(self) -> str:
-        """Return the key name"""
-        return self._key
-
-    @key.setter
-    def key(self, key: str):
-        """Set key name of the current item"""
-        self._key = key
-
-    @property
-    def value(self) -> str:
-        """Return the value name of the current item"""
-        return self._value
-
-    @value.setter
-    def value(self, value: str):
-        """Set value name of the current item"""
-        self._value = value
-
-    @property
-    def value_type(self):
-        """Return the python type of the item's value."""
-        return self._value_type
-
-    @value_type.setter
-    def value_type(self, value):
-        """Set the python type of the item's value."""
-        self._value_type = value
-
-    @property
-    def comment(self) -> str:
-        """Return the comment name of the current item"""
-        return self._comment
-
-    @comment.setter
-    def comment(self, value: str):
-        """Set comment name of the current item"""
-        self._comment = value
-
-    @classmethod
-    def load(cls, value: Union[List, Dict], parent: "TreeItem" = None, sort=False) -> "TreeItem":
-        rootItem = TreeItem(parent)
-        rootItem.key = "root"
-
-        if isinstance(value, dict):
-            items = sorted(value.items()) if sort else value.items()
-            comment = value.ca.items
-            for key, value in items:
-                child = cls.load(value, rootItem)
-                child.key = key
-                child.value_type = type(value)
-                try:
-                    child.comment = [i.value.strip('# \n') for i in comment.get(key, []) if i is not None]
-                except AttributeError:
-                    child.comment = ""
-                rootItem.appendChild(child)
-
-        elif isinstance(value, list):
-            for index, value in enumerate(value):
-                child = cls.load(value, rootItem)
-                child.key = index
-                child.value_type = type(value)
-                rootItem.appendChild(child)
-
-        else:
-            rootItem.value = (float(value) if isinstance(value, float) else value)
-            rootItem.value_type = type(value)
-
-        return rootItem
-
-
-class JsonModel(QAbstractItemModel):
-    def __init__(self, parent: QObject = None):
-        super().__init__(parent)
-
-        self._rootItem = TreeItem()
-        self._headers = ("键", "值", "备注")
-
-    def clear(self):
-        """ Clear data from the model """
-        self.load({})
-
-    def load(self, document: dict):
-        """ Load model from a nested dictionary """
-        assert isinstance(
-            document, (dict, list, tuple)
-        ), "`document` must be of dict, list or tuple, " f"not {type(document)}"
-
-        self.beginResetModel()
-
-        self._rootItem = TreeItem.load(document)
-        self._rootItem.value_type = type(document)
-
-        self.endResetModel()
-
-        return True
-
-    def data(self, index: QModelIndex, role: Qt.ItemDataRole) -> Any:
-        if not index.isValid():
-            return None
-
-        item = index.internalPointer()
-
-        if role == Qt.DisplayRole or role == Qt.EditRole:
-            if index.column() == 0:
-                return item.key
-
-            if index.column() == 1:
-                return item.value
-
-            if index.column() == 2:
-                return item.comment
-
-    def setData(self, index: QModelIndex, value: Any, role: Qt.ItemDataRole):
-        item = index.internalPointer()
-
-        if role == Qt.EditRole:
-            if index.column() == 0:
-                item.key = value
-                self.dataChanged.emit(index, index, [Qt.EditRole])
-                return True
-            elif index.column() == 1:
-                item.value = value
-                item.value_type = type(value)
-                self.dataChanged.emit(index, index, [Qt.EditRole])
-                return True
-            # elif index.column() == 2:
-            #     item.comment = value
-            #     self.dataChanged.emit(index, index, [Qt.EditRole])
-            #     return True
-        return False
-
-    def headerData(self, section: int, orientation: Qt.Orientation, role: Qt.ItemDataRole):
-        if role != Qt.DisplayRole:
-            return None
-
-        if orientation == Qt.Horizontal:
-            return self._headers[section]
-
-    def index(self, row: int, column: int, parent=QModelIndex()) -> QModelIndex:
-        if not self.hasIndex(row, column, parent):
-            return QModelIndex()
-
-        if not parent.isValid():
-            parentItem = self._rootItem
-        else:
-            parentItem = parent.internalPointer()
-
-        childItem = parentItem.child(row)
-        if childItem:
-            return self.createIndex(row, column, childItem)
-        else:
-            return QModelIndex()
-
-    def parent(self, index: QModelIndex()) -> QModelIndex:
-        if not index.isValid():
-            return QModelIndex()
-
-        childItem = index.internalPointer()
-        parentItem = childItem.parent()
-
-        if parentItem == self._rootItem:
-            return QModelIndex()
-
-        return self.createIndex(parentItem.row(), 0, parentItem)
-
-    def rowCount(self, parent=QModelIndex()):
-        if parent.column() > 0:
-            return 0
-
-        if not parent.isValid():
-            parentItem = self._rootItem
-        else:
-            parentItem = parent.internalPointer()
-
-        return parentItem.childCount()
-
-    def columnCount(self, parent=QModelIndex()):
-        return 3
-
-    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
-        flags = super(JsonModel, self).flags(index)
-
-        if index.column() == 1 or index.column() == 0:
-            return Qt.ItemIsEditable | flags
-        else:
-            return flags
-
-    def get_item(self, index: QModelIndex = QModelIndex()) -> TreeItem:
-        if index.isValid():
-            item = index.internalPointer()
-            if item:
-                return item
-
-        return self._rootItem
-
-    def insertRows(self, position: int, rows: int, parent: QModelIndex = QModelIndex()) -> bool:
-        parent_item = self.get_item(parent)
-        if not parent_item:
-            return False
-
-        self.beginInsertRows(parent, position, position + rows - 1)
-        success = parent_item.insertChild(position, rows, parent)
-        self.endInsertRows()
-
-        return success
-
-    def removeRows(self, position: int, rows: int, parent: QModelIndex = QModelIndex()) -> bool:
-        parent_item: TreeItem = self.get_item(parent)
-        if not parent_item:
-            return False
-
-        self.beginRemoveRows(parent, position, position + rows - 1)
-        success = parent_item.removeChildren(position, rows)
-        self.endRemoveRows()
-
-        return success
-
-    def to_yaml(self, item=None):
-        if item is None:
-            item = self._rootItem
-
-        nchild = item.childCount()
-
-        if item.value_type is comments.CommentedMap:
-            document = comments.CommentedMap()
-            for i in range(nchild):
-                ch = item.child(i)
-                document[ch.key] = self.to_yaml(ch)
-                try:
-                    document.yaml_add_eol_comment(ch.comment[0], ch.key)
-                except IndexError:
-                    pass
-            return document
-
-        elif item.value_type is comments.CommentedSeq or item.value_type is None:
-            document = comments.CommentedSeq()
-            for i in range(nchild):
-                ch = item.child(i)
-                document.append(self.to_yaml(ch))
-            return document
-
-        else:
-            if isinstance(item.value, item.value_type):
-                return item.value
-            else:
-                return eval(str(item.value))
-
-
-class MySortFilterProxyModel(QSortFilterProxyModel):
-    def __init__(self):
-        super().__init__()
-        self.key = ''
-
-    def setFilterKey(self, key):
-        self.key = key
-        self.invalidateFilter()
-        TabWidget.treeView_2.expandAll()
-
-    def filterAcceptsRow(self, source_row: int, source_parent: QModelIndex) -> bool:
-        index = self.sourceModel().index(source_row, 0, source_parent)
-
-        if self.key in str(index.data(Qt.DisplayRole)):
-            return True
-        else:
-            for i in range(self.sourceModel().rowCount(index)):
-                if self.filterAcceptsRow(i, index):
-                    return True
-            return False
-
-
-class ConfigEditor2(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.yaml = YAML()
-        self.yaml.preserve_quotes = True
-        self.yaml.default_flow_style = False
-        self.yaml.indent(mapping=2, sequence=4, offset=2)
-
-        self.path = ''
-        self.document = {}
-
-        self.model = JsonModel()
-        self.proxy_model = MySortFilterProxyModel()
-        self.proxy_model.setSourceModel(self.model)
-        TabWidget.treeView_2.setModel(self.proxy_model)
-
-        selection_model = TabWidget.treeView_2.selectionModel()
-        selection_model.selectionChanged.connect(self.update_actions)
-
-        # TabWidget.treeView_2.setSortingEnabled(True)
-        TabWidget.treeView_2.header().setSectionResizeMode(0, QHeaderView.Stretch)
-        TabWidget.treeView_2.header().setSectionResizeMode(1, QHeaderView.Stretch)
-        TabWidget.treeView_2.setAlternatingRowColors(True)
-        # TabWidget.treeView_2.setSelectionBehavior(QAbstractItemView.SelectItems)
-
-        TabWidget.openButton.clicked.connect(self.open_dir)
-        TabWidget.savecfgButton.clicked.connect(self.save_cfg)
-        TabWidget.comboBox.currentTextChanged.connect(self.read_cfg)
-        TabWidget.lineEdit_filter.textChanged.connect(self.proxy_model.setFilterKey)
-        TabWidget.insert_row_button.clicked.connect(self.insert_row)
-        TabWidget.remove_row_button.clicked.connect(self.remove_row)
-        TabWidget.insert_child_button.clicked.connect(self.insert_child)
-
-
-    def open_dir(self):
-        self.path = QFileDialog.getExistingDirectory(self, "打开文件夹", "/home", QFileDialog.ShowDirsOnly)
-        if self.path:
-            TabWidget.comboBox.clear()
-            TabWidget.comboBox.addItems([f for f in os.listdir(self.path) if f.endswith('yml')])
-
-    def read_cfg(self):
-        file_name = TabWidget.comboBox.currentText()
-        with open(f"{self.path}/{file_name}", mode='r', encoding="UTF-8") as f:
-            # TODO 判断文件类型
-            self.document = self.yaml.load(f)
-            self.model.load(self.document)
-            TabWidget.treeView_2.expandAll()
-
-    def save_cfg(self):
-        with open(f"{self.path}/{TabWidget.comboBox.currentText()}", mode='w', encoding="UTF-8") as f:
-            doc = self.model.to_yaml()
-            self.document.update(doc)
-            self.yaml.dump(self.document, f)
-
-    def update_actions(self):
-        selection_model = TabWidget.treeView_2.selectionModel()
-        has_selection = not selection_model.selection().isEmpty()
-        TabWidget.remove_row_button.setEnabled(has_selection)
-
-        current_index = selection_model.currentIndex()
-        has_current = current_index.isValid()
-        TabWidget.insert_row_button.setEnabled(has_current)
-
-        if has_current:
-            TabWidget.treeView_2.closePersistentEditor(current_index)
-
-    def insert_child(self):
-        selection_model = TabWidget.treeView_2.selectionModel()
-        index = selection_model.currentIndex()
-        model = TabWidget.treeView_2.model()
-
-        if not model.insertRow(0, index):
-            return
-
-        child = model.index(0, 0, index)
-        model.setData(child, "请填写", Qt.EditRole)
-
-        selection_model.setCurrentIndex(model.index(0, 0, index), QItemSelectionModel.ClearAndSelect)
-        self.update_actions()
-
-    def insert_row(self):
-        index = TabWidget.treeView_2.selectionModel().currentIndex()
-        model = TabWidget.treeView_2.model()
-        parent = index.parent()
-
-        if not model.insertRow(index.row() + 1, parent):
-            return
-
-        self.update_actions()
-
-        for column in range(model.columnCount(parent)):
-            child = model.index(index.row() + 1, column, parent)
-            model.setData(child, "请填写", Qt.EditRole)
-
-    def remove_row(self):
-        index = TabWidget.treeView_2.selectionModel().currentIndex()
-        model = TabWidget.treeView_2.model()
-
-        if model.removeRow(index.row(), index.parent()):
-            self.update_actions()
+    def choose_upgrade_pkg(self):
+        self.pkg_path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (*.tar.gz)")
+        if self.pkg_path:
+            TabWidget.textBrowser_5.clear()
+            TabWidget.textBrowser_5.append(f"选中的升级包所在路径：{self.pkg_path}")
+
+    def upgrade(self):
+        if self.pkg_path:
+            self.thread = Commander(f"bash {path}/shell/upgrade_version.sh {self.pkg_path}")
+            self.thread.signals.stdout.connect(TabWidget.textBrowser_5.append)
+            threadpool.start(self.thread)
 
 
 if __name__ == "__main__":
@@ -1813,7 +1318,10 @@ if __name__ == "__main__":
         geometry.moveCenter(center)
         TabWidget.setGeometry(geometry)
 
-        # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能
+        # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能UI
+        TabWidget.setTabVisible(7, False)  # 日志 Tab
+        TabWidget.setTabVisible(8, False)  # 通用配置修改 Tab
+        TabWidget.setTabVisible(9, False)  # 外部硬件工况 Tab
         TabWidget.setTabVisible(10, False)  # 文件管理器 Tab
         TabWidget.setTabVisible(11, False)  # 设置 Tab
         # 多系统兼容
@@ -1823,9 +1331,8 @@ if __name__ == "__main__":
             # system_tray_icon.show()
             # 关闭部分不支持的功能的标签/按钮
             TabWidget.setTabVisible(1, False)  # 部署升级 Tab
-            TabWidget.setTabVisible(3, False)  # 配置文件修改 Tab
-            TabWidget.setTabVisible(4, False)  # 通用配置文件修改 Tab
-            TabWidget.setTabVisible(8, False)  # 人脸识别 Tab
+            TabWidget.setTabVisible(2, False)  # 配置文件修改 Tab
+            TabWidget.setTabVisible(6, False)  # 人脸识别 Tab
             # TODO 更新win监控功能
             TabWidget.tabWidget_2.setTabVisible(1, False)
             TabWidget.reflashButton.setEnabled(False)
@@ -1855,16 +1362,12 @@ if __name__ == "__main__":
         if tab:
             TabWidget.setCurrentIndex(tab_dict.get(tab))
 
-        log = LogBrowser()
         ter = Terminal()
         cfg = ConfigEditor()
-        cfg2 = ConfigEditor2()
-        # file = FileManager()
         fp = FingerPrint()
         cam = Camera()
         arc = Arcsoft()
         scan = Scan()
-        checker = DeviceAliveCheck()
         mu = MidUpgrade()
         # 置顶
         # TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
