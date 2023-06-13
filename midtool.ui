@@ -367,6 +367,9 @@ QTabBar::tab{width:100}</string>
           <attribute name="horizontalHeaderStretchLastSection">
            <bool>false</bool>
           </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
           <attribute name="verticalHeaderStretchLastSection">
            <bool>false</bool>
           </attribute>
@@ -4148,8 +4151,11 @@ p, li { white-space: pre-wrap; }
              <pointsize>10</pointsize>
             </font>
            </property>
+           <property name="alignment">
+            <set>Qt::AlignCenter</set>
+           </property>
            <property name="placeholderText">
-            <string/>
+            <string>密钥格式：****-****-****-****，需要使用&quot;-&quot;连接，注意区分大小写</string>
            </property>
           </widget>
          </item>
@@ -5459,7 +5465,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 1.0.0</string>
+        <string>MidTool 中台工具箱 1.0.0 RC</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

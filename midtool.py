@@ -401,9 +401,9 @@ class Terminal(QWidget):
         if system == "Windows":
             self.common_command("powershell (net start ConsumableService) -or (net start DrugService)")
         elif system == "Linux":
-            path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
+            json_path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
             if path:
-                self.common_command(f"pm2 start {path} -m")
+                self.common_command(f"bash {path}/shell/pm2_start.sh {json_path}")
 
     def restart_mid(self):
         self.common_command("pm2 restart 0 -m")
@@ -533,7 +533,7 @@ class ConfigEditor(QWidget):
                 TabWidget.lineEdit_cfg2_2.setText(main_ter_code)
                 TabWidget.lineEdit_cfg3_2.setText(default_url)
                 TabWidget.lineEdit_cfg4_2.setText(s_ter_address)
-        except FileNotFoundError:
+        except Exception:
             pass
 
         try:
@@ -576,7 +576,7 @@ class ConfigEditor(QWidget):
                 TabWidget.lineEdit_6.setText(username)
                 TabWidget.lineEdit_7.setText(password)
                 TabWidget.lineEdit_8.setText(upload_save_dir)
-        except FileNotFoundError:
+        except Exception:
             pass
 
         try:
@@ -590,7 +590,7 @@ class ConfigEditor(QWidget):
                 validator = QRegExpValidator(regex, TabWidget.lineEdit_cfg7_2)
                 TabWidget.lineEdit_cfg7_2.setValidator(validator)
                 TabWidget.lineEdit_cfg7_2.setText(host)
-        except FileNotFoundError:
+        except Exception:
             pass
 
         try:
@@ -624,7 +624,7 @@ class ConfigEditor(QWidget):
                     validator = QRegExpValidator(regex, TabWidget.lineEdit_9)
                     TabWidget.lineEdit_9.setValidator(validator)
                     TabWidget.lineEdit_9.setText(str(match_threshold))
-        except FileNotFoundError:
+        except Exception:
             pass
 
         try:
@@ -640,7 +640,7 @@ class ConfigEditor(QWidget):
                 TabWidget.lineEdit_10.setText(str(delay_millis))
                 TabWidget.lineEdit_11.setText(str(delay_lock))
                 TabWidget.lineEdit_12.setText(str(time_out_no_lock))
-        except FileNotFoundError:
+        except Exception:
             pass
 
         try:
@@ -657,7 +657,7 @@ class ConfigEditor(QWidget):
                 validator = QRegExpValidator(regex, TabWidget.lineEdit_cfg7_4)
                 TabWidget.lineEdit_cfg7_4.setValidator(validator)
                 TabWidget.lineEdit_cfg7_4.setText(host)
-        except FileNotFoundError:
+        except Exception:
             pass
 
         try:
@@ -668,7 +668,7 @@ class ConfigEditor(QWidget):
             elif self.device_type == 1:
                 restructure = self.ws_cfg_dict.get("protocol").get("restructure")
                 TabWidget.comboBox_7.setCurrentIndex(restructure)
-        except FileNotFoundError:
+        except Exception:
             pass
 
     def save_cfg(self):
@@ -1186,7 +1186,10 @@ class Arcsoft(QWidget):
         # self.manager.get(self.request)
 
         if active_key:
-            self.thread = Commander(f"bash {path}/shell/arsoft_Active.sh 'F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca' '8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v' {active_key}")
+            self.thread = Commander(f"bash {path}/shell/arsoft_Active.sh F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca 8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v {active_key}")
+            # 测试环境
+            # self.thread = Commander(
+            #     f"bash {path}/shell/arsoft_Active.sh DEF4Zavuu24UjseJgrYGaGbyHD8C7MZBbDimLN3joSmE 3sfW9ijmvQqUNCvBrNgJNzWxT7rCsfaxDsyU7XzQKA4Q {active_key}")
             self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
             threadpool.start(self.thread)
 

@@ -13,6 +13,12 @@ echo SDK_KEY:$2
 echo activeKey:$3
 
 
+if [ "$(find /nubomed/ -name "drug-middleware")" != "" ]; then
+	source /etc/profile
+fi
+if [ "$(find /nubomed/ -name "consumable-cabinet-service")" != "" ]; then
+	export LD_LIBRARY_PATH=.:/nubomed/libs
+fi
 
 if [ "$(ps -ef | grep arsoftActiveTool | grep -v "grep")" = "" ]; then
 	nohup java -jar $cur_dir/arsoftActiveTool-0.0.1-SNAPSHOT.jar --server.port=32201 >/dev/null 2>&1 &
@@ -33,7 +39,7 @@ curl --location "http://127.0.0.1:32201/system/activeFaceEngin?appId=$1&sdkKey=$
 ps -ef | grep arsoftActiveTool | awk '{print $2}' | awk 'NR==1' | xargs kill -9
 
 flag=$(cat $cur_dir/flag.txt)
-
+echo $flag
 case $flag in
 	0)
 		echo "激活成功"
@@ -91,15 +97,15 @@ case $flag in
 		;;
 	*)
 		echo "其他错误"
-	    ;;
+	   ;;
 esac
 rm $cur_dir/flag.txt
 
 if [ "$flag" = "0" ]; then
-	if [ "$(find /nubomed/midpkg/ -name "drug-middleware")" != "" ]; then
+	if [ "$(find /nubomed/ -name "drug-middleware")" != "" ]; then
 		cp $cur_dir/ArcFacePro64.dat /nubomed/midpkg/
 	fi
-    if [ "$(find /nubomed/ -name "consumable-cabinet-service")" != "" ]; then
+   if [ "$(find /nubomed/ -name "consumable-cabinet-service")" != "" ]; then
 		cp $cur_dir/ArcFacePro64.dat /nubomed/consumable-cabinet-service/conf
 	fi
 	rm $cur_dir/ArcFacePro64.dat
