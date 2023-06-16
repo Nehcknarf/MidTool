@@ -528,11 +528,6 @@ class ConfigEditor(QWidget):
                 TabWidget.lineEdit_cfg2.setText(main_ter_code)
                 TabWidget.lineEdit_cfg3.setText(default_url)
                 TabWidget.lineEdit_cfg4.setText(s_ter_address)
-            elif self.device_type == 1:
-                TabWidget.lineEdit_cfg1_2.setText(str(main_ter_id))
-                TabWidget.lineEdit_cfg2_2.setText(main_ter_code)
-                TabWidget.lineEdit_cfg3_2.setText(default_url)
-                TabWidget.lineEdit_cfg4_2.setText(s_ter_address)
         except Exception:
             pass
 
@@ -679,15 +674,10 @@ class ConfigEditor(QWidget):
                     self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2.text()
                     self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3.text()
                     self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4.text()
-                elif self.device_type == 1:
-                    self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1_2.text()
-                    self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2_2.text()
-                    self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3_2.text()
-                    self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4_2.text()
                 json.dump(self.browser_cfg_dict, f, ensure_ascii=False, indent=4)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
         try:
             with open(self.nvr_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -711,8 +701,8 @@ class ConfigEditor(QWidget):
                     self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["productChannels"] = product_channels
                 self.yaml.dump(self.nvr_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
         try:
             with open(self.sync_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -722,8 +712,8 @@ class ConfigEditor(QWidget):
                     self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7_2.text()
                 self.yaml.dump(self.sync_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
         try:
             with open(self.mcc_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -734,8 +724,8 @@ class ConfigEditor(QWidget):
                     self.mcc_cfg_dict["mcc"]["hub"]["host"] = TabWidget.lineEdit_cfg7_4.text()
                 self.yaml.dump(self.mcc_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
         try:
             with open(self.ws_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -745,8 +735,8 @@ class ConfigEditor(QWidget):
                     self.ws_cfg_dict["protocol"]["restructure"] = bool(TabWidget.comboBox_7.currentIndex())
                 self.yaml.dump(self.ws_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
         try:
             with open(self.delay_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -758,8 +748,8 @@ class ConfigEditor(QWidget):
                     self.delay_cfg_dict["actions"]["delay"]["time-out-no-lock"] = int(TabWidget.lineEdit_12.text())
                 self.yaml.dump(self.delay_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
         try:
             with open(self.extern_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -778,18 +768,24 @@ class ConfigEditor(QWidget):
                                 readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
                         self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
                 elif self.device_type == 1:
-                    if TabWidget.comboBox_7.currentText() == '方形指纹':
+                    if TabWidget.comboBox_4.currentText() == '方形指纹':
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = True
-                    elif TabWidget.comboBox_7.currentText() == '圆形指纹':
+                        self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
+                        self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = False
+                    elif TabWidget.comboBox_4.currentText() == '圆形指纹':
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = True
-                    elif TabWidget.comboBox_7.currentText() == '光学指纹':
+                        self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
+                        self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = False
+                    elif TabWidget.comboBox_4.currentText() == '光学指纹':
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = True
-                    self.extern_cfg_dict["serial"]["finger"]["zaz"]["baud-no"] = int(TabWidget.comboBox_7.currentText())
+                        self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
+                        self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
+                    self.extern_cfg_dict["serial"]["finger"]["zaz"]["baud-no"] = int(TabWidget.comboBox_5.currentText())
                     self.extern_cfg_dict["serial"]["finger"]["match-threshold"] = int(TabWidget.lineEdit_9.text())
                 self.yaml.dump(self.extern_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
-        except Exception:
-            TabWidget.label_status.setText("保存失败！")
+        except Exception as err:
+            TabWidget.label_status.setText(f"保存失败！{err}")
 
 
 class FingerPrint(QWidget):
