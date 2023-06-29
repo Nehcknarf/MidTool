@@ -1,5 +1,5 @@
 #!/bin/bash
-
+cd /nubomed/midtool/shell/
 APP_ID=$1
 SDK_KEY=$2
 activeKey=$3
@@ -13,16 +13,33 @@ echo SDK_KEY:$2
 echo activeKey:$3
 
 
-if [ "$(find /nubomed/ -name "drug-middleware")" != "" ]; then
-	source /etc/profile
+if [  -d "/nubomed/midpkg/drug-middleware/" ]; then
+	export LD_LIBRARY_PATH=.:/nubomed/midpkg/opencv-lib
+	cabinettype="drug"
 fi
-if [ "$(find /nubomed/ -name "consumable-cabinet-service")" != "" ]; then
+if [  -d "/nubomed/consumable-cabinet-service/" ]; then
 	export LD_LIBRARY_PATH=.:/nubomed/libs
+	cabinettype="consumable"	
 fi
+
+case $cabinettype in
+	drug)
+		echo "识别系统类型为：药柜4.1"
+		;;
+	consumable)
+		echo "识别系统类型为：耗材4.1"
+		;;
+	*)
+		echo "终端系统类型检测异常,请检查终端环境！！！"
+		exit 1
+	   ;;
+esac
+
 
 if [ "$(ps -ef | grep arsoftActiveTool | grep -v "grep")" = "" ]; then
 	nohup java -jar $cur_dir/arsoftActiveTool-0.0.1-SNAPSHOT.jar --server.port=32201 >/dev/null 2>&1 &
 fi
+
 printf "正在启动虹软在线激活服务,请稍后..."
 for (( i = 0; i < 15; i++ )); do
    if [ "$(netstat -ano | grep 32201)" != "" ]; then
@@ -39,7 +56,7 @@ curl --location "http://127.0.0.1:32201/system/activeFaceEngin?appId=$1&sdkKey=$
 ps -ef | grep arsoftActiveTool | awk '{print $2}' | awk 'NR==1' | xargs kill -9
 
 flag=$(cat $cur_dir/flag.txt)
-echo $flag
+
 case $flag in
 	0)
 		echo "激活成功"
@@ -51,7 +68,7 @@ case $flag in
 		echo "未激活"
 		;;
 	90117)	
-		echo "激活文件与SDK类型不匹配，请确认使用的sdk"
+		echo "激活文件与SDK类型不匹配"
 		;;
 	90120)
 		echo "参数为空"
@@ -96,17 +113,18 @@ case $flag in
 		echo "ACTIVEKEY激活码已过期" 
 		;;
 	*)
-		echo "其他错误"
+		echo "其他错误,错误码：$flag"
 	   ;;
 esac
 rm $cur_dir/flag.txt
 
 if [ "$flag" = "0" ]; then
-	if [ "$(find /nubomed/ -name "drug-middleware")" != "" ]; then
-		cp $cur_dir/ArcFacePro64.dat /nubomed/midpkg/
-	fi
-   if [ "$(find /nubomed/ -name "consumable-cabinet-service")" != "" ]; then
-		cp $cur_dir/ArcFacePro64.dat /nubomed/consumable-cabinet-service/conf
-	fi
-	rm $cur_dir/ArcFacePro64.dat
+	case $cabinettype in
+		drug)
+			mv $cur_dir/ArcFacePro64.dat /nubomed/midpkg/
+			;;
+		consumable)
+			mv $cur_dir/ArcFacePro64.dat /nubomed/consumable-cabinet-service/conf
+			;;
+	esac
 fi

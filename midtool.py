@@ -273,6 +273,7 @@ class GetFingerprint2(QRunnable):
         self.signals = WorkerSignals()
         super().__init__()
         self.libc = dll
+        self.need_kill = False
 
     def emit_state(self, code, func_str):
         if code == 0:
@@ -284,12 +285,16 @@ class GetFingerprint2(QRunnable):
     def run(self):
         storage_id = c_int(0)
         for i in range(3):
+            timeout = 0
+            if self.need_kill:
+                break
             ret = 40  # 传感器上没有手指
             self.signals.step.emit("请将手指平放在传感器上...")
-            while ret != 0:
+            while ret != 0 and timeout <= 99:
                 # QApplication.processEvents()
                 ret = self.libc.GetImage()
-                self.signals.step.emit(new_code_dict.get(ret))
+                self.signals.step.emit(f"第{timeout + 1}次尝试，{new_code_dict.get(ret)}")
+                timeout += 1
             ret = self.libc.GetChar(i)
             self.emit_state(ret, f"生成特征{i + 1}")
             self.signals.step.emit("请抬起手指！")
@@ -300,6 +305,9 @@ class GetFingerprint2(QRunnable):
         self.emit_state(ret, "获取首个可注册模板位置")
         ret = self.libc.StoreChar(storage_id, 0, 0)
         self.emit_state(ret, f"保存模板(位置{storage_id.value})")
+
+    def kill(self):
+        self.need_kill = True
 
 
 class Terminal(QWidget):
@@ -997,6 +1005,7 @@ class FingerPrint2(QWidget):
             QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
 
     def close_device(self):
+        self.thread.kill()
         ret = self.libc.CloseDevice()
 
         if ret == 1:

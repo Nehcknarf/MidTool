@@ -197,7 +197,7 @@ QTabBar::tab{width:100}</string>
       <x>10</x>
       <y>10</y>
       <width>1251</width>
-      <height>111</height>
+      <height>115</height>
      </rect>
     </property>
     <layout class="QHBoxLayout" name="horizontalLayout_21">
@@ -661,8 +661,8 @@ QTabBar::tab{width:100}</string>
       <rect>
        <x>21</x>
        <y>31</y>
-       <width>287</width>
-       <height>358</height>
+       <width>295</width>
+       <height>361</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_49">
@@ -2996,14 +2996,17 @@ QTabBar::tab{width:50}</string>
        </property>
        <property name="html">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'SimSun'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;使用说明：&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1. 首先点击“获取可用串口”，扫描本机可用串口。&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;2. 选择串口号&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;3. 选择波特率（默认值115200）&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4. 点击“打开设备”，即可开始测试。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+hr { height: 1px; border-width: 0; }
+li.unchecked::marker { content: &quot;\2610&quot;; }
+li.checked::marker { content: &quot;\2612&quot;; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Microsoft YaHei UI'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'SimSun';&quot;&gt;使用说明：&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'SimSun';&quot;&gt;1. 首先点击“获取可用串口”，扫描本机可用串口。&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'SimSun';&quot;&gt;2. 选择串口号&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'SimSun';&quot;&gt;3. 选择波特率（默认值115200）&lt;/span&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-family:'SimSun';&quot;&gt;4. 点击“打开设备”，即可开始测试。&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -4048,12 +4051,12 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>0</hour>
+         <hour>16</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2022</year>
-         <month>12</month>
-         <day>1</day>
+         <month>11</month>
+         <day>30</day>
         </datetime>
        </property>
        <property name="minimumTime">
@@ -4110,12 +4113,12 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>0</hour>
+         <hour>16</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2022</year>
          <month>12</month>
-         <day>31</day>
+         <day>30</day>
         </datetime>
        </property>
        <property name="calendarPopup">
@@ -5239,7 +5242,7 @@ p, li { white-space: pre-wrap; }
      <rect>
       <x>490</x>
       <y>260</y>
-      <width>398</width>
+      <width>341</width>
       <height>64</height>
      </rect>
     </property>
@@ -5252,7 +5255,7 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 1.0.0 RC</string>
+        <string>MidTool 中台工具箱 1.0.0</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

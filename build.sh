@@ -4,7 +4,7 @@ conda init bash
 conda activate qt5
 
 echo "Open project dir"
-cd /mnt/c/Users/Nehcknarf/PycharmProjects/midtool/
+cd /mnt/e/PycharmProjects/midtool/ || exit
 
 echo "Start building..."
 pyinstaller --noconfirm \
