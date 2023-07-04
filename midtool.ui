@@ -4051,7 +4051,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>16</hour>
+         <hour>8</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2022</year>
@@ -4113,7 +4113,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>16</hour>
+         <hour>8</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2022</year>
@@ -5255,7 +5255,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 1.0.0</string>
+        <string>MidTool 中台工具箱 1.0.1</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

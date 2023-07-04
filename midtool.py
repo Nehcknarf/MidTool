@@ -1360,6 +1360,8 @@ if __name__ == "__main__":
             # os.environ["QT_QPA_PLATFORM"] = "wayland"
             # Ubuntu 20.04
             os.environ["QT_QPA_PLATFORM"] = "xcb"
+            if os.path.exists("/nubomed/midpkg/drug-middleware/conf/"):
+                TabWidget.setTabVisible(0, False)  # 药柜关闭进程管理 Tab
             fp2 = FingerPrint2()
         # 外部传参支持
         parser = QCommandLineParser()

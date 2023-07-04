@@ -124,7 +124,7 @@ if [ "$flag" = "0" ]; then
 			mv $cur_dir/ArcFacePro64.dat /nubomed/midpkg/
 			;;
 		consumable)
-			mv $cur_dir/ArcFacePro64.dat /nubomed/consumable-cabinet-service/conf
+			mv $cur_dir/ArcFacePro64.dat /nubomed/consumable-cabinet-service/
 			;;
 	esac
 fi
