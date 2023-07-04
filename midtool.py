@@ -678,10 +678,14 @@ class ConfigEditor(QWidget):
         try:
             with open(self.browser_cfg_path, mode='w', encoding="UTF-8") as f:
                 if self.device_type == 0:
-                    self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1.text()
-                    self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2.text()
-                    self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3.text()
-                    self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4.text()
+                    if TabWidget.lineEdit_cfg1.text():
+                        self.browser_cfg_dict["MAIN_TER_ID"] = TabWidget.lineEdit_cfg1.text()
+                    if TabWidget.lineEdit_cfg2.text():
+                        self.browser_cfg_dict["MAIN_TER_CODE"] = TabWidget.lineEdit_cfg2.text()
+                    if TabWidget.lineEdit_cfg3.text():
+                        self.browser_cfg_dict["DefaultURL"] = TabWidget.lineEdit_cfg3.text()
+                    if TabWidget.lineEdit_cfg4.text():
+                        self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4.text()
                 json.dump(self.browser_cfg_dict, f, ensure_ascii=False, indent=4)
             TabWidget.label_status.setText("保存成功！")
         except Exception as err:
@@ -690,22 +694,31 @@ class ConfigEditor(QWidget):
         try:
             with open(self.nvr_cfg_path, mode='w', encoding="UTF-8") as f:
                 if self.device_type == 0:
-                    self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5.text()
-                    self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6.text()
-                    self.nvr_cfg_dict["nvr"]["terminale-id"] = TabWidget.lineEdit_cfg7_3.text()
-                    self.nvr_cfg_dict["nvr"]["mcc"]["server-ip"] = TabWidget.lineEdit_cfg8.text()
+                    if TabWidget.lineEdit_cfg5.text():
+                        self.nvr_cfg_dict["nvr"]["nvrIp"] = TabWidget.lineEdit_cfg5.text()
+                    if TabWidget.lineEdit_cfg6.text():
+                        self.nvr_cfg_dict["nvr"]["reader"][0]["productNo"] = TabWidget.lineEdit_cfg6.text()
+                    if TabWidget.lineEdit_cfg7_3.text():
+                        self.nvr_cfg_dict["nvr"]["terminale-id"] = TabWidget.lineEdit_cfg7_3.text()
+                    if TabWidget.lineEdit_cfg8.text():
+                        self.nvr_cfg_dict["nvr"]["mcc"]["server-ip"] = TabWidget.lineEdit_cfg8.text()
                 elif self.device_type == 1:
                     self.nvr_cfg_dict["nvr"]["enabled"] = bool(TabWidget.comboBox_2.currentIndex())
-                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["server-ip"] = TabWidget.lineEdit_5.text()
-                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["username"] = TabWidget.lineEdit_6.text()
-                    self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["password"] = TabWidget.lineEdit_7.text()
+                    if TabWidget.lineEdit_5.text():
+                        self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["server-ip"] = TabWidget.lineEdit_5.text()
+                    if TabWidget.lineEdit_6.text():
+                        self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["username"] = TabWidget.lineEdit_6.text()
+                    if TabWidget.lineEdit_7.text():
+                        self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["password"] = TabWidget.lineEdit_7.text()
                     self.nvr_cfg_dict["nvr"]["video"]["enabled-upload"] = bool(TabWidget.comboBox_3.currentIndex())
-                    self.nvr_cfg_dict["nvr"]["video"]["upload-save-dir"] = TabWidget.lineEdit_8.text()
+                    if TabWidget.lineEdit_8.text():
+                        self.nvr_cfg_dict["nvr"]["video"]["upload-save-dir"] = TabWidget.lineEdit_8.text()
                     product_channels = []
                     for i in range(TabWidget.tableWidget_2.rowCount()):
                         product_no = TabWidget.tableWidget_2.item(i, 0).text()
                         channel = TabWidget.tableWidget_2.item(i, 1).text()
-                        product_channels.append({"productNo": product_no, "channel": int(channel)})
+                        if product_no and channel:
+                            product_channels.append({"productNo": product_no, "channel": int(channel)})
                     self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["productChannels"] = product_channels
                 self.yaml.dump(self.nvr_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
@@ -715,9 +728,11 @@ class ConfigEditor(QWidget):
         try:
             with open(self.sync_cfg_path, mode='w', encoding="UTF-8") as f:
                 if self.device_type == 0:
-                    self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7.text()
+                    if TabWidget.lineEdit_cfg7.text():
+                        self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7.text()
                 elif self.device_type == 1:
-                    self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7_2.text()
+                    if TabWidget.lineEdit_cfg7_2.text():
+                        self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7_2.text()
                 self.yaml.dump(self.sync_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
         except Exception as err:
@@ -729,7 +744,8 @@ class ConfigEditor(QWidget):
                     pass
                 elif self.device_type == 1:
                     self.mcc_cfg_dict["mcc"]["enable"] = bool(TabWidget.comboBox_6.currentIndex())
-                    self.mcc_cfg_dict["mcc"]["hub"]["host"] = TabWidget.lineEdit_cfg7_4.text()
+                    if TabWidget.lineEdit_cfg7_4.text():
+                        self.mcc_cfg_dict["mcc"]["hub"]["host"] = TabWidget.lineEdit_cfg7_4.text()
                 self.yaml.dump(self.mcc_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
         except Exception as err:
@@ -751,9 +767,12 @@ class ConfigEditor(QWidget):
                 if self.device_type == 0:
                     pass
                 elif self.device_type == 1:
-                    self.delay_cfg_dict["actions"]["delay"]["delay-millis"] = int(TabWidget.lineEdit_10.text())
-                    self.delay_cfg_dict["actions"]["delay"]["delay-lock"] = int(TabWidget.lineEdit_11.text())
-                    self.delay_cfg_dict["actions"]["delay"]["time-out-no-lock"] = int(TabWidget.lineEdit_12.text())
+                    if TabWidget.lineEdit_10.text():
+                        self.delay_cfg_dict["actions"]["delay"]["delay-millis"] = int(TabWidget.lineEdit_10.text())
+                    if TabWidget.lineEdit_11.text():
+                        self.delay_cfg_dict["actions"]["delay"]["delay-lock"] = int(TabWidget.lineEdit_11.text())
+                    if TabWidget.lineEdit_12.text():
+                        self.delay_cfg_dict["actions"]["delay"]["time-out-no-lock"] = int(TabWidget.lineEdit_12.text())
                 self.yaml.dump(self.delay_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
         except Exception as err:
@@ -789,7 +808,8 @@ class ConfigEditor(QWidget):
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
                     self.extern_cfg_dict["serial"]["finger"]["zaz"]["baud-no"] = int(TabWidget.comboBox_5.currentText())
-                    self.extern_cfg_dict["serial"]["finger"]["match-threshold"] = int(TabWidget.lineEdit_9.text())
+                    if TabWidget.lineEdit_9.text():
+                        self.extern_cfg_dict["serial"]["finger"]["match-threshold"] = int(TabWidget.lineEdit_9.text())
                 self.yaml.dump(self.extern_cfg_dict, f)
             TabWidget.label_status.setText("保存成功！")
         except Exception as err:
@@ -1360,7 +1380,7 @@ if __name__ == "__main__":
             # os.environ["QT_QPA_PLATFORM"] = "wayland"
             # Ubuntu 20.04
             os.environ["QT_QPA_PLATFORM"] = "xcb"
-            if os.path.exists("/nubomed/midpkg/drug-middleware/conf/"):
+            if os.path.exists("/nubomed/midpkg/drug-middleware/"):
                 TabWidget.setTabVisible(0, False)  # 药柜关闭进程管理 Tab
             fp2 = FingerPrint2()
         # 外部传参支持
