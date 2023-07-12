@@ -654,7 +654,7 @@ QTabBar::tab{width:100}</string>
      </font>
     </property>
     <property name="title">
-     <string>中台部署（全新安装，工厂用）</string>
+     <string>中台部署（全新安装，工厂用，目前仅支持耗材柜）</string>
     </property>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
@@ -985,7 +985,7 @@ QTabBar::tab{width:100}</string>
   </widget>
   <widget class="QWidget" name="tab_4">
    <attribute name="title">
-    <string>配置文件修改</string>
+    <string>配置项修改</string>
    </attribute>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
@@ -2736,7 +2736,7 @@ QTabBar::tab{width:50}</string>
   </widget>
   <widget class="QWidget" name="tab_5">
    <attribute name="title">
-    <string>串口输出</string>
+    <string>串口调试</string>
    </attribute>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
@@ -3015,7 +3015,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </widget>
   <widget class="QWidget" name="tab_6">
    <attribute name="title">
-    <string>指纹</string>
+    <string>指纹调试</string>
    </attribute>
    <widget class="QTabWidget" name="tabWidget_2">
     <property name="geometry">
@@ -3700,7 +3700,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </widget>
   <widget class="QWidget" name="tab_7">
    <attribute name="title">
-    <string>摄像头</string>
+    <string>摄像头预览</string>
    </attribute>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
@@ -3837,7 +3837,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
   </widget>
   <widget class="QWidget" name="tab_8">
    <attribute name="title">
-    <string>人脸识别</string>
+    <string>人脸激活</string>
    </attribute>
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
@@ -3855,7 +3855,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <widget class="QPushButton" name="pushButton_generator">
          <property name="minimumSize">
           <size>
-           <width>150</width>
+           <width>200</width>
            <height>50</height>
           </size>
          </property>
@@ -3871,37 +3871,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
           </font>
          </property>
          <property name="text">
-          <string>生成网卡激活信息</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButton_checkLicense">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>100</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>100</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>10</pointsize>
-          </font>
-         </property>
-         <property name="toolTip">
-          <string/>
-         </property>
-         <property name="text">
-          <string>检测激活状态</string>
+          <string>离线激活（网卡信息生成）</string>
          </property>
         </widget>
        </item>
@@ -3921,7 +3891,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
             </font>
            </property>
            <property name="text">
-            <string>激活密钥(必填)</string>
+            <string>在线激活密钥(必填)</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -4051,12 +4021,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>8</hour>
+         <hour>16</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2022</year>
          <month>11</month>
-         <day>30</day>
+         <day>29</day>
         </datetime>
        </property>
        <property name="minimumTime">
@@ -4113,12 +4083,12 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <property name="dateTime">
         <datetime>
-         <hour>8</hour>
+         <hour>16</hour>
          <minute>0</minute>
          <second>0</second>
          <year>2022</year>
          <month>12</month>
-         <day>30</day>
+         <day>29</day>
         </datetime>
        </property>
        <property name="calendarPopup">
@@ -5255,7 +5225,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
         </font>
        </property>
        <property name="text">
-        <string>MidTool 中台工具箱 1.0.1</string>
+        <string>MidTool 中台工具箱 1.0.2</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

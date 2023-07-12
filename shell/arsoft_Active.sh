@@ -1,5 +1,5 @@
 #!/bin/bash
-cd /nubomed/midtool/shell/
+
 APP_ID=$1
 SDK_KEY=$2
 activeKey=$3
@@ -21,6 +21,11 @@ if [  -d "/nubomed/consumable-cabinet-service/" ]; then
 	export LD_LIBRARY_PATH=.:/nubomed/libs
 	cabinettype="consumable"	
 fi
+if [  -d "/nubomed/ecart-service/" ]; then
+	export LD_LIBRARY_PATH=.:/nubomed/libs
+	cabinettype="ecart"	
+fi
+
 
 case $cabinettype in
 	drug)
@@ -29,12 +34,14 @@ case $cabinettype in
 	consumable)
 		echo "识别系统类型为：耗材4.1"
 		;;
+	ecart)
+		echo "识别系统类型为：Y6000抢救车"
+		;;
 	*)
 		echo "终端系统类型检测异常,请检查终端环境！！！"
 		exit 1
 	   ;;
 esac
-
 
 if [ "$(ps -ef | grep arsoftActiveTool | grep -v "grep")" = "" ]; then
 	nohup java -jar $cur_dir/arsoftActiveTool-0.0.1-SNAPSHOT.jar --server.port=32201 >/dev/null 2>&1 &
@@ -50,12 +57,16 @@ for (( i = 0; i < 15; i++ )); do
    fi
 done 
 
+
+echo $(date +%Y-%m-%d" "%H:%M:%S:) >>$cur_dir/debug.log
 echo "正在执行激活,请稍后..."
-curl --location "http://127.0.0.1:32201/system/activeFaceEngin?appId=$1&sdkKey=$2&activeKey=$3" 1>$cur_dir/flag.txt 2>>debug.log
+curl --location "http://127.0.0.1:32201/system/activeFaceEngin?appId=$1&sdkKey=$2&activeKey=$3" 1>$cur_dir/flag.txt 2>>$cur_dir/debug.log
 
 ps -ef | grep arsoftActiveTool | awk '{print $2}' | awk 'NR==1' | xargs kill -9
 
 flag=$(cat $cur_dir/flag.txt)
+
+echo $(date +%Y-%m-%d" "%H:%M:%S:) $flag >>$cur_dir/debug.log
 
 case $flag in
 	0)
@@ -91,9 +102,6 @@ case $flag in
 	28678)
 		echo "SDK有效期过期，需要重新下载更新" 
 		;;
-	90120)
-		echo "参数为空"
-		;;
 	98308)
 		echo "ACTIVEKEY激活码与APPID、SDKKEY不匹配"
 		;;
@@ -125,6 +133,9 @@ if [ "$flag" = "0" ]; then
 			;;
 		consumable)
 			mv $cur_dir/ArcFacePro64.dat /nubomed/consumable-cabinet-service/
+			;;
+		ecart)
+			mv $cur_dir/ArcFacePro64.dat /nubomed/ecart-service/
 			;;
 	esac
 fi

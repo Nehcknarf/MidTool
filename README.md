@@ -10,7 +10,8 @@ PySide2 5.15.2.1
 `sudo apt install build-essential libgl1-mesa-dev`
 
 ## QtMultimedia 依赖
-`sudo apt install libpulse-mainloop-glib0`
+[//]: # (`sudo apt install libpulse-mainloop-glib0`)
+`sudo apt install libqt5multimedia5-plugins gstreamer1.0-plugins-bad`
 
 ## Wayland 依赖 (可选)
 `sudo apt install qtwayland5`
@@ -26,7 +27,7 @@ pip install -r requirements.txt
 ```
 
 ## 将 qrc 资源文件编译到 py 文件
-pyside2-rcc -o qrc.py midtool.qrc
+`pyside2-rcc -o qrc.py midtool.qrc`
 
 ## Qt 国际化
 1. 执行 `pyside2-lupdate midtool.py midtool.ui -ts lang/zh_TW.ts`

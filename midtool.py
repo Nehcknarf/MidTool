@@ -15,13 +15,12 @@ from ruamel.yaml import YAML
 import PySide2.QtQuick
 from PySide2.QtMultimedia import QCameraInfo, QCamera, QCameraViewfinderSettings, QCameraImageCapture
 from PySide2.QtMultimediaWidgets import QCameraViewfinder
-from PySide2.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
 from PySide2.QtNetwork import QLocalSocket, QLocalServer
 from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QTableWidgetItem, QHeaderView
 from PySide2.QtCore import Qt, QThread, Signal, QIODevice, QProcess, QCoreApplication, QCommandLineParser, \
-    QCommandLineOption, QUrl, QTranslator, QLocale, QObject, QRunnable, Slot, QThreadPool, QRegExp
+    QCommandLineOption, QTranslator, QLocale, QObject, QRunnable, Slot, QThreadPool, QRegExp
 from PySide2.QtGui import QIcon, QGuiApplication, QRegExpValidator
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
@@ -55,8 +54,6 @@ new_code_dict = {0: "处理成功", 1: "处理失败", 16: "与指定编号中�
                  38: "Buffer ID值不正确", 40: "采集器上没有指纹输入", 65: "指令被取消", -1: "发送失败"}
 
 device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "020a": "人体感应类"}
-# Nbtool传参选择启动标签页（参数：标签页currentIndex）
-tab_dict = {"face": 7, "camera": 6, "fingerprint": 5, "serial_device": 4}
 
 # 线程池
 threadpool = QThreadPool.globalInstance()
@@ -350,12 +347,12 @@ class Terminal(QWidget):
             command = command.replace("sudo", "sudo -S")
             dialog = QInputDialog()
             dialog.setWindowModality(Qt.WindowModal)
-            dialog.setTextEchoMode(QLineEdit.Normal)
+            dialog.setTextEchoMode(QLineEdit.Password)
             dialog.setOkButtonText("确定")
             dialog.setCancelButtonText("取消")
             dialog.setWindowTitle("提升权限")
             dialog.setLabelText("请输入当前用户密码:")
-            dialog.exec_()
+            ok = dialog.exec_()
             password = dialog.textValue()
         else:
             password = None
@@ -434,7 +431,7 @@ class Terminal(QWidget):
         dialog.setWindowTitle("设定端口")
         dialog.setLabelText("请输入WebSocket端口号:")
         dialog.setTextValue("8080")
-        dialog.exec_()
+        ok = dialog.exec_()
         port = dialog.textValue()
         self.common_command(f"wscat -c ws://localhost:{port}/websocket")
 
@@ -460,7 +457,6 @@ class ConfigEditor(QWidget):
         self.drug_root_path = "/nubomed/midpkg/drug-middleware/conf/"
         self.browser_cfg_path = "/nubomed/nbrowser/static/localize.json"
         self.device_identify()
-        self.read_cfg()
 
         TabWidget.tableWidget_ext.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         TabWidget.tableWidget_2.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -472,6 +468,8 @@ class ConfigEditor(QWidget):
         TabWidget.tableWidget_ext.setEnabled(False)
         TabWidget.addButton.clicked.connect(self.add_line)
         TabWidget.delButton.clicked.connect(self.del_line)
+
+        self.read_cfg()
 
     def device_identify(self):
         # 根据路径判断产品类型，隐藏选项卡
@@ -903,7 +901,7 @@ class FingerPrint(QWidget):
         ret = 2  # 传感器上没有手指
         timeout = 0
         while ret == 2 and timeout <= 99:
-            # QApplication.processEvents()
+            QApplication.processEvents()
             TabWidget.textBrowser_3.append(f"获取指纹图像中...第{timeout + 1}次尝试，"
                                            f"返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
@@ -943,9 +941,9 @@ class FingerPrint(QWidget):
         dialog.setWindowTitle("设定Flash存放地址")
         dialog.setLabelText("请输入一个0-1049之间的数字:")
         dialog.setTextValue(str(random.randint(0, 1050)))
-        dialog.exec_()
+        ok = dialog.exec_()
         storage_id = dialog.textValue()
-        if storage_id:
+        if storage_id and ok:
             self.thread = GetFingerprint(storage_id, self.libc, self.handle)
             self.thread.signals.step.connect(TabWidget.textBrowser_3.append)
             threadpool.start(self.thread)
@@ -959,9 +957,9 @@ class FingerPrint(QWidget):
         dialog.setCancelButtonText("取消")
         dialog.setWindowTitle("删除指定模板")
         dialog.setLabelText("请输入要删除的模板ID(0-1049的数字):")
-        dialog.exec_()
+        ok = dialog.exec_()
         storage_id = dialog.textValue()
-        if storage_id:
+        if storage_id and ok:
             ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(storage_id), 1)
             TabWidget.textBrowser_3.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
 
@@ -1051,7 +1049,7 @@ class FingerPrint2(QWidget):
         score = c_int(0)
         ret = 40  # 传感器上没有手指
         while ret != 0:
-            # QApplication.processEvents()
+            QApplication.processEvents()
             ret = self.libc.GetImage()
             TabWidget.textBrowser_6.append(f"{new_code_dict.get(ret)}")
         ret = self.libc.GetChar(0)
@@ -1073,9 +1071,9 @@ class FingerPrint2(QWidget):
         dialog.setCancelButtonText("取消")
         dialog.setWindowTitle("删除指定模板")
         dialog.setLabelText("请输入要删除的模板ID(1-500的数字):")
-        dialog.exec_()
+        ok = dialog.exec_()
         storage_id = dialog.textValue()
-        if storage_id:
+        if storage_id and ok:
             ret = self.libc.DelChar(int(storage_id), int(storage_id), 0)
             TabWidget.textBrowser_6.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
 
@@ -1134,14 +1132,13 @@ class Arcsoft(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = None
-        self.yaml = YAML()
-        self.request = QNetworkRequest()
-        self.manager = QNetworkAccessManager()
-
-        self.manager.finished.connect(self.check_active_slot)
+        # self.yaml = YAML()
+        # self.request = QNetworkRequest()
+        # self.manager = QNetworkAccessManager()
+        # self.manager.finished.connect(self.check_active_slot)
 
         TabWidget.pushButton_generator.clicked.connect(self.generator)
-        TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
+        # TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
         TabWidget.pushButton_activateOline.clicked.connect(self.activate)
 
         # if system == "Linux":
@@ -1159,41 +1156,41 @@ class Arcsoft(QWidget):
 
     def generator(self):
         TabWidget.textBrowser_arcsoft.clear()
-        TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
-        # password, _ = QInputDialog.getText(self, "提升权限", "请输入当前账户密码:", QLineEdit.Normal, "")
+        # password, ok = QInputDialog.getText(self, "提升权限", "请输入当前账户密码:", QLineEdit.Password, "")
         dialog = QInputDialog()
         dialog.setWindowModality(Qt.WindowModal)
-        dialog.setTextEchoMode(QLineEdit.Normal)
+        dialog.setTextEchoMode(QLineEdit.Password)
         dialog.setOkButtonText("确定")
         dialog.setCancelButtonText("取消")
         dialog.setWindowTitle("提升权限")
         dialog.setLabelText("请输入当前账户密码:")
-        dialog.exec_()
+        ok = dialog.exec_()
         password = dialog.textValue()
+        if password and ok:
+            TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
+            self.thread = Commander(f"bash /nubomed/arcsoft/arcsoftsetup.sh {password}")
+            self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
+            threadpool.start(self.thread)
 
-        self.thread = Commander(f"bash /nubomed/arcsoft/arcsoftsetup.sh {password}")
-        self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
-        threadpool.start(self.thread)
-
-    def check_active(self):
-        TabWidget.textBrowser_arcsoft.clear()
-        self.request.setUrl(QUrl("http://localhost:8080/system/getActiveInfo"))
-        self.manager.get(self.request)
-
-    @staticmethod
-    def check_active_slot(reply):
-        if reply.error() == QNetworkReply.NoError:
-            res = json.loads(reply.readAll().data())
-            if res.get('activeState') is not None:
-                TabWidget.textBrowser_arcsoft.append(f"激活状态：{res.get('activeState')}")
-            if res.get('appId') is not None:
-                TabWidget.textBrowser_arcsoft.append(f"App ID：{res.get('appId')}")
-            if res.get('sdkKey') is not None:
-                TabWidget.textBrowser_arcsoft.append(f"SDK Key：{res.get('sdkKey')}")
-            if res.get('activeKey') is not None:
-                TabWidget.textBrowser_arcsoft.append(f"激活密钥：{res.get('activeKey')}")
-        else:
-            TabWidget.textBrowser_arcsoft.append(reply.errorString())
+    # def check_active(self):
+    #     TabWidget.textBrowser_arcsoft.clear()
+    #     self.request.setUrl(QUrl("http://localhost:8080/system/getActiveInfo"))
+    #     self.manager.get(self.request)
+    #
+    # @staticmethod
+    # def check_active_slot(reply):
+    #     if reply.error() == QNetworkReply.NoError:
+    #         res = json.loads(reply.readAll().data())
+    #         if res.get('activeState') is not None:
+    #             TabWidget.textBrowser_arcsoft.append(f"激活状态：{res.get('activeState')}")
+    #         if res.get('appId') is not None:
+    #             TabWidget.textBrowser_arcsoft.append(f"App ID：{res.get('appId')}")
+    #         if res.get('sdkKey') is not None:
+    #             TabWidget.textBrowser_arcsoft.append(f"SDK Key：{res.get('sdkKey')}")
+    #         if res.get('activeKey') is not None:
+    #             TabWidget.textBrowser_arcsoft.append(f"激活密钥：{res.get('activeKey')}")
+    #     else:
+    #         TabWidget.textBrowser_arcsoft.append(reply.errorString())
 
     def activate(self):
         TabWidget.textBrowser_arcsoft.clear()
@@ -1211,7 +1208,7 @@ class Arcsoft(QWidget):
         # self.manager.get(self.request)
 
         if active_key:
-            self.thread = Commander(f"bash {path}/shell/arsoft_Active.sh F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca 8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v {active_key}")
+            self.thread = Commander(f"bash arsoft_Active.sh F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca 8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v {active_key}", wd="/nubomed/midtool/shell/")
             # 测试环境
             # self.thread = Commander(
             #     f"bash {path}/shell/arsoft_Active.sh DEF4Zavuu24UjseJgrYGaGbyHD8C7MZBbDimLN3joSmE 3sfW9ijmvQqUNCvBrNgJNzWxT7rCsfaxDsyU7XzQKA4Q {active_key}")
@@ -1389,8 +1386,15 @@ if __name__ == "__main__":
         parser.addOption(tab)
         parser.process(app)
         tab = parser.value(tab)
+        # Nbtool传参选择启动标签页（参数：标签页currentIndex）
+        tab_idx_list = [0, 1, 2, 3, 4, 5, 6, 12]
+        tab_dict = {"face": 6, "camera": 5, "fingerprint": 4, "serial_device": 3}
         if tab:
-            TabWidget.setCurrentIndex(tab_dict.get(tab))
+            index = tab_dict.get(tab)
+            tab_idx_list.remove(index)
+            for i in tab_idx_list:
+                TabWidget.setTabVisible(i, False)
+            TabWidget.setCurrentIndex(index)
 
         ter = Terminal()
         cfg = ConfigEditor()
@@ -1400,8 +1404,7 @@ if __name__ == "__main__":
         scan = Scan()
         mu = MidUpgrade()
         # 置顶
-        # TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint)
-        TabWidget.setWindowFlags(Qt.WindowCloseButtonHint | Qt.WindowMinimizeButtonHint)
+        TabWidget.setWindowFlags(Qt.WindowStaysOnTopHint | Qt.WindowCloseButtonHint)
         TabWidget.activateWindow()
         TabWidget.raise_()
         TabWidget.show()
