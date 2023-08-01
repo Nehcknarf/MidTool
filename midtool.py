@@ -20,7 +20,7 @@ from PySide2.QtUiTools import QUiLoader
 from PySide2.QtWidgets import QApplication, QWidget, QFileDialog, QInputDialog, QMessageBox, QLineEdit, \
     QTableWidgetItem, QHeaderView
 from PySide2.QtCore import Qt, QThread, Signal, QIODevice, QProcess, QCoreApplication, QCommandLineParser, \
-    QCommandLineOption, QTranslator, QLocale, QObject, QRunnable, Slot, QThreadPool, QRegExp
+    QCommandLineOption, QTranslator, QLocale, QObject, QRunnable, Slot, QThreadPool, QRegExp, QTimer
 from PySide2.QtGui import QIcon, QGuiApplication, QRegExpValidator
 from PySide2.QtSerialPort import QSerialPortInfo, QSerialPort
 
@@ -57,6 +57,7 @@ device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "
 
 # 线程池
 threadpool = QThreadPool.globalInstance()
+
 
 class WorkerSignals(QObject):
     stdout = Signal(str)
@@ -401,6 +402,8 @@ class Terminal(QWidget):
 
     def check_midware_status(self):
         self.common_command("pm2 list -m", verbose=False)
+        TabWidget.reflashButton.setEnabled(False)
+        QTimer.singleShot(3000, lambda: TabWidget.reflashButton.setEnabled(True))  # 3000毫秒后重新启用按钮，防止快速点击
 
     def start_mid(self):
         if system == "Windows":
@@ -479,8 +482,6 @@ class ConfigEditor(QWidget):
             TabWidget.tabWidget.setTabVisible(4, False)
             TabWidget.tabWidget.setTabVisible(5, False)
             TabWidget.tabWidget.setTabVisible(6, False)
-            TabWidget.tabWidget.setTabVisible(7, False)
-            TabWidget.tabWidget.setTabVisible(8, False)
             self.sync_cfg_path = self.cabinet_root_path + "application-sync.yml"
             self.nvr_cfg_path = self.cabinet_root_path + "application-nvr.yml"
             self.extern_cfg_path = self.cabinet_root_path + "application-extern.yml"
@@ -490,7 +491,6 @@ class ConfigEditor(QWidget):
             TabWidget.tabWidget.setTabVisible(0, False)
             TabWidget.tabWidget.setTabVisible(1, False)
             TabWidget.tabWidget.setTabVisible(2, False)
-            TabWidget.tabWidget.setTabVisible(3, False)
             self.sync_cfg_path = self.drug_root_path + "application-sync.yml"
             self.nvr_cfg_path = self.drug_root_path + "application-nvr.yml"
             self.extern_cfg_path = self.drug_root_path + "application-extern.yml"
@@ -540,17 +540,6 @@ class ConfigEditor(QWidget):
         try:
             with open(self.nvr_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.nvr_cfg_dict = self.yaml.load(f)
-            if self.device_type == 0:
-                nvr_ip = self.nvr_cfg_dict.get("nvr").get("nvrIp")
-                product_no = self.nvr_cfg_dict.get("nvr").get("reader")[0].get("productNo")
-                terminale_id = self.nvr_cfg_dict.get("nvr").get("terminale-id")
-                server_ip = self.nvr_cfg_dict.get("nvr").get("mcc").get("server-ip")
-
-                TabWidget.lineEdit_cfg5.setText(nvr_ip)
-                TabWidget.lineEdit_cfg6.setText(product_no)
-                TabWidget.lineEdit_cfg7_3.setText(terminale_id)
-                TabWidget.lineEdit_cfg8.setText(server_ip)
-            elif self.device_type == 1:
                 enabled = self.nvr_cfg_dict.get("nvr").get("enabled")
                 server_ip = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("server-ip")
                 username = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("username")
@@ -793,15 +782,15 @@ class ConfigEditor(QWidget):
                                 readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
                         self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
                 elif self.device_type == 1:
-                    if TabWidget.comboBox_4.currentText() == '方形指纹':
+                    if TabWidget.comboBox_4.currentText() == "方形指纹":
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = True
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = False
-                    elif TabWidget.comboBox_4.currentText() == '圆形指纹':
+                    elif TabWidget.comboBox_4.currentText() == "圆形指纹":
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = True
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = False
-                    elif TabWidget.comboBox_4.currentText() == '光学指纹':
+                    elif TabWidget.comboBox_4.currentText() == "光学指纹":
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = True
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
@@ -1343,12 +1332,6 @@ if __name__ == "__main__":
         geometry.moveCenter(center)
         TabWidget.setGeometry(geometry)
 
-        # 2022.11.03 暂时隐藏部分完成度不高/较少使用的功能UI
-        TabWidget.setTabVisible(7, False)  # 日志 Tab
-        TabWidget.setTabVisible(8, False)  # 通用配置修改 Tab
-        TabWidget.setTabVisible(9, False)  # 外部硬件工况 Tab
-        TabWidget.setTabVisible(10, False)  # 文件管理器 Tab
-        TabWidget.setTabVisible(11, False)  # 设置 Tab
         # 多系统兼容
         if system == "Windows":
             # system_tray_icon = QSystemTrayIcon()
@@ -1359,7 +1342,7 @@ if __name__ == "__main__":
             TabWidget.setTabVisible(2, False)  # 配置文件修改 Tab
             TabWidget.setTabVisible(6, False)  # 人脸识别 Tab
             # TODO 更新win监控功能
-            TabWidget.tabWidget_2.setTabVisible(1, False)
+            TabWidget.tabWidget_2.setTabVisible(1, False)  # 圆形指纹 Tab
             TabWidget.reflashButton.setEnabled(False)
             TabWidget.listButton.setEnabled(False)
             TabWidget.restartButton.setEnabled(False)

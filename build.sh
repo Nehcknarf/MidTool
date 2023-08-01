@@ -1,7 +1,7 @@
 #!/bin/bash
-echo "Activate conda env"
-conda init bash
-conda activate qt5
+#echo "Activate conda env"
+#conda init bash
+#conda activate midtool
 
 echo "Open project dir"
 cd /mnt/e/PycharmProjects/midtool/ || exit

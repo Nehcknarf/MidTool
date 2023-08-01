@@ -6,6 +6,8 @@
     <file>midtool.ui</file>
   </qresource>
   <qresource prefix="i18n">
+    <file>lang/en_US.qm</file>
+    <file>lang/en_US.ts</file>
     <file>lang/zh_TW.qm</file>
     <file>lang/zh_TW.ts</file>
   </qresource>
