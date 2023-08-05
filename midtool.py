@@ -39,21 +39,59 @@ logger.setLevel(level=logging.WARN)
 path = os.path.abspath(os.path.dirname(__file__))
 
 # 指昂方形指纹模块返回码字典
-code_dict = {0: "执行成功", 1: "数据包接收错误", 2: "传感器上没有手指", 3: "录入指纹图象失败", 4: "指纹太淡", 5: "指纹太糊",
-             6: "指纹太乱", 7: "指纹特征点太少", 8: "指纹不匹配", 9: "没搜索到指纹", 10: "特征合并失败", 11: "地址号超出指纹库范围",
-             12: "从指纹库读模板出错", 13: "上传特征失败", 14: "模块不能接收后续数据包", 15: "上传图象失败", 16: "删除模板失败",
-             17: "清空指纹库失败", 18: "不能进入休眠", 19: "口令不正确", 20: "系统复位失败", 21: "无效指纹图象",
-             -1: "发送失败", -2: "接收失败"}
+code_dict = {
+    0: QCoreApplication.translate("Fingerprint", "执行成功"),
+    1: QCoreApplication.translate("Fingerprint", "数据包接收错误"),
+    2: QCoreApplication.translate("Fingerprint", "传感器上没有手指"),
+    3: QCoreApplication.translate("Fingerprint", "录入指纹图象失败"),
+    4: QCoreApplication.translate("Fingerprint", "指纹太淡"),
+    5: QCoreApplication.translate("Fingerprint", "指纹太糊"),
+    6: QCoreApplication.translate("Fingerprint", "指纹太乱"),
+    7: QCoreApplication.translate("Fingerprint", "指纹特征点太少"),
+    8: QCoreApplication.translate("Fingerprint", "指纹不匹配"),
+    9: QCoreApplication.translate("Fingerprint", "没搜索到指纹"),
+    10: QCoreApplication.translate("Fingerprint", "特征合并失败"),
+    11: QCoreApplication.translate("Fingerprint", "地址号超出指纹库范围"),
+    12: QCoreApplication.translate("Fingerprint", "从指纹库读模板出错"),
+    13: QCoreApplication.translate("Fingerprint", "上传特征失败"),
+    14: QCoreApplication.translate("Fingerprint", "模块不能接收后续数据包"),
+    15: QCoreApplication.translate("Fingerprint", "上传图象失败"),
+    16: QCoreApplication.translate("Fingerprint", "删除模板失败"),
+    17: QCoreApplication.translate("Fingerprint", "清空指纹库失败"),
+    18: QCoreApplication.translate("Fingerprint", "不能进入休眠"),
+    19: QCoreApplication.translate("Fingerprint", "口令不正确"),
+    20: QCoreApplication.translate("Fingerprint", "系统复位失败"),
+    21: QCoreApplication.translate("Fingerprint", "无效指纹图象"),
+    -1: QCoreApplication.translate("Fingerprint", "发送失败"),
+    -2: QCoreApplication.translate("Fingerprint", "接收失败")
+}
 
 # 指昂圆形指纹模块返回码字典
-new_code_dict = {0: "处理成功", 1: "处理失败", 16: "与指定编号中模板的1:1比对失败", 17: "已进行1:N比对，但相同模板不存在",
-                 18: "在指定编号中不存在已注册的模板", 19: "在指定编号中已存在模板", 20: "不存在已注册的模板",
-                 21: "不存在可注册的模板ID", 22: "不存在已损坏的模板", 23: "指定的模板数据无效", 24: "该指纹已注册",
-                 25: "指纹图像质量不好", 26: "模板合成失败", 27: "没有进行通讯密码确认", 28: "外部Flash烧写出错",
-                 29: "指定模板编号无效", 34: "使用了不正确的参数", 35: "超时，没有输入指纹", 37: "指纹合成个数无效",
-                 38: "Buffer ID值不正确", 40: "采集器上没有指纹输入", 65: "指令被取消", -1: "发送失败"}
-
-device_dict = {"0708": "身份RFID读卡器类", "0107": "条码扫描头类", "020a": "人体感应类"}
+new_code_dict = {
+    0: QCoreApplication.translate("Fingerprint", "处理成功"),
+    1: QCoreApplication.translate("Fingerprint", "处理失败"),
+    16: QCoreApplication.translate("Fingerprint", "与指定编号中模板的1:1比对失败"),
+    17: QCoreApplication.translate("Fingerprint", "已进行1:N比对，但相同模板不存在"),
+    18: QCoreApplication.translate("Fingerprint", "在指定编号中不存在已注册的模板"),
+    19: QCoreApplication.translate("Fingerprint", "在指定编号中已存在模板"),
+    20: QCoreApplication.translate("Fingerprint", "不存在已注册的模板"),
+    21: QCoreApplication.translate("Fingerprint", "不存在可注册的模板ID"),
+    22: QCoreApplication.translate("Fingerprint", "不存在已损坏的模板"),
+    23: QCoreApplication.translate("Fingerprint", "指定的模板数据无效"),
+    24: QCoreApplication.translate("Fingerprint", "该指纹已注册"),
+    25: QCoreApplication.translate("Fingerprint", "指纹图像质量不好"),
+    26: QCoreApplication.translate("Fingerprint", "模板合成失败"),
+    27: QCoreApplication.translate("Fingerprint", "没有进行通讯密码确认"),
+    28: QCoreApplication.translate("Fingerprint", "外部Flash烧写出错"),
+    29: QCoreApplication.translate("Fingerprint", "指定模板编号无效"),
+    34: QCoreApplication.translate("Fingerprint", "使用了不正确的参数"),
+    35: QCoreApplication.translate("Fingerprint", "超时，没有输入指纹"),
+    37: QCoreApplication.translate("Fingerprint", "指纹合成个数无效"),
+    38: QCoreApplication.translate("Fingerprint", "Buffer ID值不正确"),
+    40: QCoreApplication.translate("Fingerprint", "采集器上没有指纹输入"),
+    65: QCoreApplication.translate("Fingerprint", "指令被取消"),
+    -1: QCoreApplication.translate("Fingerprint", "发送失败")
+}
 
 # 线程池
 threadpool = QThreadPool.globalInstance()
@@ -125,7 +163,7 @@ class Commander(QRunnable):
                 string += f"{stdout}\n"
 
         self.signals.verbose.emit(string)
-        self.signals.stdout.emit("指令已执行")
+        self.signals.stdout.emit(QCoreApplication.translate("Commander", "指令已执行"))
 
     def kill(self):
         self.need_kill = True
@@ -140,22 +178,27 @@ class Serial(QRunnable):
 
     @Slot()
     def run(self):
+        device_dict = {
+            "0708": QCoreApplication.translate("Serial", "身份RFID读卡器类"),
+            "0107": QCoreApplication.translate("Serial", "条码扫描头类"),
+            "020a": QCoreApplication.translate("Serial", "人体感应类")
+        }
         bytes_data = self.ser.readAll().data()  # bytes
         self.total_data += bytes_data
-        self.signals.pinout.emit("数据流：" + self.total_data.hex() + "字符串：" + str(self.total_data))
+        self.signals.pinout.emit(QCoreApplication.translate("Serial", "数据流：{}，字符串：{}").format(self.total_data.hex(), str(self.total_data)))
         if length_domain := re.findall(b'~(.{2})\x02', self.total_data):
             try:
                 length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
             except struct.error as err:
-                print(f"长度域解析失败，{err}")
+                self.signals.pinout.emit(QCoreApplication.translate("Serial", "长度域解析失败，{}").format(err))
             else:
                 if pack_data := re.findall(b'~.{'+f'{length}'.encode()+b'}\xe7', self.total_data, re.DOTALL):
                     pack_data = pack_data[0]
-                    # self.signals.pinout.emit("接收到的原始数据包：" + pack_data.hex())
+                    # self.signals.pinout.emit(QCoreApplication.translate("Serial", "接收到的原始数据包：{}").format(pack_data.hex()))
                     try:
                         header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", pack_data[:26])  # 起始域到参数长度域
                     except struct.error as err:
-                        print(f"数据头解析失败，{err}")
+                        self.signals.pinout.emit(QCoreApplication.translate("Serial", "数据头解析失败，{}").format(err))
                     else:
                         header_list = [i.hex() if isinstance(i, bytes) else i for i in header_tuple]
                         device_type = header_list[10]  # 单元类型
@@ -167,43 +210,46 @@ class Serial(QRunnable):
                             try:
                                 payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                             except struct.error as err:
-                                sig_data = f"数据载荷解析失败，{err}"
+                                sig_data = QCoreApplication.translate("Serial", "数据载荷解析失败，{}").format(err)
                             else:
                                 # 自动上报RFID号
                                 card_type = payload_tuple[0]
                                 card_uid = "-".join(map(str, payload_tuple[1:]))
-                                sig_data = f"设备类型：{device_dict.get(device_type)}，卡类型：{card_type}，卡号：{card_uid}"
+                                sig_data = QCoreApplication.translate("Serial", "设备类型：{}，卡类型：{}，卡号：{}").format(device_dict.get(device_type), card_type, card_uid)
                         elif device_type == "0107":
                             try:
                                 payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                 # ending_tuple = struct.unpack("2sc", pack_data[26 + payload_length:29 + payload_length])
                             except struct.error as err:
-                                sig_data = f"数据载荷解析失败，{err}"
+                                sig_data = QCoreApplication.translate("Serial", "数据载荷解析失败，{}").format(err)
                             else:
                                 # ending_list = [i.hex() for i in ending_tuple]
                                 # unpack_data = tuple(header_list) + payload_tuple + tuple(ending_list)
                                 # print(unpack_data)
                                 # 自动上报扫描码内容
                                 code_content = "".join(map(str, payload_tuple[2:]))
-                                sig_data = f"设备类型：{device_dict.get(device_type)}，条码内容：{code_content}"
+                                sig_data = QCoreApplication.translate("Serial", "设备类型：{}，条码内容：{}").format(device_dict.get(device_type), code_content)
                         elif device_type == "020a":
                             try:
                                 payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                             except struct.error as err:
-                                sig_data = f"数据载荷解析失败，{err}"
+                                sig_data = QCoreApplication.translate("Serial", "数据载荷解析失败，{}").format(err)
                             else:
                                 # 自动上报人位置状态变化
-                                state_dict = {1: "人在指定范围内", 0: "人离开了指定范围"}
-                                sig_data = f"设备类型：{device_dict.get(device_type)}，{state_dict.get(payload_tuple[0])}"
+                                state_dict = {
+                                    1: QCoreApplication.translate("Serial", "人在指定范围内"),
+                                    0: QCoreApplication.translate("Serial", "人离开了指定范围")
+                                }
+                                sig_data = QCoreApplication.translate("Serial", "设备类型：{}，{}").format(device_dict.get(device_type), state_dict.get(payload_tuple[0]))
                         else:
-                            sig_data = "尚未支持解析的设备类型"
+                            sig_data = QCoreApplication.translate("Serial", "尚未支持解析的设备类型")
                         self.signals.pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
                 else:
                     pass
-                    # self.signals.pinout.emit("未匹配到数据包")
+                    # self.signals.pinout.emit(QCoreApplication.translate("Serial", "未匹配到数据包"))
         else:
             self.total_data = b''
-            # self.signals.pinout.emit("未找到特征（长度域）")
+            # self.signals.pinout.emit(QCoreApplication.translate("Serial", "未找到特征（长度域）"))
 
 
 class GetFingerprint(QRunnable):
@@ -216,54 +262,54 @@ class GetFingerprint(QRunnable):
 
     def emit_state(self, code, func_str):
         if code == 0:
-            self.signals.step.emit(f"{func_str}成功")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "{}成功").format(func_str))
         else:
-            self.signals.step.emit(f"{func_str}失败(错误类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))})")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "{}失败(错误类型/代码：{})").format(func_str, code_dict.get(code, self.libc.ZAZErr2Str(code))))
             return
 
     @Slot()
     def run(self):
         nAddr = c_int(0xffffffff)
-        self.signals.step.emit("请将手指平放在传感器上...")
+        self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "请将手指平放在传感器上..."))
         ret = 2  # 传感器上没有手指
         timeout = 0
         while ret == 2 and timeout <= 99:
             # QApplication.processEvents()
-            self.signals.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "获取指纹图像中...第{}次尝试，返回值：{}").format(timeout + 1, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
-            self.signals.step.emit("超时！请重新采集")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "超时！请重新采集"))
             return
-        self.emit_state(ret, "第一次采集指纹")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "第一次采集指纹"))
 
         ret = self.libc.ZAZGenChar(self.handle, nAddr, 2)
-        self.emit_state(ret, "生成特征A")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "生成特征A"))
 
-        self.signals.step.emit("请抬起手指！")
+        self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "请抬起手指！"))
         QThread.sleep(1)
-        self.signals.step.emit("请再次将手指平放在传感器上...")
+        self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "请再次将手指平放在传感器上..."))
 
         ret = 2  # 传感器上没有手指
         timeout = 0
         while ret == 2 and timeout <= 99:
             # QApplication.processEvents()
-            self.signals.step.emit(f"获取指纹图像中...第{timeout + 1}次尝试，返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "获取指纹图像中...第{}次尝试，返回值：{}").format(timeout + 1, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
-            self.signals.step.emit("超时！请重新采集")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint", "超时！请重新采集"))
             return
-        self.emit_state(ret, "第二次采集指纹")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "第二次采集指纹"))
 
         ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
-        self.emit_state(ret, "生成特征B")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "生成特征B"))
 
         ret = self.libc.ZAZRegModule(self.handle, nAddr)
-        self.emit_state(ret, "合并特征")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "合并特征"))
 
         ret = self.libc.ZAZStoreChar(self.handle, nAddr, 1, int(self.storage_id))
-        self.emit_state(ret, f"保存模板(位置{self.storage_id})")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "保存模板(位置{})").format(self.storage_id))
 
 
 class GetFingerprint2(QRunnable):
@@ -275,9 +321,9 @@ class GetFingerprint2(QRunnable):
 
     def emit_state(self, code, func_str):
         if code == 0:
-            self.signals.step.emit(f"{func_str}成功")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint2", "{}成功").format(func_str))
         else:
-            self.signals.step.emit(f"{func_str}失败(错误类型/代码：{new_code_dict.get(code)})")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint2", "{}失败(错误类型/代码：{})").format(func_str, new_code_dict.get(code)))
 
     @Slot()
     def run(self):
@@ -287,22 +333,22 @@ class GetFingerprint2(QRunnable):
             if self.need_kill:
                 break
             ret = 40  # 传感器上没有手指
-            self.signals.step.emit("请将手指平放在传感器上...")
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint2", "请将手指平放在传感器上..."))
             while ret != 0 and timeout <= 99:
                 # QApplication.processEvents()
                 ret = self.libc.GetImage()
-                self.signals.step.emit(f"第{timeout + 1}次尝试，{new_code_dict.get(ret)}")
+                self.signals.step.emit(QCoreApplication.translate("GetFingerprint2", "第{}次尝试，{}").format(timeout + 1, new_code_dict.get(ret)))
                 timeout += 1
             ret = self.libc.GetChar(i)
-            self.emit_state(ret, f"生成特征{i + 1}")
-            self.signals.step.emit("请抬起手指！")
+            self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "生成特征{}").format(i + 1))
+            self.signals.step.emit(QCoreApplication.translate("GetFingerprint2", "请抬起手指！"))
             QThread.sleep(1)
         ret = self.libc.MergeChar(0, 3)
-        self.emit_state(ret, "合并特征")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "合并特征"))
         ret = self.libc.GetEmptyID(1, 500, byref(storage_id))
-        self.emit_state(ret, "获取首个可注册模板位置")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "获取首个可注册模板位置"))
         ret = self.libc.StoreChar(storage_id, 0, 0)
-        self.emit_state(ret, f"保存模板(位置{storage_id.value})")
+        self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "保存模板(位置{})").format(storage_id.value))
 
     def kill(self):
         self.need_kill = True
@@ -335,10 +381,10 @@ class Terminal(QWidget):
         TabWidget.killButton.clicked.connect(self.kill)
 
     def open_sh(self):
-        path, _ = QFileDialog.getOpenFileName(self, "选择Shell脚本", "/nubomed", "Shell脚本 (*.sh)")
+        path, _ = QFileDialog.getOpenFileName(self, self.tr("选择Shell脚本"), "/nubomed", self.tr("Shell脚本 (*.sh)"))
         if path:
             TabWidget.textBrowser_2.clear()
-            TabWidget.textBrowser_2.setPlainText(f"执行脚本：{path}")
+            TabWidget.textBrowser_2.setPlainText(self.tr("执行脚本：{}").format(path))
             self.thread = Commander(f"bash {path}")
             self.thread.signals.stdout.connect(TabWidget.textBrowser_2.append)
             threadpool.start(self.thread)
@@ -349,10 +395,10 @@ class Terminal(QWidget):
             dialog = QInputDialog()
             dialog.setWindowModality(Qt.WindowModal)
             dialog.setTextEchoMode(QLineEdit.Password)
-            dialog.setOkButtonText("确定")
-            dialog.setCancelButtonText("取消")
-            dialog.setWindowTitle("提升权限")
-            dialog.setLabelText("请输入当前用户密码:")
+            dialog.setOkButtonText(self.tr("确定"))
+            dialog.setCancelButtonText(self.tr("取消"))
+            dialog.setWindowTitle(self.tr("提升权限"))
+            dialog.setLabelText(self.tr("请输入当前用户密码:"))
             ok = dialog.exec_()
             password = dialog.textValue()
         else:
@@ -366,7 +412,7 @@ class Terminal(QWidget):
             command = "powershell " + command
 
         TabWidget.textBrowser_2.clear()
-        TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
+        TabWidget.textBrowser_2.setPlainText(self.tr("执行命令：{}").format(command))
         self.thread = Commander(command, password)
         self.thread.signals.stdout.connect(TabWidget.textBrowser_2.append)
         threadpool.start(self.thread)
@@ -376,7 +422,7 @@ class Terminal(QWidget):
         self.thread = Commander(command, password)
         if verbose:
             TabWidget.textBrowser_2.clear()
-            TabWidget.textBrowser_2.setPlainText(f"执行命令：{command}")
+            TabWidget.textBrowser_2.setPlainText(self.tr("执行命令：{}").format(command))
             self.thread.signals.stdout.connect(TabWidget.textBrowser_2.append)
         else:
             self.thread.signals.verbose.connect(self.parse)
@@ -409,7 +455,7 @@ class Terminal(QWidget):
         if system == "Windows":
             self.common_command("powershell (net start ConsumableService) -or (net start DrugService)")
         elif system == "Linux":
-            json_path, _ = QFileDialog.getOpenFileName(self, "选择Json配置", "/nubomed", "Json配置 (*.json)")
+            json_path, _ = QFileDialog.getOpenFileName(self, self.tr("选择Json配置"), "/nubomed", self.tr("Json配置 (*.json)"))
             if path:
                 self.common_command(f"bash {path}/shell/pm2_start.sh {json_path}")
 
@@ -429,10 +475,10 @@ class Terminal(QWidget):
         dialog = QInputDialog()
         dialog.setWindowModality(Qt.WindowModal)
         dialog.setTextEchoMode(QLineEdit.Normal)
-        dialog.setOkButtonText("确定")
-        dialog.setCancelButtonText("取消")
-        dialog.setWindowTitle("设定端口")
-        dialog.setLabelText("请输入WebSocket端口号:")
+        dialog.setOkButtonText(self.tr("确定"))
+        dialog.setCancelButtonText(self.tr("取消"))
+        dialog.setWindowTitle(self.tr("设定端口"))
+        dialog.setLabelText(self.tr("请输入WebSocket端口号:"))
         dialog.setTextValue("8080")
         ok = dialog.exec_()
         port = dialog.textValue()
@@ -445,7 +491,7 @@ class Terminal(QWidget):
         #     self.thread.wait()
         # self.thread.deleteLater()
         self.thread.kill()
-        TabWidget.textBrowser_2.append("正在终止命令执行...")
+        TabWidget.textBrowser_2.append(self.tr("正在终止命令执行..."))
 
 
 class ConfigEditor(QWidget):
@@ -674,9 +720,9 @@ class ConfigEditor(QWidget):
                     if TabWidget.lineEdit_cfg4.text():
                         self.browser_cfg_dict["sTerAddress"] = TabWidget.lineEdit_cfg4.text()
                 json.dump(self.browser_cfg_dict, f, ensure_ascii=False, indent=4)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
         try:
             with open(self.nvr_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -708,9 +754,9 @@ class ConfigEditor(QWidget):
                             product_channels.append({"productNo": product_no, "channel": int(channel)})
                     self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["productChannels"] = product_channels
                 self.yaml.dump(self.nvr_cfg_dict, f)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
         try:
             with open(self.sync_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -721,9 +767,9 @@ class ConfigEditor(QWidget):
                     if TabWidget.lineEdit_cfg7_2.text():
                         self.sync_cfg_dict["sync"]["server"]["host"] = TabWidget.lineEdit_cfg7_2.text()
                 self.yaml.dump(self.sync_cfg_dict, f)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
         try:
             with open(self.mcc_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -734,9 +780,9 @@ class ConfigEditor(QWidget):
                     if TabWidget.lineEdit_cfg7_4.text():
                         self.mcc_cfg_dict["mcc"]["hub"]["host"] = TabWidget.lineEdit_cfg7_4.text()
                 self.yaml.dump(self.mcc_cfg_dict, f)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
         try:
             with open(self.ws_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -745,9 +791,9 @@ class ConfigEditor(QWidget):
                 elif self.device_type == 1:
                     self.ws_cfg_dict["protocol"]["restructure"] = bool(TabWidget.comboBox_7.currentIndex())
                 self.yaml.dump(self.ws_cfg_dict, f)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
         try:
             with open(self.delay_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -761,9 +807,9 @@ class ConfigEditor(QWidget):
                     if TabWidget.lineEdit_12.text():
                         self.delay_cfg_dict["actions"]["delay"]["time-out-no-lock"] = int(TabWidget.lineEdit_12.text())
                 self.yaml.dump(self.delay_cfg_dict, f)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
         try:
             with open(self.extern_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -782,15 +828,15 @@ class ConfigEditor(QWidget):
                                 readers.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
                         self.extern_cfg_dict["rodin"]["server"]["readers"] = readers
                 elif self.device_type == 1:
-                    if TabWidget.comboBox_4.currentText() == "方形指纹":
+                    if TabWidget.comboBox_4.currentText() == self.tr("方形指纹"):
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = True
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = False
-                    elif TabWidget.comboBox_4.currentText() == "圆形指纹":
+                    elif TabWidget.comboBox_4.currentText() == self.tr("圆形指纹"):
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = True
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = False
-                    elif TabWidget.comboBox_4.currentText() == "光学指纹":
+                    elif TabWidget.comboBox_4.currentText() == self.tr("光学指纹"):
                         self.extern_cfg_dict["serial"]["finger"]["legacy"]["enabled"] = True
                         self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = False
                         self.extern_cfg_dict["serial"]["finger"]["zaz0a0"]["enabled"] = False
@@ -798,9 +844,9 @@ class ConfigEditor(QWidget):
                     if TabWidget.lineEdit_9.text():
                         self.extern_cfg_dict["serial"]["finger"]["match-threshold"] = int(TabWidget.lineEdit_9.text())
                 self.yaml.dump(self.extern_cfg_dict, f)
-            TabWidget.label_status.setText("保存成功！")
+            TabWidget.label_status.setText(self.tr("保存成功！"))
         except Exception as err:
-            TabWidget.label_status.setText(f"保存失败！{err}")
+            TabWidget.label_status.setText(self.tr("保存失败！{}").format(err))
 
 
 class FingerPrint(QWidget):
@@ -866,7 +912,7 @@ class FingerPrint(QWidget):
                 TabWidget.pushButton_del.setEnabled(True)
                 TabWidget.pushButton_empty.setEnabled(True)
             else:
-                QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
+                QMessageBox.critical(self, "Error", self.tr("设备未正确打开！{}").format(ret))
 
     def close_device(self):
         ret = self.libc.ZAZCloseDeviceEx(self.handle)
@@ -879,11 +925,11 @@ class FingerPrint(QWidget):
             TabWidget.pushButton_del.setEnabled(False)
             TabWidget.pushButton_empty.setEnabled(False)
         else:
-            QMessageBox.critical(self, "Error", "设备未正确关闭！")
+            QMessageBox.critical(self, "Error", self.tr("设备未正确关闭！"))
 
     def search_image(self):
         TabWidget.textBrowser_3.clear()
-        TabWidget.textBrowser_3.append("请将手指平放在传感器上...")
+        TabWidget.textBrowser_3.append(self.tr("请将手指平放在传感器上..."))
         i = c_int(0)
         score = c_int(0)
         nAddr = c_int(0xffffffff)
@@ -891,31 +937,30 @@ class FingerPrint(QWidget):
         timeout = 0
         while ret == 2 and timeout <= 99:
             QApplication.processEvents()
-            TabWidget.textBrowser_3.append(f"获取指纹图像中...第{timeout + 1}次尝试，"
-                                           f"返回值：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))}")
+            TabWidget.textBrowser_3.append(self.tr("获取指纹图像中...第{}次尝试，返回值：{}").format(timeout + 1, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
         if timeout == 100:
-            TabWidget.textBrowser_3.append("超时！请重新采集")
+            TabWidget.textBrowser_3.append(self.tr("超时！请重新采集"))
             # self.close_device()
             return
         if ret == 0:
-            TabWidget.textBrowser_3.append("成功获取指纹")
+            TabWidget.textBrowser_3.append(self.tr("成功获取指纹"))
         else:
-            TabWidget.textBrowser_3.append("获取指纹失败")
+            TabWidget.textBrowser_3.append(self.tr("获取指纹失败"))
             # self.close_device()
             return
 
         ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
         if ret == 0:
-            TabWidget.textBrowser_3.append("生成特征成功")
+            TabWidget.textBrowser_3.append(self.tr("生成特征成功"))
             code = self.libc.ZAZSearch(self.handle, c_int(0xffffffff), 1, 0, 1049, byref(i), byref(score))
-            TabWidget.textBrowser_3.append("***如果返回类型/代码为”没搜索到指纹“，且匹配得分为0，则匹配得到的ID不正确，忽略即可***")
-            TabWidget.textBrowser_3.append(f"返回类型/代码：{code_dict.get(code, self.libc.ZAZErr2Str(code))}")
-            TabWidget.textBrowser_3.append("匹配的ID：未找到" if i.value == 65022 else f"匹配的ID：{str(i.value)}")
-            TabWidget.textBrowser_3.append(f"匹配得分：{str(score.value)}")
+            TabWidget.textBrowser_3.append(self.tr("***如果返回类型/代码为”没搜索到指纹“，且匹配得分为0，则匹配得到的ID不正确，忽略即可***"))
+            TabWidget.textBrowser_3.append(self.tr("返回类型/代码：{}").format(code_dict.get(code, self.libc.ZAZErr2Str(code))))
+            TabWidget.textBrowser_3.append(self.tr("匹配的ID：未找到") if i.value == 65022 else self.tr("匹配的ID：{}").format(str(i.value)))
+            TabWidget.textBrowser_3.append(self.tr("匹配得分：{}").format(str(score.value)))
         else:
-            TabWidget.textBrowser_3.append(f"生成特征失败(错误类型/代码：{code_dict.get(ret, self.libc.ZAZErr2Str(ret))})")
+            TabWidget.textBrowser_3.append(self.tr("生成特征失败(错误类型/代码：{})").format(code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
             # self.close_device()
 
     def get_image(self):
@@ -925,10 +970,10 @@ class FingerPrint(QWidget):
         dialog = QInputDialog()
         dialog.setWindowModality(Qt.WindowModal)
         dialog.setTextEchoMode(QLineEdit.Normal)
-        dialog.setOkButtonText("确定")
-        dialog.setCancelButtonText("取消")
-        dialog.setWindowTitle("设定Flash存放地址")
-        dialog.setLabelText("请输入一个0-1049之间的数字:")
+        dialog.setOkButtonText(self.tr("确定"))
+        dialog.setCancelButtonText(self.tr("取消"))
+        dialog.setWindowTitle(self.tr("设定Flash存放地址"))
+        dialog.setLabelText(self.tr("请输入一个0-1049之间的数字:"))
         dialog.setTextValue(str(random.randint(0, 1050)))
         ok = dialog.exec_()
         storage_id = dialog.textValue()
@@ -942,26 +987,26 @@ class FingerPrint(QWidget):
         dialog = QInputDialog()
         dialog.setWindowModality(Qt.WindowModal)
         dialog.setTextEchoMode(QLineEdit.Normal)
-        dialog.setOkButtonText("确定")
-        dialog.setCancelButtonText("取消")
-        dialog.setWindowTitle("删除指定模板")
-        dialog.setLabelText("请输入要删除的模板ID(0-1049的数字):")
+        dialog.setOkButtonText(self.tr("确定"))
+        dialog.setCancelButtonText(self.tr("取消"))
+        dialog.setWindowTitle(self.tr("删除指定模板"))
+        dialog.setLabelText(self.tr("请输入要删除的模板ID(0-1049的数字):"))
         ok = dialog.exec_()
         storage_id = dialog.textValue()
         if storage_id and ok:
             ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), int(storage_id), 1)
-            TabWidget.textBrowser_3.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
+            TabWidget.textBrowser_3.append(self.tr("模板{}删除成功").format(storage_id) if ret == 0 else self.tr("模板{}删除失败").format(storage_id))
 
     def clean_flash(self):
         ret = self.libc.ZAZEmpty(self.handle, c_int(0xffffffff))
-        TabWidget.textBrowser_3.append("成功清空指纹库" if ret == 0 else "清空指纹库失败")
+        TabWidget.textBrowser_3.append(self.tr("成功清空指纹库") if ret == 0 else self.tr("清空指纹库失败"))
 
     def get_template_num(self):
         num = c_int(0)
         ret = self.libc.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
         # self.thread = General(self.libc.ZAZTemplateNum, self.handle, c_int(0xffffffff), byref(num))
         # self.thread.signals.step.connect(TabWidget.textBrowser_3.append)
-        TabWidget.textBrowser_3.append(f"有效模板总数为{num.value}" if ret == 0 else "获取有效模板总数失败")
+        TabWidget.textBrowser_3.append(self.tr("有效模板总数为{}").format(num.value) if ret == 0 else self.tr("获取有效模板总数失败"))
 
 
 class FingerPrint2(QWidget):
@@ -1009,7 +1054,7 @@ class FingerPrint2(QWidget):
             TabWidget.pushButton_del_2.setEnabled(True)
             TabWidget.pushButton_empty_2.setEnabled(True)
         else:
-            QMessageBox.critical(self, "Error", f"设备未正确打开！{ret}")
+            QMessageBox.critical(self, "Error", self.tr("设备未正确打开！{}").format(ret))
 
     def close_device(self):
         self.thread.kill()
@@ -1023,7 +1068,7 @@ class FingerPrint2(QWidget):
             TabWidget.pushButton_del_2.setEnabled(False)
             TabWidget.pushButton_empty_2.setEnabled(False)
         else:
-            QMessageBox.critical(self, "Error", "设备未正确关闭！")
+            QMessageBox.critical(self, "Error", self.tr("设备未正确关闭！"))
 
     def get_image(self):
         TabWidget.textBrowser_6.clear()
@@ -1033,7 +1078,7 @@ class FingerPrint2(QWidget):
 
     def search_image(self):
         TabWidget.textBrowser_6.clear()
-        TabWidget.textBrowser_6.append("请将手指平放在传感器上...")
+        TabWidget.textBrowser_6.append(self.tr("请将手指平放在传感器上..."))
         storage_id = c_int(0)
         score = c_int(0)
         ret = 40  # 传感器上没有手指
@@ -1043,28 +1088,28 @@ class FingerPrint2(QWidget):
             TabWidget.textBrowser_6.append(f"{new_code_dict.get(ret)}")
         ret = self.libc.GetChar(0)
         if ret == 0:
-            TabWidget.textBrowser_6.append(f"生成特征成功")
+            TabWidget.textBrowser_6.append(self.tr("生成特征成功"))
             ret = self.libc.SearchChar(0, byref(storage_id), byref(score))
-            TabWidget.textBrowser_6.append(f"进行比对(返回类型/代码：{new_code_dict.get(ret)})")
-            TabWidget.textBrowser_6.append(f"匹配的模板位置：{storage_id.value}")
-            TabWidget.textBrowser_6.append(f"匹配得分：{score.value * 100}")
+            TabWidget.textBrowser_6.append(self.tr("进行比对(返回类型/代码：{})").format(new_code_dict.get(ret)))
+            TabWidget.textBrowser_6.append(self.tr("匹配的模板位置：{}").format(storage_id.value))
+            TabWidget.textBrowser_6.append(self.tr("匹配得分：{}").format(score.value * 100))
         else:
-            TabWidget.textBrowser_6.append(f"生成特征失败(错误类型/代码：{new_code_dict.get(ret)})")
+            TabWidget.textBrowser_6.append(self.tr("生成特征失败(错误类型/代码：{})").format(new_code_dict.get(ret)))
 
     def del_flash(self):
         # storage_id, _ = QInputDialog.getText(self, "删除指定模板", "请输入要删除的模板ID(1-500的数字):", QLineEdit.Normal, "")
         dialog = QInputDialog()
         dialog.setWindowModality(Qt.WindowModal)
         dialog.setTextEchoMode(QLineEdit.Normal)
-        dialog.setOkButtonText("确定")
-        dialog.setCancelButtonText("取消")
-        dialog.setWindowTitle("删除指定模板")
-        dialog.setLabelText("请输入要删除的模板ID(1-500的数字):")
+        dialog.setOkButtonText(self.tr("确定"))
+        dialog.setCancelButtonText(self.tr("取消"))
+        dialog.setWindowTitle(self.tr("删除指定模板"))
+        dialog.setLabelText(self.tr("请输入要删除的模板ID(1-500的数字):"))
         ok = dialog.exec_()
         storage_id = dialog.textValue()
         if storage_id and ok:
             ret = self.libc.DelChar(int(storage_id), int(storage_id), 0)
-            TabWidget.textBrowser_6.append(f"模板{storage_id}删除成功" if ret == 0 else f"模板{storage_id}删除失败")
+            TabWidget.textBrowser_6.append(self.tr("模板{}删除成功").format(storage_id) if ret == 0 else self.tr("模板{}删除失败").format(storage_id))
 
     def clean_flash(self):
         ret = self.libc.DelChar(1, 500, 0)
@@ -1121,27 +1166,10 @@ class Arcsoft(QWidget):
     def __init__(self):
         super().__init__()
         self.thread = None
-        # self.yaml = YAML()
-        # self.request = QNetworkRequest()
-        # self.manager = QNetworkAccessManager()
-        # self.manager.finished.connect(self.check_active_slot)
 
         TabWidget.pushButton_generator.clicked.connect(self.generator)
         # TabWidget.pushButton_checkLicense.clicked.connect(self.check_active)
         TabWidget.pushButton_activateOline.clicked.connect(self.activate)
-
-        # if system == "Linux":
-        #     try:
-        #         with open("/nubomed/consumable-cabinet-service/conf/application-camera.yml", mode='r', encoding="UTF-8") as f:
-        #             self.camera_cfg_dict = self.yaml.load(f)
-        #             app_id = self.camera_cfg_dict.get("arcsoft").get("AppId")
-        #             sdk_key = self.camera_cfg_dict.get("arcsoft").get("SdkKey")
-        #             active_key = self.camera_cfg_dict.get("arcsoft").get("ActiveKey")
-        #             TabWidget.lineEdit_appId.setText(app_id)
-        #             TabWidget.lineEdit_sdkKey.setText(sdk_key)
-        #             TabWidget.lineEdit_activateKey.setText(active_key)
-        #     except FileNotFoundError:
-        #         TabWidget.textBrowser_arcsoft.append(f"未找到摄像头配置文件 application-camera.yml")
 
     def generator(self):
         TabWidget.textBrowser_arcsoft.clear()
@@ -1149,58 +1177,26 @@ class Arcsoft(QWidget):
         dialog = QInputDialog()
         dialog.setWindowModality(Qt.WindowModal)
         dialog.setTextEchoMode(QLineEdit.Password)
-        dialog.setOkButtonText("确定")
-        dialog.setCancelButtonText("取消")
-        dialog.setWindowTitle("提升权限")
-        dialog.setLabelText("请输入当前账户密码:")
+        dialog.setOkButtonText(self.tr("确定"))
+        dialog.setCancelButtonText(self.tr("取消"))
+        dialog.setWindowTitle(self.tr("提升权限"))
+        dialog.setLabelText(self.tr("请输入当前账户密码:"))
         ok = dialog.exec_()
         password = dialog.textValue()
         if password and ok:
-            TabWidget.textBrowser_arcsoft.setPlainText("执行脚本：/nubomed/arcsoft/arcsoftsetup.sh")
+            TabWidget.textBrowser_arcsoft.setPlainText(self.tr("执行脚本：") + "/nubomed/arcsoft/arcsoftsetup.sh")
             self.thread = Commander(f"bash /nubomed/arcsoft/arcsoftsetup.sh {password}")
             self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
             threadpool.start(self.thread)
-
-    # def check_active(self):
-    #     TabWidget.textBrowser_arcsoft.clear()
-    #     self.request.setUrl(QUrl("http://localhost:8080/system/getActiveInfo"))
-    #     self.manager.get(self.request)
-    #
-    # @staticmethod
-    # def check_active_slot(reply):
-    #     if reply.error() == QNetworkReply.NoError:
-    #         res = json.loads(reply.readAll().data())
-    #         if res.get('activeState') is not None:
-    #             TabWidget.textBrowser_arcsoft.append(f"激活状态：{res.get('activeState')}")
-    #         if res.get('appId') is not None:
-    #             TabWidget.textBrowser_arcsoft.append(f"App ID：{res.get('appId')}")
-    #         if res.get('sdkKey') is not None:
-    #             TabWidget.textBrowser_arcsoft.append(f"SDK Key：{res.get('sdkKey')}")
-    #         if res.get('activeKey') is not None:
-    #             TabWidget.textBrowser_arcsoft.append(f"激活密钥：{res.get('activeKey')}")
-    #     else:
-    #         TabWidget.textBrowser_arcsoft.append(reply.errorString())
 
     def activate(self):
         TabWidget.textBrowser_arcsoft.clear()
         active_key = TabWidget.lineEdit_activateKey.text()
 
-        # query = QUrlQuery()
-        # query.addQueryItem("AppId", app_id)
-        # query.addQueryItem("SdkKey", sdk_key)
-        # query.addQueryItem("activeKey", active_key)
-        #
-        # url = QUrl("http://localhost:8080/system/activeFaceEngin?")
-        # url.setQuery(query.query())
-        #
-        # self.request.setUrl(url)
-        # self.manager.get(self.request)
-
         if active_key:
             self.thread = Commander(f"bash arsoft_Active.sh F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca 8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v {active_key}", wd="/nubomed/midtool/shell/")
             # 测试环境
-            # self.thread = Commander(
-            #     f"bash {path}/shell/arsoft_Active.sh DEF4Zavuu24UjseJgrYGaGbyHD8C7MZBbDimLN3joSmE 3sfW9ijmvQqUNCvBrNgJNzWxT7rCsfaxDsyU7XzQKA4Q {active_key}")
+            # self.thread = Commander(f"bash {path}/shell/arsoft_Active.sh DEF4Zavuu24UjseJgrYGaGbyHD8C7MZBbDimLN3joSmE 3sfW9ijmvQqUNCvBrNgJNzWxT7rCsfaxDsyU7XzQKA4Q {active_key}")
             self.thread.signals.stdout.connect(TabWidget.textBrowser_arcsoft.append)
             threadpool.start(self.thread)
 
@@ -1245,9 +1241,9 @@ class Scan(QWidget):
             if ret:
                 TabWidget.pushButton_openDevice_2.setEnabled(False)
                 TabWidget.pushButton_closeDevice_2.setEnabled(True)
-                TabWidget.textBrowser_4.append("串口打开成功")
+                TabWidget.textBrowser_4.append(self.tr("串口打开成功"))
             else:
-                TabWidget.textBrowser_4.append("串口打开失败")
+                TabWidget.textBrowser_4.append(self.tr("串口打开失败"))
 
     def read(self):
         self.thread.run()
@@ -1257,7 +1253,7 @@ class Scan(QWidget):
     def close(self):
         if self.ser.isOpen():
             self.ser.close()
-        TabWidget.textBrowser_4.append("设备已关闭")
+        TabWidget.textBrowser_4.append(self.tr("设备已关闭"))
         TabWidget.pushButton_openDevice_2.setEnabled(True)
         TabWidget.pushButton_closeDevice_2.setEnabled(False)
 
@@ -1289,13 +1285,13 @@ class MidUpgrade(QWidget):
             self.thread.signals.stdout.connect(TabWidget.textBrowser_5.append)
             threadpool.start(self.thread)
         else:
-            TabWidget.textBrowser_5.append("请先选择柜子类型！再点击安装")
+            TabWidget.textBrowser_5.append(self.tr("请先选择柜子类型！再点击安装"))
 
     def choose_upgrade_pkg(self):
-        self.pkg_path, _ = QFileDialog.getOpenFileName(self, "选择升级包", "/media", "升级包 (*.tar.gz)")
+        self.pkg_path, _ = QFileDialog.getOpenFileName(self, self.tr("选择升级包"), "/media", self.tr("升级包 (*.tar.gz)"))
         if self.pkg_path:
             TabWidget.textBrowser_5.clear()
-            TabWidget.textBrowser_5.append(f"选中的升级包所在路径：{self.pkg_path}")
+            TabWidget.textBrowser_5.append(self.tr("选中的升级包所在路径：{}").format(self.pkg_path))
 
     def upgrade(self):
         if self.pkg_path:
@@ -1334,9 +1330,6 @@ if __name__ == "__main__":
 
         # 多系统兼容
         if system == "Windows":
-            # system_tray_icon = QSystemTrayIcon()
-            # system_tray_icon.setIcon(QIcon(f'{path}/icon.png'))
-            # system_tray_icon.show()
             # 关闭部分不支持的功能的标签/按钮
             TabWidget.setTabVisible(1, False)  # 部署升级 Tab
             TabWidget.setTabVisible(2, False)  # 配置文件修改 Tab

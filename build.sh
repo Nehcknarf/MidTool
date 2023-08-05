@@ -1,10 +1,12 @@
 #!/bin/bash
-#echo "Activate conda env"
+echo "Activate conda env"
 #conda init bash
-#conda activate midtool
+conda activate midtool
 
 echo "Open project dir"
 cd /mnt/e/PycharmProjects/midtool/ || exit
+
+pyside2-rcc -o qrc.py midtool.qrc
 
 echo "Start building..."
 pyinstaller --noconfirm \
