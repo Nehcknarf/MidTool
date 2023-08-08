@@ -45,7 +45,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QTabBar::tab{height:50}
-QTabBar::tab{width:100}</string>
+QTabBar::tab{width:160}</string>
   </property>
   <property name="tabPosition">
    <enum>QTabWidget::North</enum>
@@ -569,13 +569,13 @@ QTabBar::tab{width:100}</string>
     <widget class="QWidget" name="layoutWidget">
      <property name="geometry">
       <rect>
-       <x>70</x>
-       <y>90</y>
-       <width>208</width>
-       <height>52</height>
+       <x>80</x>
+       <y>70</y>
+       <width>171</width>
+       <height>108</height>
       </rect>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_18">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QPushButton" name="chooseButton">
         <property name="minimumSize">
@@ -1002,7 +1002,7 @@ QTabBar::tab{width:100}</string>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">QTabBar::tab{height:100}
+     <string notr="true">QTabBar::tab{height:120}
 QTabBar::tab{width:50}</string>
     </property>
     <property name="tabPosition">
@@ -1236,7 +1236,7 @@ QTabBar::tab{width:50}</string>
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>431</width>
+        <width>761</width>
         <height>52</height>
        </rect>
       </property>
@@ -1294,9 +1294,9 @@ QTabBar::tab{width:50}</string>
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>50</y>
-        <width>451</width>
-        <height>511</height>
+        <y>70</y>
+        <width>621</width>
+        <height>491</height>
        </rect>
       </property>
       <property name="font">
@@ -1338,8 +1338,8 @@ QTabBar::tab{width:50}</string>
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>500</x>
-        <y>110</y>
+        <x>680</x>
+        <y>230</y>
         <width>102</width>
         <height>108</height>
        </rect>
@@ -1387,7 +1387,7 @@ QTabBar::tab{width:50}</string>
       <property name="geometry">
        <rect>
         <x>30</x>
-        <y>0</y>
+        <y>10</y>
         <width>121</width>
         <height>51</height>
        </rect>
@@ -1736,7 +1736,7 @@ QTabBar::tab{width:50}</string>
       <property name="geometry">
        <rect>
         <x>620</x>
-        <y>0</y>
+        <y>10</y>
         <width>351</width>
         <height>511</height>
        </rect>
@@ -2089,7 +2089,7 @@ QTabBar::tab{width:50}</string>
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>541</width>
+        <width>621</width>
         <height>261</height>
        </rect>
       </property>
@@ -2331,8 +2331,8 @@ QTabBar::tab{width:50}</string>
        <rect>
         <x>30</x>
         <y>30</y>
-        <width>541</width>
-        <height>231</height>
+        <width>621</width>
+        <height>261</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_27">
@@ -2348,7 +2348,7 @@ QTabBar::tab{width:50}</string>
            </property>
            <property name="maximumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -2397,7 +2397,7 @@ QTabBar::tab{width:50}</string>
            </property>
            <property name="maximumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -2446,7 +2446,7 @@ QTabBar::tab{width:50}</string>
            </property>
            <property name="maximumSize">
             <size>
-             <width>200</width>
+             <width>250</width>
              <height>50</height>
             </size>
            </property>
@@ -2651,8 +2651,8 @@ QTabBar::tab{width:50}</string>
              </property>
              <property name="maximumSize">
               <size>
-               <width>50</width>
-               <height>16777215</height>
+               <width>1000</width>
+               <height>50</height>
               </size>
              </property>
              <property name="font">
@@ -2949,7 +2949,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="maximumSize">
               <size>
-               <width>50</width>
+               <width>100</width>
                <height>16777215</height>
               </size>
              </property>
@@ -3292,7 +3292,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
              </property>
              <property name="maximumSize">
               <size>
-               <width>50</width>
+               <width>100</width>
                <height>16777215</height>
               </size>
              </property>
@@ -3529,7 +3529,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
      <rect>
       <x>10</x>
       <y>10</y>
-      <width>911</width>
+      <width>951</width>
       <height>52</height>
      </rect>
     </property>
@@ -3581,7 +3581,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
+         <width>120</width>
          <height>16777215</height>
         </size>
        </property>
@@ -3672,7 +3672,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
          </property>
          <property name="maximumSize">
           <size>
-           <width>150</width>
+           <width>1000</width>
            <height>50</height>
           </size>
          </property>
@@ -3743,7 +3743,7 @@ li.checked::marker { content: &quot;\2612&quot;; }
            </property>
            <property name="maximumSize">
             <size>
-             <width>100</width>
+             <width>1000</width>
              <height>50</height>
             </size>
            </property>
@@ -3780,27 +3780,46 @@ li.checked::marker { content: &quot;\2612&quot;; }
    <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
-      <x>490</x>
+      <x>491</x>
       <y>260</y>
-      <width>341</width>
+      <width>511</width>
       <height>64</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_6">
+    <layout class="QVBoxLayout" name="verticalLayout_4">
      <item>
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <pointsize>20</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>MidTool 中台工具箱 1.0.3</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <item>
+        <widget class="QLabel" name="label_2">
+         <property name="font">
+          <font>
+           <pointsize>20</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>MidTool 中台工具箱</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="font">
+          <font>
+           <pointsize>20</pointsize>
+          </font>
+         </property>
+         <property name="text">
+          <string>1.0.3</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </item>
      <item>
       <widget class="QLabel" name="label_3">

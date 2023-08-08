@@ -4,27 +4,27 @@
 <context>
     <name>Arcsoft</name>
     <message>
-        <location filename="../midtool.py" line="1197"/>
+        <location filename="../midtool.py" line="1176"/>
         <source>确定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1198"/>
+        <location filename="../midtool.py" line="1177"/>
         <source>取消</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1199"/>
+        <location filename="../midtool.py" line="1178"/>
         <source>提升权限</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1200"/>
+        <location filename="../midtool.py" line="1179"/>
         <source>请输入当前账户密码:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1204"/>
+        <location filename="../midtool.py" line="1183"/>
         <source>执行脚本：</source>
         <translation type="unfinished"></translation>
     </message>
@@ -32,17 +32,17 @@
 <context>
     <name>Camera</name>
     <message>
-        <location filename="../midtool.py" line="1152"/>
+        <location filename="../midtool.py" line="1148"/>
         <source>关闭摄像头</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1156"/>
+        <location filename="../midtool.py" line="1152"/>
         <source>开启摄像头</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1162"/>
+        <location filename="../midtool.py" line="1158"/>
         <source>拍照成功，存储于工具目录下 test.jpg</source>
         <translation type="unfinished"></translation>
     </message>
@@ -58,39 +58,39 @@
 <context>
     <name>ConfigEditor</name>
     <message>
-        <location filename="../midtool.py" line="723"/>
-        <location filename="../midtool.py" line="757"/>
-        <location filename="../midtool.py" line="770"/>
-        <location filename="../midtool.py" line="783"/>
-        <location filename="../midtool.py" line="794"/>
-        <location filename="../midtool.py" line="810"/>
-        <location filename="../midtool.py" line="847"/>
+        <location filename="../midtool.py" line="719"/>
+        <location filename="../midtool.py" line="753"/>
+        <location filename="../midtool.py" line="766"/>
+        <location filename="../midtool.py" line="779"/>
+        <location filename="../midtool.py" line="790"/>
+        <location filename="../midtool.py" line="806"/>
+        <location filename="../midtool.py" line="843"/>
         <source>保存成功！</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="725"/>
-        <location filename="../midtool.py" line="759"/>
-        <location filename="../midtool.py" line="772"/>
-        <location filename="../midtool.py" line="785"/>
-        <location filename="../midtool.py" line="796"/>
-        <location filename="../midtool.py" line="812"/>
-        <location filename="../midtool.py" line="849"/>
+        <location filename="../midtool.py" line="721"/>
+        <location filename="../midtool.py" line="755"/>
+        <location filename="../midtool.py" line="768"/>
+        <location filename="../midtool.py" line="781"/>
+        <location filename="../midtool.py" line="792"/>
+        <location filename="../midtool.py" line="808"/>
+        <location filename="../midtool.py" line="845"/>
         <source>保存失败！{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="832"/>
+        <location filename="../midtool.py" line="828"/>
         <source>方形指纹</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="836"/>
+        <location filename="../midtool.py" line="832"/>
         <source>圆形指纹</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="840"/>
+        <location filename="../midtool.py" line="836"/>
         <source>光学指纹</source>
         <translation type="unfinished"></translation>
     </message>
@@ -98,134 +98,134 @@
 <context>
     <name>FingerPrint</name>
     <message>
-        <location filename="../midtool.py" line="915"/>
+        <location filename="../midtool.py" line="911"/>
         <source>设备未正确打开！{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="928"/>
+        <location filename="../midtool.py" line="924"/>
         <source>设备未正确关闭！</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="932"/>
+        <location filename="../midtool.py" line="928"/>
         <source>请将手指平放在传感器上...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="940"/>
+        <location filename="../midtool.py" line="936"/>
         <source>获取指纹图像中...第{}次尝试，返回值：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="944"/>
+        <location filename="../midtool.py" line="940"/>
         <source>超时！请重新采集</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="948"/>
+        <location filename="../midtool.py" line="944"/>
         <source>成功获取指纹</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="950"/>
+        <location filename="../midtool.py" line="946"/>
         <source>获取指纹失败</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="956"/>
+        <location filename="../midtool.py" line="952"/>
         <source>生成特征成功</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="958"/>
+        <location filename="../midtool.py" line="954"/>
         <source>***如果返回类型/代码为”没搜索到指纹“，且匹配得分为0，则匹配得到的ID不正确，忽略即可***</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="959"/>
+        <location filename="../midtool.py" line="955"/>
         <source>返回类型/代码：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="960"/>
+        <location filename="../midtool.py" line="956"/>
         <source>匹配的ID：未找到</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="960"/>
+        <location filename="../midtool.py" line="956"/>
         <source>匹配的ID：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="961"/>
+        <location filename="../midtool.py" line="957"/>
         <source>匹配得分：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="963"/>
+        <location filename="../midtool.py" line="959"/>
         <source>生成特征失败(错误类型/代码：{})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="973"/>
-        <location filename="../midtool.py" line="990"/>
+        <location filename="../midtool.py" line="969"/>
+        <location filename="../midtool.py" line="986"/>
         <source>确定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="974"/>
-        <location filename="../midtool.py" line="991"/>
+        <location filename="../midtool.py" line="970"/>
+        <location filename="../midtool.py" line="987"/>
         <source>取消</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="975"/>
+        <location filename="../midtool.py" line="971"/>
         <source>设定Flash存放地址</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="976"/>
+        <location filename="../midtool.py" line="972"/>
         <source>请输入一个0-1049之间的数字:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="992"/>
+        <location filename="../midtool.py" line="988"/>
         <source>删除指定模板</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="993"/>
+        <location filename="../midtool.py" line="989"/>
         <source>请输入要删除的模板ID(0-1049的数字):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="998"/>
+        <location filename="../midtool.py" line="994"/>
         <source>模板{}删除成功</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="998"/>
+        <location filename="../midtool.py" line="994"/>
         <source>模板{}删除失败</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1002"/>
+        <location filename="../midtool.py" line="998"/>
         <source>成功清空指纹库</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1002"/>
+        <location filename="../midtool.py" line="998"/>
         <source>清空指纹库失败</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1009"/>
+        <location filename="../midtool.py" line="1005"/>
         <source>有效模板总数为{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1009"/>
+        <location filename="../midtool.py" line="1005"/>
         <source>获取有效模板总数失败</source>
         <translation type="unfinished"></translation>
     </message>
@@ -233,72 +233,72 @@
 <context>
     <name>FingerPrint2</name>
     <message>
-        <location filename="../midtool.py" line="1057"/>
+        <location filename="../midtool.py" line="1053"/>
         <source>设备未正确打开！{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1071"/>
+        <location filename="../midtool.py" line="1067"/>
         <source>设备未正确关闭！</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1081"/>
+        <location filename="../midtool.py" line="1077"/>
         <source>请将手指平放在传感器上...</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1091"/>
+        <location filename="../midtool.py" line="1087"/>
         <source>生成特征成功</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1093"/>
+        <location filename="../midtool.py" line="1089"/>
         <source>进行比对(返回类型/代码：{})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1094"/>
+        <location filename="../midtool.py" line="1090"/>
         <source>匹配的模板位置：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1095"/>
+        <location filename="../midtool.py" line="1091"/>
         <source>匹配得分：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1097"/>
+        <location filename="../midtool.py" line="1093"/>
         <source>生成特征失败(错误类型/代码：{})</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1104"/>
+        <location filename="../midtool.py" line="1100"/>
         <source>确定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1105"/>
+        <location filename="../midtool.py" line="1101"/>
         <source>取消</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1106"/>
+        <location filename="../midtool.py" line="1102"/>
         <source>删除指定模板</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1107"/>
+        <location filename="../midtool.py" line="1103"/>
         <source>请输入要删除的模板ID(1-500的数字):</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1112"/>
+        <location filename="../midtool.py" line="1108"/>
         <source>模板{}删除成功</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1112"/>
+        <location filename="../midtool.py" line="1108"/>
         <source>模板{}删除失败</source>
         <translation type="unfinished"></translation>
     </message>
@@ -658,22 +658,22 @@
 <context>
     <name>MidUpgrade</name>
     <message>
-        <location filename="../midtool.py" line="1337"/>
+        <location filename="../midtool.py" line="1284"/>
         <source>请先选择柜子类型！再点击安装</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1340"/>
+        <location filename="../midtool.py" line="1287"/>
         <source>选择升级包</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1340"/>
+        <location filename="../midtool.py" line="1287"/>
         <source>升级包 (*.tar.gz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1343"/>
+        <location filename="../midtool.py" line="1290"/>
         <source>选中的升级包所在路径：{}</source>
         <translation type="unfinished"></translation>
     </message>
@@ -681,17 +681,17 @@
 <context>
     <name>Scan</name>
     <message>
-        <location filename="../midtool.py" line="1293"/>
+        <location filename="../midtool.py" line="1240"/>
         <source>串口打开成功</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1295"/>
+        <location filename="../midtool.py" line="1242"/>
         <source>串口打开失败</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="1305"/>
+        <location filename="../midtool.py" line="1252"/>
         <source>设备已关闭</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1414,12 +1414,17 @@ li.checked::marker { content: &quot;\2612&quot;; }
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.ui" line="3798"/>
-        <source>MidTool 中台工具箱 1.0.3</source>
+        <location filename="../midtool.ui" line="3800"/>
+        <source>MidTool 中台工具箱</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.ui" line="3813"/>
+        <location filename="../midtool.ui" line="3815"/>
+        <source>1.0.3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../midtool.ui" line="3832"/>
         <source>版权所有 2023 NuboMed. 保留所有权力。</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1427,70 +1432,70 @@ li.checked::marker { content: &quot;\2612&quot;; }
 <context>
     <name>Terminal</name>
     <message>
-        <location filename="../midtool.py" line="384"/>
+        <location filename="../midtool.py" line="380"/>
         <source>选择Shell脚本</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="384"/>
+        <location filename="../midtool.py" line="380"/>
         <source>Shell脚本 (*.sh)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="387"/>
+        <location filename="../midtool.py" line="383"/>
         <source>执行脚本：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="398"/>
-        <location filename="../midtool.py" line="478"/>
+        <location filename="../midtool.py" line="394"/>
+        <location filename="../midtool.py" line="474"/>
         <source>确定</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="399"/>
-        <location filename="../midtool.py" line="479"/>
+        <location filename="../midtool.py" line="395"/>
+        <location filename="../midtool.py" line="475"/>
         <source>取消</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="400"/>
+        <location filename="../midtool.py" line="396"/>
         <source>提升权限</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="401"/>
+        <location filename="../midtool.py" line="397"/>
         <source>请输入当前用户密码:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="415"/>
-        <location filename="../midtool.py" line="425"/>
+        <location filename="../midtool.py" line="411"/>
+        <location filename="../midtool.py" line="421"/>
         <source>执行命令：{}</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="458"/>
+        <location filename="../midtool.py" line="454"/>
         <source>选择Json配置</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="458"/>
+        <location filename="../midtool.py" line="454"/>
         <source>Json配置 (*.json)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="480"/>
+        <location filename="../midtool.py" line="476"/>
         <source>设定端口</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="481"/>
+        <location filename="../midtool.py" line="477"/>
         <source>请输入WebSocket端口号:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../midtool.py" line="494"/>
+        <location filename="../midtool.py" line="490"/>
         <source>正在终止命令执行...</source>
         <translation type="unfinished"></translation>
     </message>

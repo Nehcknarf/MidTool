@@ -362,11 +362,7 @@ class Terminal(QWidget):
         # self.timer.timeout.connect(self.check_midware_status)
         # self.timer.start(3000)
         # UI
-        TabWidget.tableWidget.setColumnWidth(0, 160)
-        TabWidget.tableWidget.setColumnWidth(1, 60)
-        TabWidget.tableWidget.setColumnWidth(2, 60)
-        TabWidget.tableWidget.setColumnWidth(3, 70)
-        TabWidget.tableWidget.setColumnWidth(4, 70)
+        TabWidget.tableWidget.resizeColumnsToContents()
         TabWidget.tableWidget.setRowHeight(0, 38)
 
         TabWidget.listButton.clicked.connect(self.pm2_list)
@@ -1279,8 +1275,8 @@ class MidUpgrade(QWidget):
         # print(self.device_type)
 
     def install(self):
-        wd_path = glob.glob("/nubomed/consumable-cabinet-service_V*/")[0]
         if self.device_type > 0:
+            wd_path = glob.glob("/nubomed/consumable-cabinet-service_V*/")[0]
             self.thread = Commander(f"bash install.sh {self.device_type}", wd=wd_path)
             self.thread.signals.stdout.connect(TabWidget.textBrowser_5.append)
             threadpool.start(self.thread)
@@ -1308,7 +1304,9 @@ if __name__ == "__main__":
     translator = QTranslator(app)
     if QLocale.system().name() == "zh_TW":
         translator.load(':/i18n/lang/zh_TW.qm')
-        app.installTranslator(translator)
+    elif QLocale.system().name() != "zh_CN":
+        translator.load(':/i18n/lang/en_US.qm')
+    app.installTranslator(translator)
     # app.setStyle('Fusion')
     serverName = 'MidTool'
     socket = QLocalSocket()
