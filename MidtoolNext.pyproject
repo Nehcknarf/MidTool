@@ -1,0 +1,9 @@
+{
+    "files": [
+        "src/main.py",
+        "src/camera.py",
+        "qtquickcontrols2.conf",
+        "content/App.qml",
+        "content/Screen01.qml"
+    ]
+}

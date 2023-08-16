@@ -1,0 +1,5 @@
+Module Controls
+Switch 1.0 Switch.qml
+Button 1.0 Button.qml
+TabButton 1.0 TabButton.qml
+ComboBox 1.0 ComboBox.qml
