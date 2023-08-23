@@ -1,91 +1,88 @@
+import os
 import platform
 
-from PySide6.QtCore import QObject, QRunnable, Signal, Slot, QProcess, QCoreApplication
+from PySide6.QtCore import QObject, QProcess, Signal, Slot, QUrl
+from PySide6.QtQml import QmlElement
 
+
+QML_IMPORT_NAME = "src.process"
+QML_IMPORT_MAJOR_VERSION = 1
+QML_IMPORT_MINOR_VERSION = 0
 
 system = platform.system()
 
+if system == "Linux":
+    user = os.environ.get("USER")
+    work_path = f"/home/{user}"
+    shell = "/bin/bash -c \"{}\""
+    coding = "UTF-8"
+    sep = "\n"
+elif system == "Windows":
+    user = os.environ.get("UserName")
+    work_path = f"C:/Users/{user}"
+    shell = "powershell {}"
+    coding = "GBK"
+    sep = "\r\n"
 
-class WorkerSignals(QObject):
-    stdout = Signal(str)
-    verbose = Signal(str)
 
+@QmlElement
+class Process(QObject):
+    Stdout = Signal(str, arguments='output')
 
-class Commander(QRunnable):
-    def __init__(self, command, password=None, wd="/"):
+    def __init__(self):
         super().__init__()
-        self.signals = WorkerSignals()
-        self.process_command = None
-        self.need_kill = False
-        self.command = command
-        self.password = password
-        self.wd = wd
-
-    @Slot()
-    def run(self):
         self.process_command = QProcess()
-        # self.process_command.setProcessChannelMode(QProcess.MergedChannels)
-        # if self.command.__contains__("sudo"):
-        #     # Pipe
-        #     process_echo = QProcess()
-        #     process_echo.setStandardOutputProcess(self.process_command)
-        #     process_echo.startCommand(f"echo {self.password}")
-        #     process_echo.waitForFinished()
-        #
-        # if system == "Linux":
-        #     self.process_command.setWorkingDirectory(self.wd)
-
         self.process_command.readyReadStandardOutput.connect(self.handle_stdout)
         self.process_command.readyReadStandardError.connect(self.handle_stderr)
         self.process_command.stateChanged.connect(self.handle_state)
-        self.process_command.finished.connect(self.cleanup)
+        self.process_command.finished.connect(self.finished)
 
-        self.process_command.startCommand(f"/bin/sh -c \"{self.command}\"")
-        # self.process_command.waitForStarted()
-        
-        # string = ""
-        # while self.process_command.state() != QProcess.NotRunning:
-        #     if self.need_kill:
-        #         break
-        #     if self.process_command.waitForReadyRead():
-        #         if system == "Windows":
-        #             stdout = bytes(self.process_command.readAllStandardOutput()).decode("gbk").rstrip('\r\n')
-        #         elif system == "Linux":
-        #             stdout = bytes(self.process_command.readAllStandardOutput()).decode("utf8").rstrip('\n')
-        #         print(stdout)
-        #         self.signals.stdout.emit(stdout)
-        #         string += f"{stdout}\n"
-        #
-        # self.signals.verbose.emit(string)
-        # self.signals.stdout.emit(QCoreApplication.translate("Commander", "Command has executed"))
+    @Slot(str)
+    def start(self, command, workdir=work_path, password=None):
+        self.process_command.setWorkingDirectory(workdir)
+        # self.process_command.setProcessChannelMode(QProcess.MergedChannels)
+        if "sudo " in command:
+            # Pipe
+            process_echo = QProcess()
+            process_echo.setStandardOutputProcess(self.process_command)
+            process_echo.startCommand(f"echo {password}")
+        self.process_command.startCommand(shell.format(command))
 
+    @Slot()
     def kill(self):
-        self.need_kill = True
-
-    def handle_stderr(self):
-        data = self.process_command.readAllStandardError()
-        stderr = bytes(data).decode("utf8").rstrip('\n')
-        print(stderr)
-        self.signals.stdout.emit(stderr)
+        self.process_command.kill()
 
     def handle_stdout(self):
         data = self.process_command.readAllStandardOutput()
-        stdout = bytes(data).decode("utf8").rstrip('\n')
-        print(stdout)
-        self.signals.stdout.emit(stdout)
+        stdout = bytes(data).decode(coding).rstrip(sep)
+        self.Stdout.emit(stdout)
+
+    def handle_stderr(self):
+        data = self.process_command.readAllStandardError()
+        stderr = bytes(data).decode(coding).rstrip(sep)
+        self.Stdout.emit(stderr)
 
     def handle_state(self, state):
-        states = {
-            QProcess.NotRunning: 'Not running',
-            QProcess.Starting: 'Starting',
-            QProcess.Running: 'Running',
+        states_dict = {
+            QProcess.Starting: self.tr("Starting"),
+            QProcess.Running: self.tr("Running"),
+            QProcess.NotRunning: self.tr("Not running")
         }
-        state_name = states[state]
-        print(f"State changed: {state_name}")
-        self.signals.stdout.emit(f"State changed: {state_name}")
+        state_name = states_dict.get(state)
+        self.Stdout.emit(self.tr("Process state changed: {}").format(state_name))
 
-    def cleanup(self):
-        print("Process finished.")
-        self.signals.stdout.emit("Process finished.")
-        self.process_command = None
+    def finished(self, exit_code, exit_status):
+        self.Stdout.emit(self.tr("Process finished with exit code {}").format(exit_code))
 
+    @Slot(QUrl)
+    def start_middleware(self, qurl):
+        path = qurl.toLocalFile()
+        self.start(f"(supervisorctl start all; supervisorctl update all) || (pm2 start {path} -m; pm2 save -m)")
+
+    @Slot()
+    def restart_middleware(self):
+        self.start(f"supervisorctl restart all || pm2 restart 0 -m")
+
+    @Slot()
+    def stop_middleware(self):
+        self.start(f"supervisorctl stop all || pm2 stop 0 -m")

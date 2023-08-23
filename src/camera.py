@@ -1,5 +1,24 @@
+from PySide6.QtCore import QObject, Property
 from PySide6.QtMultimedia import QMediaDevices
+from PySide6.QtQml import QmlElement
 
 
-class Camera(object):
-    camera_list = [{"value": cam, "text": cam.description()} for cam in QMediaDevices.videoInputs()]
+QML_IMPORT_NAME = "src.camera"
+QML_IMPORT_MAJOR_VERSION = 1
+QML_IMPORT_MINOR_VERSION = 0
+
+
+@QmlElement
+class CameraModel(QObject):
+    # Signal
+    cameraChanged = QMediaDevices.videoInputsChanged
+
+    def __init__(self):
+        super().__init__()
+        self.camera_model = []
+
+    def get_model(self):
+        self.camera_model = [{"value": camera, "text": camera.description()} for camera in QMediaDevices.videoInputs()]
+        return self.camera_model
+
+    cameras = Property(list, get_model, notify=cameraChanged)
