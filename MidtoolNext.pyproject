@@ -1,9 +1,23 @@
 {
     "files": [
-        "src/main.py",
-        "src/camera.py",
+        "main.qml"
         "qtquickcontrols2.conf",
+        "content/Activation.qml",
         "content/App.qml",
-        "content/Screen01.qml"
+        "content/Camera.qml",
+        "content/EditorDrug.qml",
+        "content/Fingerprint.qml",
+        "content/MainScreen.qml",
+        "content/Maintenance.qml",
+        "content/Monitoring.qml",
+        "content/Serial.qml",
+        "src/camera.py",
+        "src/editor.py",
+        "src/fingerprint.py",
+        "src/main.py",
+        "src/maintenance.py",
+        "src/monitoring.py",
+        "src/process.py",
+        "src/serial.py"
     ]
 }

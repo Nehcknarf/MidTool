@@ -6,30 +6,33 @@ import MidToolUI
 import QtQuick.VirtualKeyboard 6.5
 
 Window {
-    width: mainScreen.width
     height: mainScreen.height
-
-    visible: true
     title: "MidTool"
+    visible: true
+    flags: Qt.FramelessWindowHint | Qt.Window
+    width: mainScreen.width
 
-    Screen01 {
+    MainScreen {
         id: mainScreen
-    }
 
+    }
     InputPanel {
         id: inputPanel
-        property bool showKeyboard :  active
+
+        property bool showKeyboard: active
+
+        anchors.left: parent.left
+        anchors.leftMargin: Constants.width / 10
+        anchors.right: parent.right
+        anchors.rightMargin: Constants.width / 10
         y: showKeyboard ? parent.height - height : parent.height
-        Behavior on y {
+
+        Behavior on y  {
             NumberAnimation {
                 duration: 200
                 easing.type: Easing.InOutQuad
             }
         }
-        anchors.leftMargin: Constants.width/10
-        anchors.rightMargin: Constants.width/10
-        anchors.left: parent.left
-        anchors.right: parent.right
     }
 }
 

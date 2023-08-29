@@ -1,0 +1,138 @@
+import QtQuick 6.5
+import QtQuick.Controls 6.5
+import QtQuick.Layouts 6.5
+
+import Controls as MyControls
+
+import src.process
+
+
+Item {
+    Process {
+        id: processActivate
+
+        Component.onCompleted: processActivate.Stdout.connect(textAreaActivate.append)
+    }
+    MyControls.GroupBox {
+        anchors.left: parent.left
+        anchors.leftMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.top: parent.top
+        anchors.topMargin: 16
+        height: 110
+
+        Label {
+            font.bold: true
+            font.pixelSize: 16
+            text: qsTr("Online Activation")
+        }
+        RowLayout {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+
+            Label {
+                font.pixelSize: 16
+                text: qsTr("Key")
+            }
+            MyControls.TextField {
+                id: textFieldKeyPart1
+
+                horizontalAlignment: TextInput.AlignHCenter
+
+                // maximumLength: 4
+                validator: RegularExpressionValidator {
+                    regularExpression: /[0-9a-zA-Z]{1,4}/
+                }
+            }
+            Label {
+                font.pixelSize: 16
+                text: qsTr("-")
+            }
+            MyControls.TextField {
+                id: textFieldKeyPart2
+
+                horizontalAlignment: TextInput.AlignHCenter
+
+                validator: RegularExpressionValidator {
+                    regularExpression: /[0-9a-zA-Z]{1,4}/
+                }
+            }
+            Label {
+                font.pixelSize: 16
+                text: qsTr("-")
+            }
+            MyControls.TextField {
+                id: textFieldKeyPart3
+
+                horizontalAlignment: TextInput.AlignHCenter
+
+                validator: RegularExpressionValidator {
+                    regularExpression: /[0-9a-zA-Z]{1,4}/
+                }
+            }
+            Label {
+                font.pixelSize: 16
+                text: qsTr("-")
+            }
+            MyControls.TextField {
+                id: textFieldKeyPart4
+
+                horizontalAlignment: TextInput.AlignHCenter
+
+                validator: RegularExpressionValidator {
+                    regularExpression: /[0-9a-zA-Z]{1,4}/
+                }
+            }
+            MyControls.Button {
+                text: qsTr("Activate")
+
+                onClicked: {
+                    processActivate.activate_arcsoft(textFieldKeyPart1.text, textFieldKeyPart2.text, textFieldKeyPart3.text, textFieldKeyPart4.text);
+                }
+            }
+        }
+    }
+    MyControls.GroupBox {
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        anchors.left: parent.left
+        anchors.leftMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.top: parent.top
+        anchors.topMargin: 142
+
+        Label {
+            font.bold: true
+            font.pixelSize: 16
+            text: qsTr("Terminal Output")
+        }
+        MyControls.Button {
+            anchors.right: parent.right
+            anchors.top: parent.top
+            text: qsTr("Clear")
+
+            onClicked: textAreaActivate.clear()
+        }
+        ScrollView {
+            anchors.bottom: parent.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: parent.top
+            anchors.topMargin: 54
+
+            background: Rectangle {
+                border.color: "#CAD0E0"
+                radius: 8
+            }
+
+            TextArea {
+                id: textAreaActivate
+
+                anchors.fill: parent
+                readOnly: true
+            }
+        }
+    }
+}

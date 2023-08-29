@@ -1,18 +1,18 @@
-import platform
 from ctypes import *
 
 from PySide6.QtCore import QObject, QCoreApplication, Property, Signal, Slot, QRunnable, QThreadPool, QThread
 from PySide6.QtSerialPort import QSerialPortInfo
 from PySide6.QtQml import QmlElement
 
-from utils.code_dict import code_dict, new_code_dict
+from utils.env import system, root_path
+from utils.mapper import code_dict, new_code_dict
 
 
 QML_IMPORT_NAME = "src.fingerprint"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
-system = platform.system()
+threadpool = QThreadPool.globalInstance()
 
 
 class GetFingerprint(QRunnable):
@@ -124,12 +124,10 @@ class SquareFingerPrint(QObject):
 
     def __init__(self):
         super().__init__()
-        # path = os.path.abspath(os.path.dirname(__file__))
-        # print(path)
         if system == "Windows":
-            self.libc = cdll.LoadLibrary(f'../bin/win/fingerprint/libapit.dll')
+            self.libc = cdll.LoadLibrary(f'{root_path}/bin/win/fingerprint/libapit.dll')
         elif system == "Linux":
-            self.libc = cdll.LoadLibrary(f'../bin/linux/fingerprint/libapit.so')
+            self.libc = cdll.LoadLibrary(f'{root_path}/bin/linux/fingerprint/libapit.so')
         self.handle = c_int64(0)
 
     def get_ports(self):
@@ -161,12 +159,12 @@ class SquareFingerPrint(QObject):
     @Slot(int)
     def get_fingerprint(self, storage_id):
         worker = GetFingerprint(self.Output, storage_id, self.libc, self.handle)
-        QThreadPool.globalInstance().start(worker)
+        threadpool.start(worker)
 
     @Slot()
     def search_fingerprint(self):
         worker = SearchFingerprint(self.Output, self.libc, self.handle)
-        QThreadPool.globalInstance().start(worker)
+        threadpool.start(worker)
 
     @Slot()
     def get_template_num(self):
@@ -261,7 +259,7 @@ class RoundFingerPrint(QObject):
     def __init__(self):
         super().__init__()
         if system == "Linux":
-            self.libc = cdll.LoadLibrary(f'../bin/linux/fingerprint/lib0a0.so')
+            self.libc = cdll.LoadLibrary(f'{root_path}/bin/linux/fingerprint/lib0a0.so')
 
     def get_ports(self):
         com_model = [
@@ -292,12 +290,12 @@ class RoundFingerPrint(QObject):
     @Slot()
     def get_fingerprint(self):
         worker = GetFingerprint2(self.Output, self.libc)
-        QThreadPool.globalInstance().start(worker)
+        threadpool.start(worker)
 
     @Slot()
     def search_fingerprint(self):
         worker = SearchFingerprint2(self.Output, self.libc)
-        QThreadPool.globalInstance().start(worker)
+        threadpool.start(worker)
 
     @Slot(int)
     def del_flash(self, storage_id):

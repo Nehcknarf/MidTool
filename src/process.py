@@ -1,28 +1,13 @@
-import os
-import platform
+import glob
 
 from PySide6.QtCore import QObject, QProcess, Signal, Slot, QUrl
 from PySide6.QtQml import QmlElement
 
+from utils.env import root_path, work_path, shell, coding, sep
 
 QML_IMPORT_NAME = "src.process"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
-
-system = platform.system()
-
-if system == "Linux":
-    user = os.environ.get("USER")
-    work_path = f"/home/{user}"
-    shell = "/bin/bash -c \"{}\""
-    coding = "UTF-8"
-    sep = "\n"
-elif system == "Windows":
-    user = os.environ.get("UserName")
-    work_path = f"C:/Users/{user}"
-    shell = "powershell {}"
-    coding = "GBK"
-    sep = "\r\n"
 
 
 @QmlElement
@@ -86,3 +71,23 @@ class Process(QObject):
     @Slot()
     def stop_middleware(self):
         self.start(f"supervisorctl stop all || pm2 stop 0 -m")
+
+    @Slot(int)
+    def install_middleware(self, type):
+        if wd := glob.glob("/nubomed/consumable-cabinet-service_V*/"):
+            self.start(f"bash install.sh {type}", wd[0])
+        else:
+            self.Stdout.emit(self.tr("Please confirm middleware install package has already unzip under "
+                                     "\"/nubomed/consumable-cabinet-service_V*/\""))
+
+    @Slot(QUrl)
+    def update_middleware(self, qurl):
+        update_pkg_path = qurl.toLocalFile()
+        self.start(f"bash upgrade_version.sh {update_pkg_path}", f"{root_path}/script/")
+
+    @Slot(str, str, str, str)
+    def activate_arcsoft(self, key_part_1, key_part_2, key_part_3, key_part_4):
+        app_id = "F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca"
+        sdk_key = "8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v"
+        key_string = "-".join([key_part_1, key_part_2, key_part_3, key_part_4]).upper()
+        self.start(f"bash arsoft_Active.sh {app_id} {sdk_key} {key_string}", f"{root_path}/script/")

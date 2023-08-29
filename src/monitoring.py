@@ -4,7 +4,7 @@ from PySide6.QtCore import QAbstractListModel, QByteArray, Qt, QModelIndex, Slot
 from PySide6.QtQml import QmlElement
 
 
-QML_IMPORT_NAME = "src.system"
+QML_IMPORT_NAME = "src.monitoring"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 

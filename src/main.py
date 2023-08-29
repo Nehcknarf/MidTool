@@ -1,14 +1,18 @@
 import os
 import sys
 
-from PySide6.QtCore import QCoreApplication, Qt, QUrl, QObject
-from PySide6.QtGui import QGuiApplication, QFontDatabase, QFont
+from PySide6.QtCore import QCoreApplication, Qt, QUrl
+from PySide6.QtGui import QGuiApplication, QIcon, QFontDatabase, QFont
 from PySide6.QtQml import QQmlApplicationEngine
 
-from camera import CameraModel
+# 导入需要在QML中实例化的类
 from process import Process
-from system import SystemInfoModel
+from monitoring import SystemInfoModel
+from maintenance import Maintenance
+from serial import Serial
 from fingerprint import SquareFingerPrint, RoundFingerPrint
+from camera import CameraModel
+from editor import ConfigEditor
 
 
 def set_qt_environment():
@@ -19,40 +23,40 @@ def set_qt_environment():
     os.environ["QT_LOGGING_RULES"] = "qt.qml.connections=false"
     os.environ["QT_QUICK_CONTROLS_CONF"] = "../qtquickcontrols2.conf"
     os.environ["QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT"] = "1"
-#    os.environ["QT_QPA_PLATFORM"] = "xcb"
+    # os.environ["QT_QPA_PLATFORM"] = "xcb"
     os.environ["QT_DEBUG_PLUGINS"] = "0"
 
 
-class MidTool(QObject):
-    def __init__(self):
-        super().__init__()
-        set_qt_environment()
+def main():
+    set_qt_environment()
 
-        app = QGuiApplication(sys.argv)
-        self.engine = QQmlApplicationEngine()
+    app = QGuiApplication(sys.argv)
+    app.setWindowIcon(QIcon("../content/images/icon.png"))
 
-        url = QUrl("../content/App.qml")
+    engine = QQmlApplicationEngine()
 
-        # font_id = QFontDatabase.addApplicationFont("../content/fonts/OPlusSans3-Medium.ttf")
-        # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
-        # app.setFont(QFont(font_family))
+    url = QUrl("../main.qml")
 
-        def handle_object_created(obj, obj_url):
-            if obj is None and url == obj_url:
-                QCoreApplication.exit(-1)
+    # font_id = QFontDatabase.addApplicationFont("../content/fonts/OPlusSans3-Medium.ttf")
+    # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
+    # app.setFont(QFont(font_family))
 
-        self.engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
+    # def handle_object_created(obj, obj_url):
+    #     if obj is None and url == obj_url:
+    #         QCoreApplication.exit(-1)
+    #
+    # engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
 
-        self.engine.addImportPath("../imports")
-        self.engine.addImportPath("../content")
-        # print(engine.importPathList())
+    engine.addImportPath("../imports")
+    engine.addImportPath("../content")
+    # print(engine.importPathList())
 
-        self.engine.load(url)
+    engine.load(url)
 
-        if not self.engine.rootObjects():
-            sys.exit(-1)
-        sys.exit(app.exec())
+    if not engine.rootObjects():
+        sys.exit(-1)
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
-    MidTool()
+    main()

@@ -13,12 +13,8 @@ class CameraModel(QObject):
     # Signal
     cameraChanged = QMediaDevices.videoInputsChanged
 
-    def __init__(self):
-        super().__init__()
-        self.camera_model = []
-
     def get_model(self):
-        self.camera_model = [{"value": camera, "text": camera.description()} for camera in QMediaDevices.videoInputs()]
-        return self.camera_model
+        camera_model = [{"value": camera, "text": camera.description()} for camera in QMediaDevices.videoInputs()]
+        return camera_model
 
     cameras = Property(list, get_model, notify=cameraChanged)
