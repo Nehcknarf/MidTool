@@ -31,11 +31,6 @@ Item {
         MyControls.TabButton {
             anchors.left: parent.left
             anchors.right: parent.right
-            text: qsTr("Backup")
-        }
-        MyControls.TabButton {
-            anchors.left: parent.left
-            anchors.right: parent.right
             text: qsTr("Restore")
         }
     }
@@ -144,18 +139,32 @@ Item {
             Label {
                 font.bold: true
                 font.pixelSize: 16
-                text: qsTr("Config")
+                text: qsTr("Backup restore")
             }
-        }
-        MyControls.GroupBox {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            height: 110
 
-            Label {
-                font.bold: true
-                font.pixelSize: 16
-                text: qsTr("Config")
+            RowLayout {
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                Label {
+                    font.pixelSize: 16
+                    text: qsTr("Select a middleware backup")
+                }
+                MyControls.ComboBox {
+                    id: comboBoxBackUp
+
+                    model: maintenance.cabinets
+                    textRole: "text"
+                    valueRole: "value"
+                    // currentIndex: -1
+                }
+                MyControls.Button {
+                    text: qsTr("Restore")
+
+                    onClicked: {
+                        // processMaintenance.
+                    }
+                }
             }
         }
     }

@@ -19,7 +19,6 @@ Rectangle {
 
     Drawer {
         id: drawer
-
         closePolicy: Popup.CloseOnPressOutside
         dragMargin: 0
         edge: Qt.TopEdge
@@ -36,8 +35,16 @@ Rectangle {
         }
 
         Label {
+            id: labelDrawer
             anchors.centerIn: parent
-            text: "Please check if you can connect to the Internet."
+        }
+
+        Timer {
+            id: timer
+            interval: 3000
+            repeat: false
+            running: false
+            onTriggered: drawer.close()
         }
     }
     Rectangle {
@@ -98,6 +105,12 @@ Rectangle {
             id: tabButtonDeploy
 
             text: qsTr("Maintenance")
+
+            onClicked: {
+                labelDrawer.text = "* Please do not execute any operation which might cause corruption of middleware files."
+                drawer.open()
+                timer.running = true
+            }
         }
         MyControls.TabButton {
             id: tabButtonConfig
@@ -124,12 +137,15 @@ Rectangle {
 
             text: qsTr("Face Recognition")
 
-            onClicked: drawer.open()
+            onClicked: {
+                labelDrawer.text = "* Please check if you can connect to the Internet first."
+                drawer.open()
+                timer.running = true
+            }
         }
     }
     SwipeView {
         id: swipeView
-
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.right: parent.right

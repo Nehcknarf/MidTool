@@ -44,6 +44,8 @@ Item {
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
                 }
+
+                onAccepted: textFieldKeyPart2.focus = true
             }
             Label {
                 font.pixelSize: 16
@@ -57,6 +59,8 @@ Item {
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
                 }
+
+                onAccepted: textFieldKeyPart3.focus = true
             }
             Label {
                 font.pixelSize: 16
@@ -70,6 +74,8 @@ Item {
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
                 }
+
+                onAccepted: textFieldKeyPart4.focus = true
             }
             Label {
                 font.pixelSize: 16

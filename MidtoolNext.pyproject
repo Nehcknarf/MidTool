@@ -1,6 +1,6 @@
 {
     "files": [
-        "main.qml"
+        "main.qml",
         "qtquickcontrols2.conf",
         "content/Activation.qml",
         "content/App.qml",

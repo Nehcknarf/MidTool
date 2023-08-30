@@ -9,7 +9,7 @@ Window {
     height: mainScreen.height
     title: "MidTool"
     visible: true
-    flags: Qt.FramelessWindowHint | Qt.Window
+    // flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
     width: mainScreen.width
 
     MainScreen {

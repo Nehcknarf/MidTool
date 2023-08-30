@@ -23,13 +23,16 @@ Rectangle {
         id: cameraModel
 
     }
+    MediaDevices {
+        id: mediaDevices
+    }
     CaptureSession {
         id: cptureSession
 
         videoOutput: videoOutput
 
         camera: Camera {
-            cameraDevice: comboBoxCamera.currentValue
+            cameraDevice: comboBoxCamera.currentValue === undefined ? mediaDevices.defaultVideoInput : comboBoxCamera.currentValue
         }
     }
     Rectangle {
@@ -63,8 +66,6 @@ Rectangle {
         MyControls.ComboBox {
             id: comboBoxCamera
 
-            Layout.preferredHeight: 40
-            Layout.preferredWidth: 219
             model: cameraModel.cameras
             // currentIndex: -1
             textRole: "text"

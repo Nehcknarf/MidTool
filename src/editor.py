@@ -40,9 +40,10 @@ class ConfigEditor(QObject):
                 enabled_upload = self.nvr_cfg_dict.get("nvr").get("video").get("enabled-upload")
                 upload_save_dir = self.nvr_cfg_dict.get("nvr").get("video").get("upload-save-dir")
                 product_channels = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("productChannels")
-                for idx, child in enumerate(product_channels):
-                    child.get("productNo")
-                    child.get("channel")
+                # [{}] 形式嵌套传递到 QML 解析存在问题，换用 [[]]
+                product_channels_list = []
+                for i in product_channels:
+                    product_channels_list.append([i.get("productNo"), i.get("channel")])
 
         except Exception:
             pass
@@ -55,13 +56,13 @@ class ConfigEditor(QObject):
                 "password": password,
                 "enabled_upload": enabled_upload,
                 "upload_save_dir": upload_save_dir,
-                "product_channels": product_channels
+                "product_channels": product_channels_list
             }
 
     nvr_cfg = Property(dict, read_nvr_cfg, notify=cfgChanged)
 
-    @Slot(bool, str, str, str, bool, str)
-    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir):
+    @Slot(bool, str, str, str, bool, str, list)
+    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, product_channels):
         try:
             with open(nvr_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.nvr_cfg_dict["nvr"]["enabled"] = enabled
@@ -94,11 +95,12 @@ class ConfigEditor(QObject):
         except Exception:
             pass
 
-        return {
-            "device_type": idx,
-            "baud_no": baud_no - 1,
-            "match_threshold": match_threshold
-        }
+        else:
+            return {
+                "device_type": idx,
+                "baud_no": baud_no - 1,
+                "match_threshold": match_threshold
+            }
 
     extern_cfg = Property(dict, read_extern_cfg, notify=cfgChanged)
 
