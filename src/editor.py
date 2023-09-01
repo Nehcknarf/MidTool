@@ -40,7 +40,7 @@ class ConfigEditor(QObject):
                 enabled_upload = self.nvr_cfg_dict.get("nvr").get("video").get("enabled-upload")
                 upload_save_dir = self.nvr_cfg_dict.get("nvr").get("video").get("upload-save-dir")
                 product_channels = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("productChannels")
-                # [{}] 形式嵌套传递到 QML 解析存在问题，换用 [[]]
+                # [{}] 形式嵌套传递到 QML 解析存在问题，换用 [[]] 形式嵌套
                 product_channels_list = []
                 for i in product_channels:
                     product_channels_list.append([i.get("productNo"), i.get("channel")])
@@ -59,10 +59,10 @@ class ConfigEditor(QObject):
                 "product_channels": product_channels_list
             }
 
-    nvr_cfg = Property(dict, read_nvr_cfg, notify=cfgChanged)
+    nvr_config = Property(dict, read_nvr_cfg, notify=cfgChanged)
 
     @Slot(bool, str, str, str, bool, str, list)
-    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, product_channels):
+    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, channels):
         try:
             with open(nvr_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.nvr_cfg_dict["nvr"]["enabled"] = enabled
@@ -72,10 +72,9 @@ class ConfigEditor(QObject):
                 self.nvr_cfg_dict["nvr"]["video"]["enabled-upload"] = enabled_upload
                 self.nvr_cfg_dict["nvr"]["video"]["upload-save-dir"] = upload_save_dir
                 product_channels = []
-                # for i in range():
-                #     if product_no and channel:
-                #         product_channels.append({"productNo": product_no, "channel": int(channel)})
-                # self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["productChannels"] = product_channels
+                for i in channels:
+                    product_channels.append({"productNo": i[0], "channel": i[1]})
+                self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["productChannels"] = product_channels
                 self.yaml.dump(self.nvr_cfg_dict, f)
 
         except Exception as err:
@@ -102,7 +101,7 @@ class ConfigEditor(QObject):
                 "match_threshold": match_threshold
             }
 
-    extern_cfg = Property(dict, read_extern_cfg, notify=cfgChanged)
+    extern_config = Property(dict, read_extern_cfg, notify=cfgChanged)
 
     @Slot(int, int, int)
     def save_extern_cfg(self, device_type, baud_no, match_threshold):
@@ -146,7 +145,7 @@ class ConfigEditor(QObject):
                 "time_out_no_lock": time_out_no_lock
             }
 
-    action_delay_cfg = Property(dict, read_action_delay_cfg, notify=cfgChanged)
+    action_delay_config = Property(dict, read_action_delay_cfg, notify=cfgChanged)
 
     @Slot(int, int, int)
     def save_action_delay_cfg(self, delay_millis, delay_lock, time_out_no_lock):
@@ -171,7 +170,7 @@ class ConfigEditor(QObject):
         else:
             return {"host": host}
 
-    sync_cfg = Property(dict, read_sync_cfg, notify=cfgChanged)
+    sync_config = Property(dict, read_sync_cfg, notify=cfgChanged)
 
     @Slot(str)
     def save_sync_cfg(self, host):
@@ -195,7 +194,7 @@ class ConfigEditor(QObject):
         else:
             return {"enable": enable, "host": host}
 
-    mcc_cfg = Property(dict, read_mcc_cfg, notify=cfgChanged)
+    mcc_config = Property(dict, read_mcc_cfg, notify=cfgChanged)
 
     @Slot(bool, str)
     def save_mcc_cfg(self, enable, host):
@@ -219,7 +218,7 @@ class ConfigEditor(QObject):
         else:
             return {"restructure": restructure}
 
-    ws_cfg = Property(dict, read_ws_cfg, notify=cfgChanged)
+    ws_config = Property(dict, read_ws_cfg, notify=cfgChanged)
 
     @Slot(bool)
     def save_ws_cfg(self, restructure):

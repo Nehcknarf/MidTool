@@ -36,8 +36,14 @@ Item {
     }
     ConfigEditor {
         id: configEditor
-
+        property variant nvr_cfg: configEditor.nvr_config
+        property variant extern_cfg: configEditor.extern_config
+        property variant action_delay_cfg: configEditor.action_delay_config
+        property variant sync_cfg: configEditor.sync_config
+        property variant mcc_cfg: configEditor.mcc_config
+        property variant ws_cfg: configEditor.ws_config
     }
+
     StackLayout {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
@@ -54,8 +60,6 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            property var objArr: []
-
             Label {
                 font.bold: true
                 font.pixelSize: 16
@@ -67,12 +71,21 @@ Item {
                 text: qsTr("Save")
 
                 onClicked: {
-                    for (const i of groupBoxNvr.objArr) {
-                        console.log(i.productNo, i.channel)
+                    let productChannels = []
+                    for (let i = 0; i < columnLayoutProductChannel.children.length; ++i) {
+                        productChannels.push([columnLayoutProductChannel.children[i].productNo, columnLayoutProductChannel.children[i].channel])
                     }
-                    configEditor.save_nvr_cfg(switchNvrEnabled.checked, textFieldNvrServerIp.text, textFieldNvrUserName.text, textFieldNvrPassword.text, switchNvrEnabledUpload.checked, textFieldNvrUploadSaveDir.text);
+                    configEditor.save_nvr_cfg(
+                        switchNvrEnabled.checked,
+                        textFieldNvrServerIp.text,
+                        textFieldNvrUserName.text,
+                        textFieldNvrPassword.text,
+                        switchNvrEnabledUpload.checked,
+                        textFieldNvrUploadSaveDir.text,
+                        productChannels);
                 }
             }
+
             GridLayout {
                 anchors.left: parent.left
                 anchors.leftMargin: 50
@@ -145,6 +158,28 @@ Item {
                     text: configEditor.nvr_cfg["upload_save_dir"] === undefined ? null : configEditor.nvr_cfg["upload_save_dir"]
                 }
             }
+
+            RowLayout {
+                anchors.right: parent.right
+                anchors.rightMargin: 185
+                anchors.top: parent.top
+                anchors.topMargin: 54
+
+                Label {
+                    font.pixelSize: 16
+                    text: qsTr("Product Channel Configuration")
+                }
+
+                MyControls.Button {
+                    implicitWidth: 40
+                    text: qsTr("+")
+                    onClicked: {
+                        let component = Qt.createComponent("ObjectProductChannel.qml")
+                        component.createObject(columnLayoutProductChannel)
+                    }
+                }
+            }
+
             ScrollView {
                 height: 410
                 width: 420
@@ -152,38 +187,22 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 100
                 anchors.top: parent.top
-                anchors.topMargin: 54
+                anchors.topMargin: 119
 
                 ColumnLayout {
                     id: columnLayoutProductChannel
                     anchors.fill: parent
                     spacing: 20
 
-                    RowLayout {
-                        Layout.alignment: Qt.AlignCenter | Qt.AlignVCenter
-                        Label {
-                            font.pixelSize: 16
-                            text: qsTr("Product Channel Configuration")
-                        }
-
-                        MyControls.Button {
-                            implicitWidth: 40
-                            text: qsTr("+")
-                            onClicked: {
-                                let component = Qt.createComponent("ObjectProductChannel.qml")
-                                let obj = component.createObject(columnLayoutProductChannel)
-                            }
-                        }
-                    }
-
                     Component.onCompleted: {
                         let component = Qt.createComponent("ObjectProductChannel.qml")
-                        for (const i of configEditor.nvr_cfg["product_channels"]) {
-                            let obj = component.createObject(columnLayoutProductChannel, {
-                                "productNo": i[0],
-                                "channel": i[1]
-                            })
+                        let productChannels = configEditor.nvr_cfg["product_channels"]
+                        if (productChannels !== undefined) {
+                            for (const i of productChannels) {
+                                component.createObject(columnLayoutProductChannel, {"productNo": i[0], "channel": i[1]})
+                            }
                         }
+
                     }
                 }
             }

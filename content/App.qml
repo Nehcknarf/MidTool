@@ -22,9 +22,9 @@ Window {
         property bool showKeyboard: active
 
         anchors.left: parent.left
-        anchors.leftMargin: Constants.width / 10
+        anchors.leftMargin: Constants.width / 5
         anchors.right: parent.right
-        anchors.rightMargin: Constants.width / 10
+        anchors.rightMargin: Constants.width / 5
         y: showKeyboard ? parent.height - height : parent.height
 
         Behavior on y  {

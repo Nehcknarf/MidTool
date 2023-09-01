@@ -4,6 +4,7 @@ import sys
 from PySide6.QtCore import QCoreApplication, Qt, QUrl
 from PySide6.QtGui import QGuiApplication, QIcon, QFontDatabase, QFont
 from PySide6.QtQml import QQmlApplicationEngine
+# import PySide6.QtQuick
 
 # 导入需要在QML中实例化的类
 from process import Process

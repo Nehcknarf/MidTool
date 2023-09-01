@@ -1,5 +1,4 @@
-import glob
-import re
+from pathlib import Path
 
 from PySide6.QtCore import QObject, Property, Signal
 from PySide6.QtQml import QmlElement
@@ -15,13 +14,8 @@ class Maintenance(QObject):
     cabinetsChanged = Signal()
 
     def get_cabinets(self):
-        if install_sh := glob.glob("/nubomed/consumable-cabinet-service_V*/install.sh"):
-            with open(install_sh[0], "r") as f:
-                result = re.findall(r'echo "(\d{1,2}).+（(.+)）"', f.read())
-
-            cabinets_model = []
-            for i in result:
-                cabinets_model.append({"text": i[1], "value": int(i[0])})
-            return cabinets_model
+        p = Path("/nubomed/Device_defaultconf")
+        if p.exists():
+            return [x.name for x in p.iterdir() if x.is_dir()]
 
     cabinets = Property(list, get_cabinets, notify=cabinetsChanged)

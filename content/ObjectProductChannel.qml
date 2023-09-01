@@ -5,6 +5,8 @@ import Controls as MyControls
 
 
 RowLayout {
+    id: root
+
     property string productNo
     property int channel
 
@@ -15,7 +17,10 @@ RowLayout {
 
     MyControls.TextField {
         implicitWidth: 100
-        text: productNo
+        text: root.productNo
+        onTextChanged: {
+            root.productNo = this.text
+        }
     }
 
     Label {
@@ -25,8 +30,11 @@ RowLayout {
 
     MyControls.TextField {
         implicitWidth: 100
-        text: channel
+        text: root.channel
         inputMethodHints: Qt.ImhDigitsOnly
+        onTextChanged: {
+            root.channel = this.text
+        }
     }
 
     MyControls.Button {

@@ -57,6 +57,11 @@ Rectangle {
         color: "#0066E0"
         height: 60
 
+        MouseArea {
+            anchors.fill: parent
+            onClicked: Qt.inputMethod.hide()
+        }
+
         Image {
             anchors.left: parent.left
             anchors.leftMargin: 20

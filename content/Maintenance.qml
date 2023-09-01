@@ -76,8 +76,8 @@ Item {
                     id: comboBoxCabinet
 
                     model: maintenance.cabinets
-                    textRole: "text"
-                    valueRole: "value"
+                    // textRole: "text"
+                    // valueRole: "value"
                     // currentIndex: -1
                 }
                 MyControls.Button {
@@ -153,9 +153,9 @@ Item {
                 MyControls.ComboBox {
                     id: comboBoxBackUp
 
-                    model: maintenance.cabinets
-                    textRole: "text"
-                    valueRole: "value"
+                    model: []
+                    // textRole: "text"
+                    // valueRole: "value"
                     // currentIndex: -1
                 }
                 MyControls.Button {

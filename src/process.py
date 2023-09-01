@@ -26,11 +26,13 @@ class Process(QObject):
     def start(self, command, workdir=work_path, password=None):
         self.process_command.setWorkingDirectory(workdir)
         # self.process_command.setProcessChannelMode(QProcess.MergedChannels)
-        if "sudo " in command:
+        if "sudo" in command:
             # Pipe
+            command = command.replace("sudo", "sudo -S")
             process_echo = QProcess()
             process_echo.setStandardOutputProcess(self.process_command)
             process_echo.startCommand(f"echo {password}")
+            process_echo.waitForFinished()
         self.process_command.startCommand(shell.format(command))
 
     @Slot()
@@ -54,23 +56,27 @@ class Process(QObject):
             QProcess.NotRunning: self.tr("Not running")
         }
         state_name = states_dict.get(state)
-        self.Stdout.emit(self.tr("Process state changed: {}").format(state_name))
+        self.Stdout.emit(self.tr("*** Process state changed: {} ***").format(state_name))
 
     def finished(self, exit_code, exit_status):
         self.Stdout.emit(self.tr("Process finished with exit code {}").format(exit_code))
 
+    @Slot(str)
+    def start_middleware_sv(self, password):
+        self.start(f"sudo supervisorctl start all", password=password)
+
     @Slot(QUrl)
-    def start_middleware(self, qurl):
+    def start_middleware_pm2(self, qurl):
         path = qurl.toLocalFile()
-        self.start(f"(supervisorctl start all; supervisorctl update all) || (pm2 start {path} -m; pm2 save -m)")
+        self.start(f"pm2 start {path} -m && pm2 save -m")
 
-    @Slot()
-    def restart_middleware(self):
-        self.start(f"supervisorctl restart all || pm2 restart 0 -m")
+    @Slot(str)
+    def restart_middleware(self, password):
+        self.start(f"sudo supervisorctl restart all || pm2 restart 0 -m", password=password)
 
-    @Slot()
-    def stop_middleware(self):
-        self.start(f"supervisorctl stop all || pm2 stop 0 -m")
+    @Slot(str)
+    def stop_middleware(self, password):
+        self.start(f"sudo supervisorctl stop all || pm2 stop 0 -m", password=password)
 
     @Slot(int)
     def install_middleware(self, type):

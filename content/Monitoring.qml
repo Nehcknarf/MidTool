@@ -25,74 +25,127 @@ Item {
             font.pixelSize: 16
             text: qsTr("Middleware Service Management")
         }
+
         Process {
             id: process
-
             Component.onCompleted: process.Stdout.connect(textArea.append)
         }
+        // Dialog 临时方案
+        Dialog {
+            id: dialogStart
+            modal: true
+            focus: true
+            standardButtons: Dialog.Ok | Dialog.Cancel
+            title: "Please input user password"
+
+            contentItem: Rectangle {
+                color: "#FFFFFF"
+                implicitHeight: 50
+                implicitWidth: 200
+
+                TextField {
+                    id: textFieldPsw
+                    anchors.centerIn: parent
+                    echoMode: TextInput.Password
+                    placeholderText: qsTr("Input user password")
+                }
+            }
+
+            onAccepted: {
+                if (textFieldPsw.text) {
+                    fileDialog.open()
+                }
+            }
+        }
+
+        Dialog {
+            id: dialogRestart
+            modal: true
+            focus: true
+            standardButtons: Dialog.Ok | Dialog.Cancel
+            title: "Please input user password"
+
+            contentItem: Rectangle {
+                color: "#FFFFFF"
+                implicitHeight: 50
+                implicitWidth: 200
+
+                TextField {
+                    id: textFieldPsw1
+                    anchors.centerIn: parent
+                    echoMode: TextInput.Password
+                    placeholderText: qsTr("Input user password")
+                }
+            }
+
+            onAccepted: {
+                if (textFieldPsw1.text) {
+                    process.restart_middleware(textFieldPsw1.text)
+                }
+            }
+        }
+
+        Dialog {
+            id: dialogStop
+            modal: true
+            focus: true
+            standardButtons: Dialog.Ok | Dialog.Cancel
+            title: "Please input user password"
+
+            contentItem: Rectangle {
+                color: "#FFFFFF"
+                implicitHeight: 50
+                implicitWidth: 200
+
+                TextField {
+                    id: textFieldPsw2
+                    anchors.centerIn: parent
+                    echoMode: TextInput.Password
+                    placeholderText: qsTr("Input user password")
+                }
+            }
+
+            onAccepted: {
+                if (textFieldPsw2.text) {
+                    process.stop_middleware(textFieldPsw2.text)
+                }
+            }
+        }
+
         FileDialog {
             id: fileDialog
 
             currentFolder: "/nubomed"
-            nameFilters: [qsTr("Json file (*.json)"), qsTr("Config file (*.conf)")]
-            title: qsTr("Please select middleware config file")
+            nameFilters: [qsTr("Json file (*.json)")]
+            title: qsTr("Please select middleware config file, if no need just cancel")
 
-            onAccepted: process.start_middleware(selectedFile)
+            onAccepted: process.start_middleware_pm2(selectedFile)
+            onRejected: process.start_middleware_sv(textFieldPsw.text)
         }
+
         RowLayout {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
 
-            // Dialog {
-            //     id: dialogPromote
-            //
-            //     modal: true
-            //     standardButtons: Dialog.Ok | Dialog.Cancel
-            //     title: "Please input user password."
-            //
-            //     contentItem: Rectangle {
-            //         color: "#FFFFFF"
-            //         implicitHeight: 50
-            //         implicitWidth: 200
-            //
-            //         TextField {
-            //             id: textFieldPsw
-            //
-            //             anchors.centerIn: parent
-            //             echoMode: TextInput.Password
-            //             placeholderText: qsTr("Input user password")
-            //         }
-            //     }
-            //
-            //     onAccepted: {
-            //         if (textFieldPsw.text) {
-            //             process.start_middleware(selectedFile)
-            //         }
-            //     }
-            // }
-
             MyControls.Button {
                 id: buttonStart
-
                 text: qsTr("Start")
-
-                onClicked: fileDialog.open()
+                onClicked: {
+                    dialogStart.open()
+                }
             }
             MyControls.Button {
                 id: buttonRestart
-
                 text: qsTr("Restart")
-
-                onClicked: process.restart_middleware()
+                onClicked: {
+                    dialogRestart.open()
+                }
             }
             MyControls.Button {
                 id: buttonStop
-
                 text: qsTr("Stop")
-
                 onClicked: {
-                    process.stop_middleware();
-                    // process.kill()
+                    dialogStop.open()
                 }
             }
         }
