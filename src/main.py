@@ -6,6 +6,8 @@ from PySide6.QtGui import QGuiApplication, QIcon, QFontDatabase, QFont
 from PySide6.QtQml import QQmlApplicationEngine
 # import PySide6.QtQuick
 
+import resource
+
 # 导入需要在QML中实例化的类
 from process import Process
 from monitoring import SystemInfoModel
@@ -32,13 +34,13 @@ def main():
     set_qt_environment()
 
     app = QGuiApplication(sys.argv)
-    app.setWindowIcon(QIcon("../content/images/icon.png"))
+    app.setWindowIcon(QIcon(":/content/images/icon.png"))
 
     engine = QQmlApplicationEngine()
 
-    url = QUrl("../main.qml")
+    url = QUrl("qrc:/main.qml")
 
-    # font_id = QFontDatabase.addApplicationFont("../content/fonts/OPlusSans3-Medium.ttf")
+    # font_id = QFontDatabase.addApplicationFont(":/content/fonts/OPlusSans3-Medium.ttf")
     # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
     # app.setFont(QFont(font_family))
 
@@ -48,8 +50,8 @@ def main():
     #
     # engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
 
-    engine.addImportPath("../imports")
-    engine.addImportPath("../content")
+    engine.addImportPath(":/imports")
+    engine.addImportPath(":/content")
     # print(engine.importPathList())
 
     engine.load(url)
