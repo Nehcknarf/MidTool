@@ -1,8 +1,11 @@
 import QtQuick 6.5
 import QtQuick.Controls 6.5
 import QtQuick.Layouts 6.5
+
 import Controls as MyControls
+
 import src.editor.drug
+
 
 Item {
     MyControls.VertTabBar {
@@ -174,7 +177,7 @@ Item {
                     implicitWidth: 40
                     text: qsTr("+")
                     onClicked: {
-                        let component = Qt.createComponent("ObjectProductChannel.qml")
+                        let component = Qt.createComponent("qrc:/content/ObjectProductChannel.qml")
                         component.createObject(columnLayoutProductChannel)
                     }
                 }
@@ -195,14 +198,13 @@ Item {
                     spacing: 20
 
                     Component.onCompleted: {
-                        let component = Qt.createComponent("ObjectProductChannel.qml")
                         let productChannels = configEditor.nvr_cfg["product_channels"]
                         if (productChannels !== undefined) {
+                            let component = Qt.createComponent("qrc:/content/ObjectProductChannel.qml")
                             for (const i of productChannels) {
                                 component.createObject(columnLayoutProductChannel, {"productNo": i[0], "channel": i[1]})
                             }
                         }
-
                     }
                 }
             }

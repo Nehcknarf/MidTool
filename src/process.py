@@ -97,3 +97,15 @@ class Process(QObject):
         sdk_key = "8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v"
         key_string = "-".join([key_part_1, key_part_2, key_part_3, key_part_4]).upper()
         self.start(f"bash arsoft_Active.sh {app_id} {sdk_key} {key_string}", f"{root_path}/script/")
+
+    @Slot()
+    def get_timezone(self):
+        self.start("timedatectl list-timezones")
+
+    @Slot(str, str)
+    def set_timezone(self, timezone, password):
+        self.start(f"sudo timedatectl set-timezone {timezone}", password=password)
+
+    @Slot(str, str)
+    def set_time(self, time, password):
+        self.start(f"sudo timedatectl set-time {time}", password=password)

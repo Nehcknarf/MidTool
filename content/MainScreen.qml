@@ -47,6 +47,7 @@ Rectangle {
             onTriggered: drawer.close()
         }
     }
+
     Rectangle {
         anchors.left: parent.left
         anchors.leftMargin: 0
@@ -58,6 +59,7 @@ Rectangle {
         height: 60
 
         MouseArea {
+            id: mouseArea
             anchors.fill: parent
             onClicked: Qt.inputMethod.hide()
         }
@@ -68,7 +70,7 @@ Rectangle {
             anchors.top: parent.top
             anchors.topMargin: 14
             fillMode: Image.PreserveAspectFit
-            source: "images/logo.png"
+            source: "qrc:/content/images/logo.png"
         }
 
         Image {
@@ -79,13 +81,14 @@ Rectangle {
             fillMode: Image.PreserveAspectFit
             height: 20
             width: 20
-            source: "images/close.svg"
+            source: "qrc:/content/images/close.svg"
             MouseArea {
                 anchors.fill: parent
                 onClicked: Qt.quit()
             }
         }
     }
+
     TabBar {
         id: tabBar
 
@@ -148,7 +151,14 @@ Rectangle {
                 timer.running = true
             }
         }
+
+        MyControls.TabButton {
+            id: tabButtonNetwork
+
+            text: qsTr("Network")
+        }
     }
+
     SwipeView {
         id: swipeView
         anchors.bottom: parent.bottom
@@ -161,49 +171,56 @@ Rectangle {
         Item {
             Loader {
                 anchors.fill: parent
-                source: "Monitoring.qml"
+                source: "qrc:/content/Monitoring.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
             Loader {
                 anchors.fill: parent
-                source: "Maintenance.qml"
+                source: "qrc:/content/Maintenance.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
             Loader {
                 anchors.fill: parent
-                source: "EditorDrug.qml"
+                source: "qrc:/content/EditorDrug.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
            Loader {
                 anchors.fill: parent
-                source: "Serial.qml"
+                source: "qrc:/content/Serial.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
            Loader {
                 anchors.fill: parent
-                source: "Fingerprint.qml"
+                source: "qrc:/content/Fingerprint.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
            Loader {
                 anchors.fill: parent
-                source: "Camera.qml"
+                source: "qrc:/content/Camera.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
            Loader {
                 anchors.fill: parent
-                source: "Activation.qml"
+                source: "qrc:/content/Activation.qml"
+                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+            }
+        }
+        Item {
+           Loader {
+                anchors.fill: parent
+                source: "qrc:/content/Network.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }

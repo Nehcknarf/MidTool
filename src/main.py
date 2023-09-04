@@ -50,8 +50,8 @@ def main():
     #
     # engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
 
-    engine.addImportPath(":/imports")
-    engine.addImportPath(":/content")
+    engine.addImportPath("qrc:/imports")
+    engine.addImportPath("qrc:/content")
     # print(engine.importPathList())
 
     engine.load(url)
