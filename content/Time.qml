@@ -4,7 +4,7 @@ import QtQuick.Layouts 6.5
 
 import Controls as MyControls
 
-import src.process
+import src.time
 
 
 Item {
@@ -29,19 +29,19 @@ Item {
     }
 
     StackLayout {
-        anchors.bottom: groupBoxDeploy.top
-        anchors.bottomMargin: 16
         anchors.left: parent.left
         anchors.leftMargin: 196
         anchors.right: parent.right
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 16
-        currentIndex: vertTabBarDeploy.currentIndex
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        currentIndex: vertTabBarTime.currentIndex
 
-        Process {
-            id: processMaintenance
-            Component.onCompleted: processMaintenance.Stdout.connect(textAreaDeploy.append)
+        TimeEditor {
+            id: timeEditor
+            // Component.onCompleted: timeEditor.Stdout.connect()
         }
 
         MyControls.GroupBox {
@@ -54,67 +54,106 @@ Item {
                 font.pixelSize: 16
                 text: qsTr("Settings")
             }
-            RowLayout {
+
+            ColumnLayout {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
+                spacing: 20
 
-                Label {
-                    font.pixelSize: 16
-                    text: qsTr("Select the type of consumable cabinet")
-                }
-                MyControls.ComboBox {
-                    id: comboBoxCabinet
+                RowLayout {
+                    Label {
+                        font.pixelSize: 16
+                        text: qsTr("Timezone")
+                    }
 
-                    model: maintenance.cabinets
-                    // currentIndex: -1
-                }
-                MyControls.Button {
-                    text: qsTr("Install")
+                    MyControls.ComboBox {
+                        id: comboBoxComTimezone
+                        implicitWidth: 300
+                        model: timeEditor.timezones
+                        // currentIndex: -1
+                    }
 
-                    onClicked: {
-                        processMaintenance.install_middleware(comboBoxCabinet.currentValue);
-                        // console.log(comboBoxCabinet.currentValue)
+                    Dialog {
+                         id: dialogSetTz
+                         modal: true
+                         focus: true
+                         standardButtons: Dialog.Ok | Dialog.Cancel
+                         title: qsTr("Please input user password")
+
+                         contentItem: Rectangle {
+                             color: "#FFFFFF"
+                             implicitHeight: 50
+                             implicitWidth: 200
+
+                             TextField {
+                                 id: textFieldPswSetTz
+                                 anchors.centerIn: parent
+                                 echoMode: TextInput.Password
+                                 placeholderText: qsTr("Input user password")
+                             }
+                         }
+
+                         onAccepted: {
+                             if (textFieldPswSetTz.text) {
+                                 timeEditor.set_timezone(comboBoxComTimezone.currentText, textFieldPswSetTz.text)
+                             }
+                         }
+                     }
+
+                    MyControls.Button {
+                        text: qsTr("Set Timezone")
+                        onClicked: {
+                            dialogSetTz.open()
+                        }
                     }
                 }
-            }
-        }
-        MyControls.GroupBox {
-            Layout.fillHeight: true
-            Layout.fillWidth: true
-            height: 110
 
-            Label {
-                font.bold: true
-                font.pixelSize: 16
-                text: qsTr("Update (For Implementation Engineer)")
-            }
-            RowLayout {
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-
-                FileDialog {
-                    id: fileDialogUpdate
-
-                    currentFolder: "/media"
-                    nameFilters: [qsTr("Update package (*.tar.gz)")]
-                    title: qsTr("Please select middleware update package")
-
-                    onAccepted: {
-                        textAreaDeploy.append(selectedFile);
-                        // processMaintenance.update_middleware(selectedFile)
+                RowLayout {
+                    Label {
+                        font.pixelSize: 16
+                        text: qsTr("DateTime")
                     }
-                }
-                MyControls.Button {
-                    text: qsTr("Select update package first")
 
-                    onClicked: fileDialogUpdate.open()
-                }
-                MyControls.Button {
-                    text: qsTr("Execute update")
+                    MyControls.TextField {
+                        id: textFieldDateTime
+                        implicitWidth: 300
+                        placeholderText: "YYYY-MM-DD HH:MM:SS"
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
 
-                    onClicked: {
-                        processMaintenance.update_middleware(fileDialogUpdate.selectedFile);
-                        // console.log(comboBoxCabinet.currentValue)
+                    Dialog {
+                         id: dialogSetDateTime
+                         modal: true
+                         focus: true
+                         standardButtons: Dialog.Ok | Dialog.Cancel
+                         title: qsTr("Please input user password")
+
+                         contentItem: Rectangle {
+                             color: "#FFFFFF"
+                             implicitHeight: 50
+                             implicitWidth: 200
+
+                             TextField {
+                                 id: textFieldPswSetDateTime
+                                 anchors.centerIn: parent
+                                 echoMode: TextInput.Password
+                                 placeholderText: qsTr("Input user password")
+                             }
+                         }
+
+                         onAccepted: {
+                             if (textFieldPswSetDateTime.text) {
+                                 timeEditor.set_time(textFieldDateTime.text, textFieldPswSetDateTime.text)
+                             }
+                         }
+                     }
+
+                    MyControls.Button {
+                        text: qsTr("Set DateTime")
+                        onClicked: {
+                            dialogSetDateTime.open()
+                        }
                     }
                 }
             }

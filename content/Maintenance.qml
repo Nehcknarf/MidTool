@@ -5,7 +5,6 @@ import QtQuick.Dialogs 6.5
 
 import Controls as MyControls
 
-import src.process
 import src.maintenance
 
 
@@ -47,12 +46,7 @@ Item {
 
         Maintenance {
             id: maintenance
-
-        }
-        Process {
-            id: processMaintenance
-
-            Component.onCompleted: processMaintenance.Stdout.connect(textAreaDeploy.append)
+            Component.onCompleted: maintenance.Stdout.connect(textAreaDeploy.append)
         }
         MyControls.GroupBox {
             Layout.fillHeight: true
@@ -84,7 +78,7 @@ Item {
                     text: qsTr("Install")
 
                     onClicked: {
-                        processMaintenance.install_middleware(comboBoxCabinet.currentValue);
+                        maintenance.install_middleware(comboBoxCabinet.currentValue);
                         // console.log(comboBoxCabinet.currentValue)
                     }
                 }
@@ -113,7 +107,7 @@ Item {
 
                     onAccepted: {
                         textAreaDeploy.append(selectedFile);
-                        // processMaintenance.update_middleware(selectedFile)
+                        // maintenance.update_middleware(selectedFile)
                     }
                 }
                 MyControls.Button {
@@ -125,7 +119,7 @@ Item {
                     text: qsTr("Execute update")
 
                     onClicked: {
-                        processMaintenance.update_middleware(fileDialogUpdate.selectedFile);
+                        maintenance.update_middleware(fileDialogUpdate.selectedFile);
                         // console.log(comboBoxCabinet.currentValue)
                     }
                 }
@@ -162,7 +156,7 @@ Item {
                     text: qsTr("Restore")
 
                     onClicked: {
-                        // processMaintenance.
+                        // maintenance.
                     }
                 }
             }

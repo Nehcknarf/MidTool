@@ -15,6 +15,7 @@
         "src/editor.py",
         "src/fingerprint.py",
         "src/main.py",
+        "src/resource.py",
         "src/maintenance.py",
         "src/monitoring.py",
         "src/process.py",

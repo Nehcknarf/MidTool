@@ -151,11 +151,15 @@ Rectangle {
                 timer.running = true
             }
         }
-
         MyControls.TabButton {
             id: tabButtonNetwork
 
             text: qsTr("Network")
+        }
+        MyControls.TabButton {
+            id: tabButtonTime
+
+            text: qsTr("Time")
         }
     }
 
@@ -221,6 +225,13 @@ Rectangle {
            Loader {
                 anchors.fill: parent
                 source: "qrc:/content/Network.qml"
+                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+            }
+        }
+        Item {
+           Loader {
+                anchors.fill: parent
+                source: "qrc:/content/Time.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }

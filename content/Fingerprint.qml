@@ -114,11 +114,11 @@ Item {
                 anchors.top: parent.top
                 height: 160
 
-                Label {
-                    font.bold: true
-                    font.pixelSize: 16
-                    text: qsTr("Function")
-                }
+                // Label {
+                //     font.bold: true
+                //     font.pixelSize: 16
+                //     text: qsTr("Function")
+                // }
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -280,11 +280,11 @@ Item {
                 anchors.top: parent.top
                 height: 160
 
-                Label {
-                    font.bold: true
-                    font.pixelSize: 16
-                    text: qsTr("Function")
-                }
+                // Label {
+                //     font.bold: true
+                //     font.pixelSize: 16
+                //     text: qsTr("Function")
+                // }
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter

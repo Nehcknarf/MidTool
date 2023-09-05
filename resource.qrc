@@ -8,6 +8,7 @@
         <file>content/EditorDrug.qml</file>
         <file>content/Fingerprint.qml</file>
         <file>content/Network.qml</file>
+        <file>content/Time.qml</file>
         <file>content/MainScreen.qml</file>
         <file>content/Maintenance.qml</file>
         <file>content/Monitoring.qml</file>

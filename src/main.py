@@ -16,6 +16,9 @@ from serial import Serial
 from fingerprint import SquareFingerPrint, RoundFingerPrint
 from camera import CameraModel
 from editor import ConfigEditor
+from activation import Activation
+from network import Network
+from timezone import TimeEditor
 
 
 def set_qt_environment():

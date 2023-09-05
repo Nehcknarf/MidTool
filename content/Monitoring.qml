@@ -5,7 +5,6 @@ import QtQuick.Dialogs 6.5
 
 import Controls as MyControls
 
-import src.process
 import src.monitoring
 
 
@@ -26,9 +25,9 @@ Item {
             text: qsTr("Middleware Service Management")
         }
 
-        Process {
-            id: process
-            Component.onCompleted: process.Stdout.connect(textArea.append)
+        MiddlewareManager {
+            id: middlewareManager
+            Component.onCompleted: middlewareManager.Stdout.connect(textArea.append)
         }
         // Dialog 临时方案
         Dialog {
@@ -36,7 +35,7 @@ Item {
             modal: true
             focus: true
             standardButtons: Dialog.Ok | Dialog.Cancel
-            title: "Please input user password"
+            title: qsTr("Please input user password")
 
             contentItem: Rectangle {
                 color: "#FFFFFF"
@@ -63,7 +62,7 @@ Item {
             modal: true
             focus: true
             standardButtons: Dialog.Ok | Dialog.Cancel
-            title: "Please input user password"
+            title: qsTr("Please input user password")
 
             contentItem: Rectangle {
                 color: "#FFFFFF"
@@ -80,7 +79,7 @@ Item {
 
             onAccepted: {
                 if (textFieldPsw1.text) {
-                    process.restart_middleware(textFieldPsw1.text)
+                    middlewareManager.restart_middleware(textFieldPsw1.text)
                 }
             }
         }
@@ -90,7 +89,7 @@ Item {
             modal: true
             focus: true
             standardButtons: Dialog.Ok | Dialog.Cancel
-            title: "Please input user password"
+            title: qsTr("Please input user password")
 
             contentItem: Rectangle {
                 color: "#FFFFFF"
@@ -107,7 +106,7 @@ Item {
 
             onAccepted: {
                 if (textFieldPsw2.text) {
-                    process.stop_middleware(textFieldPsw2.text)
+                    middlewareManager.stop_middleware(textFieldPsw2.text)
                 }
             }
         }
@@ -119,8 +118,8 @@ Item {
             nameFilters: [qsTr("Json file (*.json)")]
             title: qsTr("Please select middleware config file, if no need just cancel")
 
-            onAccepted: process.start_middleware_pm2(selectedFile)
-            onRejected: process.start_middleware_sv(textFieldPsw.text)
+            onAccepted: middlewareManager.start_middleware_pm2(selectedFile)
+            onRejected: middlewareManager.start_middleware_sv(textFieldPsw.text)
         }
 
         RowLayout {

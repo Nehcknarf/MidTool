@@ -1,12 +1,34 @@
 import psutil
 
-from PySide6.QtCore import QAbstractListModel, QByteArray, Qt, QModelIndex, Slot
+from PySide6.QtCore import QAbstractListModel, QByteArray, Qt, QModelIndex, Slot, QUrl
 from PySide6.QtQml import QmlElement
+
+from process import Process
 
 
 QML_IMPORT_NAME = "src.monitoring"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
+
+
+@QmlElement
+class MiddlewareManager(Process):
+    @Slot(str)
+    def start_middleware_sv(self, password):
+        self.start(f"sudo supervisorctl start all", password=password)
+
+    @Slot(QUrl)
+    def start_middleware_pm2(self, qurl):
+        path = qurl.toLocalFile()
+        self.start(f"pm2 start {path} -m && pm2 save -m")
+
+    @Slot(str)
+    def restart_middleware(self, password):
+        self.start(f"sudo supervisorctl restart all || pm2 restart 0 -m", password=password)
+
+    @Slot(str)
+    def stop_middleware(self, password):
+        self.start(f"sudo supervisorctl stop all || pm2 stop 0 -m", password=password)
 
 
 @QmlElement

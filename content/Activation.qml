@@ -4,15 +4,15 @@ import QtQuick.Layouts 6.5
 
 import Controls as MyControls
 
-import src.process
+import src.activation
 
 
 Item {
-    Process {
-        id: processActivate
-
-        Component.onCompleted: processActivate.Stdout.connect(textAreaActivate.append)
+    Activation {
+        id: activation
+        Component.onCompleted: activation.Stdout.connect(textAreaActivate.append)
     }
+
     MyControls.GroupBox {
         anchors.left: parent.left
         anchors.leftMargin: 16
@@ -94,7 +94,7 @@ Item {
                 text: qsTr("Activate")
 
                 onClicked: {
-                    processActivate.activate_arcsoft(textFieldKeyPart1.text, textFieldKeyPart2.text, textFieldKeyPart3.text, textFieldKeyPart4.text);
+                    activation.activate_arcsoft(textFieldKeyPart1.text, textFieldKeyPart2.text, textFieldKeyPart3.text, textFieldKeyPart4.text);
                 }
             }
         }
