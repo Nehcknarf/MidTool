@@ -1,0 +1,1 @@
+CODECFORTR = UTF-8

@@ -1,15 +1,14 @@
 import os
 import sys
 
-from PySide6.QtCore import QCoreApplication, Qt, QUrl
-from PySide6.QtGui import QGuiApplication, QIcon, QFontDatabase, QFont
+from PySide6.QtCore import QUrl
+from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 # import PySide6.QtQuick
 
 import resource
 
 # 导入需要在QML中实例化的类
-from process import Process
 from monitoring import SystemInfoModel
 from maintenance import Maintenance
 from serial import Serial
@@ -26,11 +25,10 @@ def set_qt_environment():
     os.environ["QT_VIRTUALKEYBOARD_DESKTOP_DISABLE"] = "1"
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-    os.environ["QT_LOGGING_RULES"] = "qt.qml.connections=false"
     os.environ["QT_QUICK_CONTROLS_CONF"] = "../qtquickcontrols2.conf"
-    os.environ["QML_COMPAT_RESOLVE_URLS_ON_ASSIGNMENT"] = "1"
     # os.environ["QT_QPA_PLATFORM"] = "xcb"
     os.environ["QT_DEBUG_PLUGINS"] = "0"
+    os.environ["QT_MEDIA_BACKEND"] = "ffmpeg"
 
 
 def main():
@@ -41,7 +39,7 @@ def main():
 
     engine = QQmlApplicationEngine()
 
-    url = QUrl("qrc:/main.qml")
+    url = QUrl("qrc:/content/App.qml")
 
     # font_id = QFontDatabase.addApplicationFont(":/content/fonts/OPlusSans3-Medium.ttf")
     # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
@@ -53,8 +51,9 @@ def main():
     #
     # engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
 
+    # engine.addImportPath("qrc:/")
     engine.addImportPath("qrc:/imports")
-    engine.addImportPath("qrc:/content")
+    # engine.addImportPath("qrc:/content")
     # print(engine.importPathList())
 
     engine.load(url)

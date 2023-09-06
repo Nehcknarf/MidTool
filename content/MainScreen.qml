@@ -1,21 +1,16 @@
-/*
-This is a UI file (.ui.qml) that is intended to be edited in Qt Design Studio only.
-It is supposed to be strictly declarative and only uses a subset of QML. If you edit
-this file manually, you might introduce QML code that is not supported by Qt Design Studio.
-Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
-*/
-
 import QtQuick 6.5
 import QtQuick.Controls 6.5
 
-import MidToolUI
 import Controls as MyControls
 
 
 Rectangle {
-    color: Constants.backgroundColor
-    height: Constants.height
-    width: Constants.width
+    color: "#D9DDE9"
+    height: 720
+    width: 1280
+
+    // property string system
+    // property int productType
 
     Drawer {
         id: drawer
@@ -24,13 +19,13 @@ Rectangle {
         edge: Qt.TopEdge
         height: 60
         modal: false
-        width: Constants.width
+        width: 1280
 
         background: Rectangle {
             Rectangle {
                 color: "#FDF4F5"
                 height: parent.height
-                width: Constants.width
+                width: 1280
             }
         }
 
@@ -123,22 +118,17 @@ Rectangle {
         MyControls.TabButton {
             id: tabButtonConfig
 
-            text: qsTr("Configuration")
+            text: qsTr("Config Editor")
         }
         MyControls.TabButton {
             id: tabButtonSerial
 
-            text: qsTr("Serial Port Data")
+            text: qsTr("Serial Port")
         }
         MyControls.TabButton {
             id: tabButtonFingerprint
 
-            text: qsTr("Fingerprint Test")
-        }
-        MyControls.TabButton {
-            id: tabButtonCamera
-
-            text: qsTr("Camera Preview")
+            text: qsTr("Fingerprint")
         }
         MyControls.TabButton {
             id: tabButtonFace
@@ -152,6 +142,11 @@ Rectangle {
             }
         }
         MyControls.TabButton {
+            id: tabButtonCamera
+
+            text: qsTr("Camera")
+        }
+        MyControls.TabButton {
             id: tabButtonNetwork
 
             text: qsTr("Network")
@@ -160,6 +155,7 @@ Rectangle {
             id: tabButtonTime
 
             text: qsTr("Time")
+            // visible: false
         }
     }
 
@@ -210,14 +206,14 @@ Rectangle {
         Item {
            Loader {
                 anchors.fill: parent
-                source: "qrc:/content/Camera.qml"
+                source: "qrc:/content/Activation.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }
         Item {
            Loader {
                 anchors.fill: parent
-                source: "qrc:/content/Activation.qml"
+                source: "qrc:/content/Camera.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }

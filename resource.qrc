@@ -1,19 +1,22 @@
 <RCC>
     <qresource prefix="/">
-        <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
+        <file>i18n.pro</file>
         <file>content/Activation.qml</file>
         <file>content/App.qml</file>
         <file>content/Camera.qml</file>
+        <file>content/EditorConsumable.qml</file>
         <file>content/EditorDrug.qml</file>
         <file>content/Fingerprint.qml</file>
-        <file>content/Network.qml</file>
-        <file>content/Time.qml</file>
+        <file>content/LogDownloader.qml</file>
         <file>content/MainScreen.qml</file>
         <file>content/Maintenance.qml</file>
         <file>content/Monitoring.qml</file>
+        <file>content/Network.qml</file>
         <file>content/ObjectProductChannel.qml</file>
         <file>content/Serial.qml</file>
+        <file>content/Time.qml</file>
+        <file>imports/Controls/qmldir</file>
         <file>imports/Controls/Button.qml</file>
         <file>imports/Controls/ComboBox.qml</file>
         <file>imports/Controls/GroupBox.qml</file>
@@ -22,12 +25,6 @@
         <file>imports/Controls/TabButton.qml</file>
         <file>imports/Controls/TextField.qml</file>
         <file>imports/Controls/VertTabBar.qml</file>
-        <file>imports/MidToolUI/Constants.qml</file>
-        <file>imports/MidToolUI/DirectoryFontLoader.qml</file>
-        <file>imports/MidToolUI/EventListModel.qml</file>
-        <file>imports/MidToolUI/EventListSimulator.qml</file>
-        <file>imports/Controls/qmldir</file>
-        <file>imports/MidToolUI/qmldir</file>
         <file>content/fonts/OPlusSans3-Bold.ttf</file>
         <file>content/fonts/OPlusSans3-ExtraLight.ttf</file>
         <file>content/fonts/OPlusSans3-Light.ttf</file>

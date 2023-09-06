@@ -46,7 +46,7 @@ Item {
 
         Maintenance {
             id: maintenance
-            Component.onCompleted: maintenance.Stdout.connect(textAreaDeploy.append)
+            Component.onCompleted: maintenance.Stdout.connect(textAreaMaintenance.append)
         }
         MyControls.GroupBox {
             Layout.fillHeight: true
@@ -106,7 +106,7 @@ Item {
                     title: qsTr("Please select middleware update package")
 
                     onAccepted: {
-                        textAreaDeploy.append(selectedFile);
+                        textAreaMaintenance.append(selectedFile);
                         // maintenance.update_middleware(selectedFile)
                     }
                 }
@@ -147,16 +147,14 @@ Item {
                 MyControls.ComboBox {
                     id: comboBoxBackUp
 
-                    model: []
-                    // textRole: "text"
-                    // valueRole: "value"
+                    model: maintenance.backups
                     // currentIndex: -1
                 }
                 MyControls.Button {
                     text: qsTr("Restore")
 
                     onClicked: {
-                        // maintenance.
+                        maintenance.update_middleware(comboBoxBackUp.currentText)
                     }
                 }
             }
@@ -184,7 +182,7 @@ Item {
             anchors.top: parent.top
             text: qsTr("Clear")
 
-            onClicked: textAreaDeploy.clear()
+            onClicked: textAreaMaintenance.clear()
         }
         ScrollView {
             anchors.bottom: parent.bottom
@@ -199,7 +197,7 @@ Item {
             }
 
             TextArea {
-                id: textAreaDeploy
+                id: textAreaMaintenance
 
                 anchors.fill: parent
                 readOnly: true

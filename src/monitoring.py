@@ -24,11 +24,11 @@ class MiddlewareManager(Process):
 
     @Slot(str)
     def restart_middleware(self, password):
-        self.start(f"sudo supervisorctl restart all || pm2 restart 0 -m", password=password)
+        self.start(f"sudo supervisorctl restart all || pm2 restart NuboMedCabinetService -m", password=password)
 
     @Slot(str)
     def stop_middleware(self, password):
-        self.start(f"sudo supervisorctl stop all || pm2 stop 0 -m", password=password)
+        self.start(f"sudo supervisorctl stop all || pm2 stop NuboMedCabinetService -m", password=password)
 
 
 @QmlElement

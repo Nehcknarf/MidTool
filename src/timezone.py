@@ -1,8 +1,9 @@
+import zoneinfo
+
 from PySide6.QtCore import Signal, Slot, Property
 from PySide6.QtQml import QmlElement
 
 from process import Process
-from src.utils.env import coding, sep
 
 
 QML_IMPORT_NAME = "src.time"
@@ -16,16 +17,11 @@ class TimeEditor(Process):
 
     def __init__(self):
         super().__init__()
-        self.stdout = ""
-
-    def handle_stdout(self):
-        data = self.process_command.readAllStandardOutput()
-        self.stdout += bytes(data).decode(coding).rstrip(sep)
 
     def get_timezones(self):
-        self.start("timedatectl list-timezones")
-        self.process_command.waitForFinished()
-        return self.stdout.split()
+        timezones = list(zoneinfo.available_timezones())
+        timezones.sort()
+        return timezones
 
     timezones = Property(list, get_timezones, notify=timezoneChanged)
 
@@ -36,3 +32,7 @@ class TimeEditor(Process):
     @Slot(str, str)
     def set_time(self, time, password):
         self.start(f"sudo timedatectl set-time '{time}'", password=password)
+
+    @Slot(str, str)
+    def add_ntp_servers(self, ntp_servers, password):
+        self.start(f"sudo sed -i 's/^#*NTP=.*/NTP={ntp_servers}/' /etc/systemd/timesyncd.conf && systemctl restart systemd-timesyncd", password=password)

@@ -2,7 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtQml import QmlElement
 
 from process import Process
-from src.utils.env import root_path
+from utils.env import root_path
 
 
 QML_IMPORT_NAME = "src.activation"
@@ -17,4 +17,4 @@ class Activation(Process):
         app_id = "F3sE2YzxMYy4VAFCRiLCz9NzBmQeCMB8nN2fVyo7F4Ca"
         sdk_key = "8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v"
         key_string = "-".join([key_part_1, key_part_2, key_part_3, key_part_4]).upper()
-        self.start(f"bash arsoft_Active.sh {app_id} {sdk_key} {key_string}", f"{root_path}/script/")
+        self.start(f"bash arsoftActive.sh {app_id} {sdk_key} {key_string}", f"{root_path}/script/")

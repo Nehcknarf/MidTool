@@ -125,9 +125,9 @@ class SquareFingerPrint(QObject):
     def __init__(self):
         super().__init__()
         if system == "Windows":
-            self.libc = cdll.LoadLibrary(f'{root_path}/bin/win/fingerprint/libapit.dll')
+            self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.dll')
         elif system == "Linux":
-            self.libc = cdll.LoadLibrary(f'{root_path}/bin/linux/fingerprint/libapit.so')
+            self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.so')
         self.handle = c_int64(0)
 
     def get_ports(self):
@@ -259,7 +259,7 @@ class RoundFingerPrint(QObject):
     def __init__(self):
         super().__init__()
         if system == "Linux":
-            self.libc = cdll.LoadLibrary(f'{root_path}/bin/linux/fingerprint/lib0a0.so')
+            self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/lib0a0.so')
 
     def get_ports(self):
         com_model = [

@@ -1,5 +1,6 @@
 from pathlib import Path
 
+# .qrc
 p = Path(".")
 for qml_file in p.glob('**/*.qml'):
     line = f"<file>{qml_file}</file>"
@@ -18,3 +19,10 @@ q = p / "content" / "images"
 for image in q.iterdir():
     line = f"<file>{image}</file>"
     print(line)
+
+# .pyproject
+p = Path(".")
+for qml_file in p.glob('**/*.py'):
+    print(f"\"{qml_file}\",")
+for qml_file in p.glob('**/*.qml'):
+    print(f"\"{qml_file}\",")
