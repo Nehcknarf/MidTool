@@ -10,8 +10,6 @@
 *.obj
 *.orig
 *.rej
-*.so
-*.so.*
 *_pch.h.cpp
 *_resource.rc
 *.qm
@@ -69,6 +67,5 @@ CMakeLists.txt.user*
 
 # Binaries
 # --------
-*.dll
 *.exe
 
