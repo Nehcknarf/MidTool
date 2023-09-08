@@ -184,7 +184,7 @@ Item {
 
             delegate: Item {
                 height: 40
-                width: 100
+                width: 110
                 x: 5
 
                 Column {
@@ -207,8 +207,7 @@ Item {
                     }
                 }
             }
-            model: SystemInfoModel {
-            }
+            model: SystemInfoModel {}
         }
     }
     MyControls.GroupBox {
@@ -230,6 +229,7 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             text: qsTr("Clear")
+            font: fontLoader.font
 
             onClicked: textArea.clear()
         }

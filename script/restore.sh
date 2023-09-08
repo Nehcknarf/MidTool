@@ -6,11 +6,19 @@ option=${tmp: 0: 4}${tmp: 5: 2}${tmp: 8: 2}${tmp: 11: 2}${tmp: 14: 2}${tmp: 17: 
 
 echo $option
 
-mv /nubomed/midpkg/db /nubomed/midpkg/db_bak
-mv /nubomed/midpkg/drug-middleware/ /nubomed/midpkg/drug-middleware_bak
-
-cp -r /nubomed/mid_bakup/$option/db /nubomed/midpkg/
-cp -r /nubomed/mid_bakup/$option/drug-middleware /nubomed/midpkg/
-
-rm -rf /nubomed/midpkg/db_bak
-rm -rf /nubomed/midpkg/drug-middleware_bak
+if [ -d /nubomed/midpkg/drug-middleware/ ]; then
+   rm -rf /nubomed/midpkg/db
+   rm -rf /nubomed/midpkg/drug-middleware
+   cp -r /nubomed/mid_bakup/$option/db /nubomed/midpkg/
+   cp -r /nubomed/mid_bakup/$option/drug-middleware /nubomed/midpkg/
+elif [ -d /nubomed/consumable-service/ ]; then
+   project_name=$(ls /nubomed/mid_bakup/$option/)
+   rm -rf /nubomed/$project_name
+   cp -r /nubomed/mid_bakup/$option/$project_name /nubomed/
+elif [ -d /nubomed/ecart-service/ ]; then
+   rm -rf /nubomed/ecart-service
+   cp -r /nubomed/mid_bakup/$option/ecart-service /nubomed/
+else
+   echo "非法环境"
+   exit 1
+fi

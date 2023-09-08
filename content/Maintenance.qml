@@ -111,7 +111,7 @@ Item {
                     }
                 }
                 MyControls.Button {
-                    text: qsTr("Select update package first")
+                    text: qsTr("Select update package")
 
                     onClicked: fileDialogUpdate.open()
                 }

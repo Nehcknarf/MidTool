@@ -3,7 +3,7 @@ from ruamel.yaml import YAML
 from PySide6.QtCore import QObject, Signal, Slot, Property
 from PySide6.QtQml import QmlElement
 
-from utils.product_adaptation import nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, mcc_cfg_path, ws_cfg_path
+from utils.env import nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, mcc_cfg_path, ws_cfg_path
 
 
 QML_IMPORT_NAME = "src.editor.drug"

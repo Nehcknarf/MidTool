@@ -347,7 +347,7 @@ Item {
             Label {
                 font.bold: true
                 font.pixelSize: 16
-                text: qsTr("Synchronization/MCC/WebSocket")
+                text: qsTr("Synchronization/Middleware Control Center/WebSocket")
             }
             MyControls.Button {
                 anchors.right: parent.right

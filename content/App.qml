@@ -9,6 +9,11 @@ Window {
     // flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
     width: mainScreen.width
 
+    FontLoader {
+        id: fontLoader
+        source: "qrc:/content/fonts/OPlusSans3-Medium.ttf"
+    }
+
     MainScreen {
         id: mainScreen
     }

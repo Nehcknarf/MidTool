@@ -75,7 +75,7 @@ class SystemInfoModel(QAbstractListModel):
         disk_percent = psutil.disk_usage('/').percent
 
         self.system_info_model = [
-            {"name": "CPU", "percent": format(cpu_percent, ".1f")},
-            {"name": "Memory", "percent": format(memory_percent, ".1f")},
-            {"name": "Disk", "percent": format(disk_percent, ".1f")}
+            {"name": self.tr("CPU"), "percent": format(cpu_percent, ".1f")},
+            {"name": self.tr("Memory"), "percent": format(memory_percent, ".1f")},
+            {"name": self.tr("Disk"), "percent": format(disk_percent, ".1f")}
         ]

@@ -114,11 +114,11 @@ Item {
                 anchors.top: parent.top
                 height: 160
 
-                // Label {
-                //     font.bold: true
-                //     font.pixelSize: 16
-                //     text: qsTr("Function")
-                // }
+                Label {
+                    font.bold: true
+                    font.pixelSize: 16
+                    text: qsTr("Func.")
+                }
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -130,7 +130,7 @@ Item {
 
                         modal: true
                         standardButtons: Dialog.Ok | Dialog.Cancel
-                        title: "Please input an integer from 1 to 1049."
+                        title: qsTr("Please input an integer from 1 to 1049.")
 
                         contentItem: Rectangle {
                             color: "#FFFFFF"
@@ -161,7 +161,7 @@ Item {
 
                         modal: true
                         standardButtons: Dialog.Ok | Dialog.Cancel
-                        title: "Please input an integer from 1 to 1049."
+                        title: qsTr("Please input an integer from 1 to 1049.")
 
                         contentItem: Rectangle {
                             color: "#FFFFFF"
@@ -280,11 +280,11 @@ Item {
                 anchors.top: parent.top
                 height: 160
 
-                // Label {
-                //     font.bold: true
-                //     font.pixelSize: 16
-                //     text: qsTr("Function")
-                // }
+                Label {
+                    font.bold: true
+                    font.pixelSize: 16
+                    text: qsTr("Func.")
+                }
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -301,7 +301,7 @@ Item {
 
                         modal: true
                         standardButtons: Dialog.Ok | Dialog.Cancel
-                        title: "Please input an integer from 1 to 500."
+                        title: qsTr("Please input an integer from 1 to 500.")
 
                         contentItem: Rectangle {
                             color: "#FFFFFF"

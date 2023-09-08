@@ -110,7 +110,7 @@ Rectangle {
             text: qsTr("Maintenance")
 
             onClicked: {
-                labelDrawer.text = "* Please do not execute any operation which might cause corruption of middleware files."
+                labelDrawer.text = qsTr("* Please do not execute any operation which might cause corruption of middleware files.")
                 drawer.open()
                 timer.running = true
             }
@@ -136,7 +136,7 @@ Rectangle {
             text: qsTr("Face Recognition")
 
             onClicked: {
-                labelDrawer.text = "* Please check if you can connect to the Internet first."
+                labelDrawer.text = qsTr("* Please check if you can connect to the Internet first.")
                 drawer.open()
                 timer.running = true
             }

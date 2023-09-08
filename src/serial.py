@@ -2,16 +2,22 @@ import re
 import struct
 from datetime import datetime
 
-from PySide6.QtCore import QObject, Slot, Signal, Property, QIODevice
+from PySide6.QtCore import QObject, Slot, Signal, Property, QIODevice, QCoreApplication
 from PySide6.QtQml import QmlElement
 from PySide6.QtSerialPort import QSerialPort, QSerialPortInfo
-
-from utils.mapper import device_dict
 
 
 QML_IMPORT_NAME = "src.serial"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
+
+
+# 串口设备类型
+device_dict = {
+    "0708": QCoreApplication.translate("Serial", "RFID reader"),
+    "0107": QCoreApplication.translate("Serial", "Code scanner"),
+    "020a": QCoreApplication.translate("Serial", "Human presence sensor")
+}
 
 
 @QmlElement
@@ -58,21 +64,20 @@ class Serial(QObject):
         if self.ser.bytesAvailable():
             bytes_data = self.ser.readAll().data()  # bytes
             self.total_data += bytes_data
-            self.Pinout.emit(self.tr("数据流：{}，字符串：{}").format(self.total_data.hex(), str(self.total_data)))
+            self.Pinout.emit(self.tr("Data flow: {}, String: {}").format(self.total_data.hex(), str(self.total_data)))
 
             if length_domain := re.findall(b'~(.{2})\x02', self.total_data):
                 try:
                     length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
                 except struct.error as err:
-                    self.Pinout.emit(self.tr("长度域解析失败，{}").format(err))
+                    self.Pinout.emit(self.tr("Length field parse failed, {}").format(err))
                 else:
                     if pack_data := re.findall(b'~.{' + f'{length}'.encode() + b'}\xe7', self.total_data, re.DOTALL):
                         pack_data = pack_data[0]
-                        # self.Pinout.emit(self.tr("接收到的原始数据包：{}").format(pack_data.hex()))
                         try:
                             header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", pack_data[:26])  # 起始域到参数长度域
                         except struct.error as err:
-                            self.Pinout.emit(self.tr("数据头解析失败，{}").format(err))
+                            self.Pinout.emit(self.tr("Header parse failed, {}").format(err))
                         else:
                             header_list = [i.hex() if isinstance(i, bytes) else i for i in header_tuple]
                             device_type = header_list[10]  # 单元类型
@@ -84,46 +89,41 @@ class Serial(QObject):
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                 except struct.error as err:
-                                    sig_data = self.tr("Serial", "数据载荷解析失败，{}").format(err)
+                                    sig_data = self.tr("Data load parse failed, {}").format(err)
                                 else:
                                     # 自动上报RFID号
                                     card_type = payload_tuple[0]
                                     card_uid = "-".join(map(str, payload_tuple[1:]))
-                                    sig_data = self.tr("Serial", "设备类型：{}，卡类型：{}，卡号：{}").format(
-                                        device_dict.get(device_type), card_type, card_uid)
+                                    sig_data = self.tr("Device type: {}, Card type: {}, Card number: {}").format(device_dict.get(device_type), card_type, card_uid)
                             elif device_type == "0107":
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                     # ending_tuple = struct.unpack("2sc", pack_data[26 + payload_length:29 + payload_length])
                                 except struct.error as err:
-                                    sig_data = self.tr("Serial", "数据载荷解析失败，{}").format(err)
+                                    sig_data = self.tr("Data load parse failed, {}").format(err)
                                 else:
                                     # ending_list = [i.hex() for i in ending_tuple]
                                     # unpack_data = tuple(header_list) + payload_tuple + tuple(ending_list)
                                     # print(unpack_data)
                                     # 自动上报扫描码内容
                                     code_content = "".join(map(str, payload_tuple[2:]))
-                                    sig_data = self.tr("Serial", "设备类型：{}，条码内容：{}").format(
-                                        device_dict.get(device_type), code_content)
+                                    sig_data = self.tr("Device type: {}, Barcode content: {}").format(device_dict.get(device_type), code_content)
                             elif device_type == "020a":
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                 except struct.error as err:
-                                    sig_data = self.tr("Serial", "数据载荷解析失败，{}").format(err)
+                                    sig_data = self.tr("Data load parse failed, {}").format(err)
                                 else:
                                     # 自动上报人位置状态变化
                                     state_dict = {
-                                        1: self.tr("Serial", "人在指定范围内"),
-                                        0: self.tr("Serial", "人离开了指定范围")
+                                        1: self.tr("Human is within the area"),
+                                        0: self.tr("Human left the area")
                                     }
-                                    sig_data = self.tr("Serial", "设备类型：{}，{}").format(
-                                        device_dict.get(device_type), state_dict.get(payload_tuple[0]))
+                                    sig_data = self.tr("Device type: {}, {}").format(device_dict.get(device_type), state_dict.get(payload_tuple[0]))
                             else:
-                                sig_data = self.tr("Serial", "尚未支持解析的设备类型")
+                                sig_data = self.tr("Device type is not yet supported for parsing")
                             self.Pinout.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，{sig_data}")
                     else:
                         pass
-                        # self.Pinout.emit(self.tr("未匹配到数据包"))
             else:
                 self.total_data = b''
-                # self.Pinout.emit(self.tr("未找到特征（长度域）"))

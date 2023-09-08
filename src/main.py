@@ -1,12 +1,13 @@
 import os
 import sys
 
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import QUrl, QLocale
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
-# import PySide6.QtQuick
 
-import resource
+import utils.resource
+from utils.translator import JsonTranslator
+from utils.env import root_path
 
 # 导入需要在QML中实例化的类
 from monitoring import SystemInfoModel
@@ -24,9 +25,8 @@ def set_qt_environment():
     os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
     os.environ["QT_VIRTUALKEYBOARD_DESKTOP_DISABLE"] = "1"
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-    os.environ["QT_QUICK_CONTROLS_CONF"] = "../qtquickcontrols2.conf"
-    # os.environ["QT_QPA_PLATFORM"] = "xcb"
+    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+    os.environ["QT_QUICK_CONTROLS_CONF"] = f"{root_path}/qtquickcontrols2.conf"
     os.environ["QT_DEBUG_PLUGINS"] = "0"
     os.environ["QT_MEDIA_BACKEND"] = "ffmpeg"
 
@@ -37,13 +37,16 @@ def main():
     app = QGuiApplication(sys.argv)
     app.setWindowIcon(QIcon(":/content/images/icon.png"))
 
+    translator = JsonTranslator(app)
+    if QLocale.system().name() == "zh_CN":
+        translator.load(f"{root_path}/i18n/zh_CN.json")
+    elif QLocale.system().name() == "zh_TW":
+        translator.load(f"{root_path}/i18n/zh_TW.json")
+    app.installTranslator(translator)
+
     engine = QQmlApplicationEngine()
 
     url = QUrl("qrc:/content/App.qml")
-
-    # font_id = QFontDatabase.addApplicationFont(":/content/fonts/OPlusSans3-Medium.ttf")
-    # font_family = QFontDatabase.applicationFontFamilies(font_id)[0]
-    # app.setFont(QFont(font_family))
 
     # def handle_object_created(obj, obj_url):
     #     if obj is None and url == obj_url:
@@ -51,9 +54,7 @@ def main():
     #
     # engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
 
-    # engine.addImportPath("qrc:/")
     engine.addImportPath("qrc:/imports")
-    # engine.addImportPath("qrc:/content")
     # print(engine.importPathList())
 
     engine.load(url)

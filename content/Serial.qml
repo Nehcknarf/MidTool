@@ -26,7 +26,7 @@ Item {
         }
         Serial {
             id: serial
-
+            Component.onCompleted: serial.Pinout.connect(textAreaSerial.append)
         }
         RowLayout {
             anchors.horizontalCenter: parent.horizontalCenter
