@@ -31,6 +31,8 @@ Rectangle {
 
         Label {
             id: labelDrawer
+            font.family: medium.font.family
+            font.pixelSize: 16
             anchors.centerIn: parent
         }
 
@@ -91,7 +93,7 @@ Rectangle {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 60
-        currentIndex: swipeView.currentIndex
+        currentIndex: argCurrentIndex != null ? argCurrentIndex : swipeView.currentIndex
         height: 60
 
         // background: Rectangle {
@@ -100,14 +102,13 @@ Rectangle {
         // }
 
         MyControls.TabButton {
-            id: tabButtonMonitor
-
             text: qsTr("Monitoring")
+            visible: argCurrentIndex === 0 || argCurrentIndex == null
         }
-        MyControls.TabButton {
-            id: tabButtonDeploy
 
+        MyControls.TabButton {
             text: qsTr("Maintenance")
+            visible: argCurrentIndex === 1 || argCurrentIndex == null
 
             onClicked: {
                 labelDrawer.text = qsTr("* Please do not execute any operation which might cause corruption of middleware files.")
@@ -115,25 +116,25 @@ Rectangle {
                 timer.running = true
             }
         }
-        MyControls.TabButton {
-            id: tabButtonConfig
 
+        MyControls.TabButton {
             text: qsTr("Config Editor")
+            visible: argCurrentIndex === 2 || argCurrentIndex == null
         }
-        MyControls.TabButton {
-            id: tabButtonSerial
 
+        MyControls.TabButton {
             text: qsTr("Serial Port")
+            visible: argCurrentIndex === 3 || argCurrentIndex == null
         }
-        MyControls.TabButton {
-            id: tabButtonFingerprint
 
+        MyControls.TabButton {
             text: qsTr("Fingerprint")
+            visible: argCurrentIndex === 4 || argCurrentIndex == null
         }
-        MyControls.TabButton {
-            id: tabButtonFace
 
+        MyControls.TabButton {
             text: qsTr("Face Recognition")
+            visible: argCurrentIndex === 5 || argCurrentIndex == null
 
             onClicked: {
                 labelDrawer.text = qsTr("* Please check if you can connect to the Internet first.")
@@ -141,21 +142,25 @@ Rectangle {
                 timer.running = true
             }
         }
-        MyControls.TabButton {
-            id: tabButtonCamera
 
+        MyControls.TabButton {
             text: qsTr("Camera")
+            visible: argCurrentIndex === 6 || argCurrentIndex == null
         }
-        MyControls.TabButton {
-            id: tabButtonNetwork
 
+        MyControls.TabButton {
             text: qsTr("Network")
+            visible: argCurrentIndex === 7 || argCurrentIndex == null
         }
-        MyControls.TabButton {
-            id: tabButtonTime
 
+        MyControls.TabButton {
             text: qsTr("Time")
-            // visible: false
+            visible: argCurrentIndex === 8 || argCurrentIndex == null
+        }
+
+        MyControls.TabButton {
+            text: qsTr("Log Downloader")
+            visible: argCurrentIndex === 9 || argCurrentIndex == null
         }
     }
 
@@ -167,6 +172,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.topMargin: 120
         currentIndex: tabBar.currentIndex
+        interactive: argCurrentIndex == null
 
         Item {
             Loader {
@@ -227,7 +233,14 @@ Rectangle {
         Item {
            Loader {
                 anchors.fill: parent
-                source: "qrc:/content/Time.qml"
+                source: "qrc:/content/Timezone.qml"
+                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+            }
+        }
+        Item {
+           Loader {
+                anchors.fill: parent
+                source: "qrc:/content/LogDownloader.qml"
                 // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
             }
         }

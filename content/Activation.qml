@@ -23,7 +23,7 @@ Item {
         height: 110
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Online Activation")
         }
@@ -32,6 +32,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Key")
             }
@@ -48,6 +49,7 @@ Item {
                 onAccepted: textFieldKeyPart2.focus = true
             }
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("-")
             }
@@ -63,6 +65,7 @@ Item {
                 onAccepted: textFieldKeyPart3.focus = true
             }
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("-")
             }
@@ -78,6 +81,7 @@ Item {
                 onAccepted: textFieldKeyPart4.focus = true
             }
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("-")
             }
@@ -110,7 +114,7 @@ Item {
         anchors.topMargin: 142
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
@@ -135,8 +139,9 @@ Item {
 
             TextArea {
                 id: textAreaActivate
-
                 anchors.fill: parent
+                font.family: medium.font.family
+                font.pixelSize: 16
                 readOnly: true
             }
         }

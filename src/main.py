@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PySide6.QtCore import QUrl, QLocale
+from PySide6.QtCore import QUrl, QLocale, QCommandLineParser, QCommandLineOption
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 
@@ -31,6 +31,30 @@ def set_qt_environment():
     os.environ["QT_MEDIA_BACKEND"] = "ffmpeg"
 
 
+def parse_args(app):
+    tab_nickname_dict = {
+        "Monitoring": 0,
+        "Maintenance": 1,
+        "Editor": 2,
+        "Serial": 3,
+        "Fingerprint": 4,
+        "Face": 5,
+        "Camera": 6,
+        "Network": 7,
+        "Time": 8,
+        "LogDownload": 9
+    }
+
+    parser = QCommandLineParser()
+    tab = QCommandLineOption(["t", "tab"], "Choice which tab to be shown at start up", "tab")
+    parser.addOption(tab)
+    parser.process(app)
+    tab = parser.value(tab)
+    if tab:
+        index = tab_nickname_dict.get(tab)
+        return index
+
+
 def main():
     set_qt_environment()
 
@@ -44,6 +68,8 @@ def main():
         translator.load(f"{root_path}/i18n/zh_TW.json")
     app.installTranslator(translator)
 
+    idx = parse_args(app)
+
     engine = QQmlApplicationEngine()
 
     url = QUrl("qrc:/content/App.qml")
@@ -56,6 +82,7 @@ def main():
 
     engine.addImportPath("qrc:/imports")
     # print(engine.importPathList())
+    engine.rootContext().setContextProperty("argCurrentIndex", idx)
 
     engine.load(url)
 

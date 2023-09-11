@@ -19,7 +19,7 @@ MyControls.GroupBox {
     anchors.topMargin: 16
 
     Label {
-        font.bold: true
+        font.family: bold.font.family
         font.pixelSize: 16
         text: qsTr("Camera Preview")
     }
@@ -45,6 +45,7 @@ MyControls.GroupBox {
         anchors.verticalCenter: parent.verticalCenter
 
         Label {
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Camera")
         }
@@ -58,6 +59,7 @@ MyControls.GroupBox {
         }
 
         Label {
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Switch")
         }

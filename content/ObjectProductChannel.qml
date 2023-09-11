@@ -12,6 +12,7 @@ RowLayout {
     property int channel
 
     Label {
+        font.family: bold.font.family
         font.pixelSize: 16
         text: qsTr("Product No")
     }
@@ -25,6 +26,7 @@ RowLayout {
     }
 
     Label {
+        font.family: bold.font.family
         font.pixelSize: 16
         text: qsTr("Channel")
     }

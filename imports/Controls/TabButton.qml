@@ -3,11 +3,11 @@ import QtQuick.Controls
 
 TabButton {
     id: control
-    font.pixelSize: 16
 
     contentItem: Text {
         text: control.text
-        font: control.font
+        font.family: bold.font.family
+        font.pixelSize: 16
         color: control.checked ? "#FFFFFF" : "#181D41"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

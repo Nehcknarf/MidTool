@@ -64,7 +64,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Network Video Recorder")
             }
@@ -99,6 +99,7 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Enabled NVR")
                 }
@@ -108,6 +109,7 @@ Item {
                     checked: configEditor.nvr_cfg["enabled"] === undefined ? 0 : configEditor.nvr_cfg["enabled"]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Host")
                 }
@@ -122,6 +124,7 @@ Item {
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Username")
                 }
@@ -132,6 +135,7 @@ Item {
                     text: configEditor.nvr_cfg["username"] === undefined ? null : configEditor.nvr_cfg["username"]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Password")
                 }
@@ -142,6 +146,7 @@ Item {
                     text: configEditor.nvr_cfg["password"] === undefined ? null : configEditor.nvr_cfg["password"]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Enabled Video Upload")
                 }
@@ -151,6 +156,7 @@ Item {
                     checked: configEditor.nvr_cfg["enabled_upload"] === undefined ? 0 : configEditor.nvr_cfg["enabled_upload"]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Sever video storage path")
                 }
@@ -164,11 +170,12 @@ Item {
 
             RowLayout {
                 anchors.right: parent.right
-                anchors.rightMargin: 185
+                anchors.rightMargin: 220
                 anchors.top: parent.top
                 anchors.topMargin: 54
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Product Channel Configuration")
                 }
@@ -215,7 +222,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Fingerprint")
             }
@@ -238,6 +245,7 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Device Type")
                 }
@@ -249,6 +257,7 @@ Item {
                     model: [qsTr("Square Fingerprint"), qsTr("Round Fingerprint"), qsTr("Optical Fingerprint")]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Square Fingerprint baud rate")
                 }
@@ -260,6 +269,7 @@ Item {
                     model: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Fingerprint matching threshold")
                 }
@@ -283,7 +293,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Action Delay")
             }
@@ -306,6 +316,7 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Interval between command (ms)")
                 }
@@ -317,6 +328,7 @@ Item {
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Batch unlock delay (ms)")
                 }
@@ -328,6 +340,7 @@ Item {
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Unclosed drawer check interval (ms)")
                 }
@@ -345,7 +358,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Synchronization/Middleware Control Center/WebSocket")
             }
@@ -370,6 +383,7 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Synchronized Host IP")
                 }
@@ -381,6 +395,7 @@ Item {
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Connect to MCC at starting")
                 }
@@ -391,6 +406,7 @@ Item {
                     implicitWidth: 200
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("MCC Host IP")
                 }
@@ -402,6 +418,7 @@ Item {
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("WebSocket protocol restructure")
                 }

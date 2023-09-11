@@ -1,6 +1,7 @@
 import QtQuick 6.5
 import QtQuick.Controls 6.5
 import QtQuick.Layouts 6.5
+import QtQuick.Dialogs 6.5
 
 import Controls as MyControls
 
@@ -26,10 +27,9 @@ Item {
         MyControls.GroupBox {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            height: 110
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Settings")
             }
@@ -41,6 +41,7 @@ Item {
                 rows: 3
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Timezone")
                 }
@@ -87,6 +88,7 @@ Item {
                 }
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("DateTime")
                 }
@@ -134,6 +136,7 @@ Item {
                 }
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("NTP Servers")
                 }

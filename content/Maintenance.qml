@@ -54,7 +54,7 @@ Item {
             height: 110
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("New installation (For factory)")
             }
@@ -63,6 +63,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Select the type of consumable cabinet")
                 }
@@ -90,7 +91,7 @@ Item {
             height: 110
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Update (For Implementation Engineer)")
             }
@@ -131,7 +132,7 @@ Item {
             height: 110
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Backup restore")
             }
@@ -141,6 +142,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Select a middleware backup")
                 }
@@ -173,7 +175,7 @@ Item {
         anchors.topMargin: 192
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
@@ -198,8 +200,9 @@ Item {
 
             TextArea {
                 id: textAreaMaintenance
-
                 anchors.fill: parent
+                font.family: medium.font.family
+                font.pixelSize: 16
                 readOnly: true
             }
         }

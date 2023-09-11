@@ -4,6 +4,8 @@ import QtQuick.Controls
 TextField {
     id: control
     placeholderText: qsTr("Enter")
+    font.family: medium.font.family
+    font.pixelSize: 16
 
     background: Rectangle {
         implicitWidth: 100

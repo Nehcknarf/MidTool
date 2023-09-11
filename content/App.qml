@@ -3,14 +3,20 @@ import QtQuick.VirtualKeyboard 6.5
 
 
 Window {
-    height: mainScreen.height
     title: "MidTool"
-    visible: true
     // flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
+    x: Screen.width / 2 - width / 2
+    y: Screen.height / 2 - height / 2
     width: mainScreen.width
+    height: mainScreen.height
+    visible: true
 
     FontLoader {
-        id: fontLoader
+        id: bold
+        source: "qrc:/content/fonts/OPlusSans3-Bold.ttf"
+    }
+    FontLoader {
+        id: medium
         source: "qrc:/content/fonts/OPlusSans3-Medium.ttf"
     }
 
