@@ -32,7 +32,7 @@ RowLayout {
     }
 
     MyControls.TextField {
-        implicitWidth: 100
+        implicitWidth: 50
         text: root.channel
         inputMethodHints: Qt.ImhDigitsOnly
         onTextChanged: {

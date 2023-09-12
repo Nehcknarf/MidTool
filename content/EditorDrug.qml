@@ -116,11 +116,8 @@ Item {
                 MyControls.TextField {
                     id: textFieldNvrServerIp
 
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.nvr_cfg["server_ip"] === undefined ? null : configEditor.nvr_cfg["server_ip"]
-                    // validator: RegularExpressionValidator {
-                    // regularExpression:
-                    // }
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
@@ -131,8 +128,9 @@ Item {
                 MyControls.TextField {
                     id: textFieldNvrUserName
 
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.nvr_cfg["username"] === undefined ? null : configEditor.nvr_cfg["username"]
+                    inputMethodHints: Qt.ImhPreferLowercase
                 }
                 Label {
                     font.family: bold.font.family
@@ -142,8 +140,9 @@ Item {
                 MyControls.TextField {
                     id: textFieldNvrPassword
 
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.nvr_cfg["password"] === undefined ? null : configEditor.nvr_cfg["password"]
+                    inputMethodHints: Qt.ImhPreferLowercase
                 }
                 Label {
                     font.family: bold.font.family
@@ -165,12 +164,13 @@ Item {
 
                     implicitWidth: 250
                     text: configEditor.nvr_cfg["upload_save_dir"] === undefined ? null : configEditor.nvr_cfg["upload_save_dir"]
+                    inputMethodHints: Qt.ImhUrlCharactersOnly
                 }
             }
 
             RowLayout {
                 anchors.right: parent.right
-                anchors.rightMargin: 220
+                anchors.rightMargin: 150
                 anchors.top: parent.top
                 anchors.topMargin: 54
 
@@ -195,7 +195,7 @@ Item {
                 width: 420
 
                 anchors.right: parent.right
-                anchors.rightMargin: 100
+                anchors.rightMargin: 50
                 anchors.top: parent.top
                 anchors.topMargin: 119
 
@@ -322,8 +322,7 @@ Item {
                 }
                 MyControls.TextField {
                     id: textFieldActionDelayMillis
-
-                    implicitWidth: 100
+                    implicitWidth: 70
                     text: configEditor.action_delay_cfg["delay_millis"] === undefined ? null : configEditor.action_delay_cfg["delay_millis"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -334,8 +333,7 @@ Item {
                 }
                 MyControls.TextField {
                     id: textFieldActionDelayLock
-
-                    implicitWidth: 100
+                    implicitWidth: 70
                     text: configEditor.action_delay_cfg["delay_lock"] === undefined ? null : configEditor.action_delay_cfg["delay_lock"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -346,8 +344,7 @@ Item {
                 }
                 MyControls.TextField {
                     id: textFieldActionDelayTimeOut
-
-                    implicitWidth: 100
+                    implicitWidth: 70
                     text: configEditor.action_delay_cfg["time_out_no_lock"] === undefined ? null : configEditor.action_delay_cfg["time_out_no_lock"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -389,8 +386,7 @@ Item {
                 }
                 MyControls.TextField {
                     id: textFieldSyncHost
-
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.sync_cfg["host"] === undefined ? null : configEditor.sync_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -401,9 +397,7 @@ Item {
                 }
                 MyControls.Switch {
                     id: textFieldMccEnable
-
                     checked: configEditor.mcc_cfg["enable"] === undefined ? 0 : configEditor.mcc_cfg["enable"]
-                    implicitWidth: 200
                 }
                 Label {
                     font.family: bold.font.family
@@ -412,8 +406,7 @@ Item {
                 }
                 MyControls.TextField {
                     id: textFieldMccHost
-
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.mcc_cfg["host"] === undefined ? null : configEditor.mcc_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -424,9 +417,7 @@ Item {
                 }
                 MyControls.Switch {
                     id: textFieldWsRestructure
-
                     checked: configEditor.ws_cfg["restructure"] === undefined ? 0 : configEditor.ws_cfg["restructure"]
-                    implicitWidth: 200
                 }
             }
         }

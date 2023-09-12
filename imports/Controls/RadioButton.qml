@@ -1,9 +1,9 @@
 import QtQuick
 import QtQuick.Controls
 
-CheckBox {
+RadioButton {
     id: control
-    text: qsTr("CheckBox")
+    text: qsTr("RadioButton")
     checked: true
 
     indicator: Rectangle {
@@ -11,15 +11,15 @@ CheckBox {
         implicitHeight: 32
         x: control.leftPadding
         y: parent.height / 2 - height / 2
-        radius: 8
+        radius: 16
         color: "#cad0e0"
 
         Rectangle {
-            width: 26
-            height: 26
+            width: 22
+            height: 22
             x: parent.height / 2 - height / 2
             y: parent.height / 2 - height / 2
-            radius: 8
+            radius: 11
             color: "#00a572"
             visible: control.checked
         }

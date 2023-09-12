@@ -6,6 +6,7 @@
         <file>content/Camera.qml</file>
         <file>content/EditorConsumable.qml</file>
         <file>content/EditorDrug.qml</file>
+        <file>content/EditorEcart.qml</file>
         <file>content/Fingerprint.qml</file>
         <file>content/LogDownloader.qml</file>
         <file>content/MainScreen.qml</file>
@@ -17,7 +18,7 @@
         <file>content/Timezone.qml</file>
         <file>imports/Controls/qmldir</file>
         <file>imports/Controls/Button.qml</file>
-        <file>imports/Controls/CheckBox.qml</file>
+        <file>imports/Controls/RadioButton.qml</file>
         <file>imports/Controls/ComboBox.qml</file>
         <file>imports/Controls/GroupBox.qml</file>
         <file>imports/Controls/ProgressBar.qml</file>

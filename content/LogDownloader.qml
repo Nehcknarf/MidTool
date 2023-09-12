@@ -1,14 +1,20 @@
 import QtQuick 6.5
 import QtQuick.Controls 6.5
 import QtQuick.Layouts 6.5
+import QtQuick.Dialogs 6.5
 
 import Controls as MyControls
 
+import src.logDownloader
+
 
 Item {
-    property var locale: Qt.locale()
-    property date currentDate: new Date()
-    property string dateString
+    property string logType: "1"
+
+    LogDownloader {
+        id: logDownloader
+        Component.onCompleted: logDownloader.Stdout.connect(textAreaDownload.append)
+    }
 
     MyControls.GroupBox {
         anchors.left: parent.left
@@ -30,20 +36,28 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             ButtonGroup {
-                id: childGroup
+                id: buttonGroup
                 exclusive: true
+                onClicked: button => {
+                    switch (button.text) {
+                        case "Middleware logs":
+                            logType = "1"
+                            break
+                        case "System logs":
+                            logType = "2"
+                            break
+                    }
+                }
             }
 
-            MyControls.CheckBox {
-                id: checkBoxSys
-                text: qsTr("System logs")
-                ButtonGroup.group: childGroup
-            }
-
-            MyControls.CheckBox {
-                id: checkBoxMid
+            MyControls.RadioButton {
                 text: qsTr("Middleware logs")
-                ButtonGroup.group: childGroup
+                ButtonGroup.group: buttonGroup
+            }
+
+            MyControls.RadioButton {
+                text: qsTr("System logs")
+                ButtonGroup.group: buttonGroup
             }
 
             ToolSeparator {
@@ -63,14 +77,13 @@ Item {
 
             MyControls.TextField {
                 id: textFieldStratTime
-                implicitWidth: 150
-                placeholderText: "YYYY-MM-DD"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-
-                Component.onCompleted: {
-                    dateString = currentDate.toLocaleDateString();
-                    print(Date.fromLocaleDateString(dateString));
+                placeholderText: "YYYY-MM-DD"
+                text: new Date().toLocaleDateString(Qt.locale(), "yyyy-MM-dd")
+                inputMethodHints: Qt.ImhDate | Qt.ImhFormattedNumbersOnly
+                validator: RegularExpressionValidator {
+                    regularExpression: /^(19|20)\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
                 }
             }
 
@@ -82,10 +95,14 @@ Item {
 
             MyControls.TextField {
                 id: textFieldEndTime
-                implicitWidth: 150
-                placeholderText: "YYYY-MM-DD"
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
+                placeholderText: "YYYY-MM-DD"
+                text: new Date().toLocaleDateString(Qt.locale(), "yyyy-MM-dd")
+                inputMethodHints: Qt.ImhDate | Qt.ImhFormattedNumbersOnly
+                validator: RegularExpressionValidator {
+                    regularExpression: /^(19|20)\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/
+                }
             }
 
             ToolSeparator {
@@ -97,10 +114,19 @@ Item {
                 Layout.fillHeight: true
             }
 
+            FolderDialog {
+                id: folderDialog
+                title: qsTr("Please select a folder to save logs")
+                currentFolder: "/media"
+                acceptLabel: qsTr("Save")
+                onAccepted: {
+                    logDownloader.download(selectedFolder, textFieldStratTime.text, textFieldEndTime.text, logType)
+                }
+            }
+
             MyControls.Button {
                 text: qsTr("Save to...")
-                // onClicked: {
-                // }
+                onClicked: folderDialog.open()
             }
         }
     }

@@ -36,9 +36,8 @@ pip install -r requirements.txt
 ## Ubuntu 20.04 开发环境问题踩坑
 ```
 libGL error: MESA-LOADER: failed to open swrast: /usr/lib/dri/swrast_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/x86_64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
-解决方式：创建软链接
-mkdir -p /usr/lib/dri/
-sudo ln -s /usr/lib/x86_64-linux-gnu/dri/swrast_dri.so /usr/lib/dri/
+解决方式：添加环境变量
+export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libffi.so.7
 ```
 
 ## Ubuntu 22.04 开发环境问题踩坑

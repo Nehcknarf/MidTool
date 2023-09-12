@@ -67,7 +67,9 @@ Item {
 
                 MyControls.TextField {
                      id: textFieldIp
-                     implicitWidth: 200
+                     implicitWidth: 150
+                     inputMask: "000.000.000.000;_"
+                     inputMethodHints: Qt.ImhDigitsOnly
                 }
 
                  Label {
@@ -78,6 +80,8 @@ Item {
 
                  MyControls.TextField {
                      id: textFieldPort
+                     implicitWidth: 70
+                     inputMethodHints: Qt.ImhDigitsOnly
                 }
 
                 MyControls.Button {
@@ -129,7 +133,8 @@ Item {
 
                      MyControls.TextField {
                          id: textFieldDestination
-                         implicitWidth: 200
+                         implicitWidth: 150
+                         inputMask: "000.000.000.000;_"
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
 
@@ -141,6 +146,7 @@ Item {
 
                      MyControls.TextField {
                          id: textFieldGenmask
+                         implicitWidth: 150
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
 
@@ -152,7 +158,7 @@ Item {
 
                      MyControls.TextField {
                          id: textFieldGateway
-                         implicitWidth: 200
+                         implicitWidth: 230
                          placeholderText: qsTr("Leave empty when deleting")
                          inputMethodHints: Qt.ImhDigitsOnly
                      }

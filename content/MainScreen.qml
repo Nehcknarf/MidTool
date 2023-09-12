@@ -9,24 +9,40 @@ Rectangle {
     height: 720
     width: 1280
 
-    // property string system
-    // property int productType
+    function funcVisible() {
+        switch (Qt.platform.os) {
+            case "windows":
+                return false
+            case "linux":
+                return true
+        }
+    }
+
+    function maintenanceTip() {
+        labelDrawer.text = qsTr("* Please do not execute any operation which might cause corruption of middleware files.")
+        drawer.open()
+        timer.running = true
+    }
+
+    function faceRecognitionTip() {
+        labelDrawer.text = qsTr("* Please check if you can connect to the Internet first.")
+        drawer.open()
+        timer.running = true
+    }
 
     Drawer {
         id: drawer
-        closePolicy: Popup.CloseOnPressOutside
-        dragMargin: 0
-        edge: Qt.TopEdge
         height: 60
+        width: mainScreen.width
+        closePolicy: Popup.CloseOnPressOutside
+        edge: Qt.TopEdge
+        dragMargin: 0
         modal: false
-        width: 1280
 
         background: Rectangle {
-            Rectangle {
-                color: "#FDF4F5"
-                height: parent.height
-                width: 1280
-            }
+            color: "#FDF4F5"
+            height: parent.height
+            width: parent.width
         }
 
         Label {
@@ -46,19 +62,30 @@ Rectangle {
     }
 
     Rectangle {
-        anchors.left: parent.left
-        anchors.leftMargin: 0
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        anchors.top: parent.top
-        anchors.topMargin: 0
-        color: "#0066E0"
         height: 60
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.top: parent.top
+        color: "#0066E0"
 
         MouseArea {
-            id: mouseArea
             anchors.fill: parent
-            onClicked: Qt.inputMethod.hide()
+
+            property variant pressedPos: "0,0"
+
+            onClicked: {
+                Qt.inputMethod.hide()
+            }
+
+            onPressed: mouse => {
+                pressedPos = Qt.point(mouse.x, mouse.y)
+            }
+
+            onPositionChanged: mouse => {
+                let delta = Qt.point(mouse.x - pressedPos.x, mouse.y - pressedPos.y)
+                window.x += delta.x
+                window.y += delta.y
+            }
         }
 
         Image {
@@ -71,14 +98,15 @@ Rectangle {
         }
 
         Image {
+            height: 32
+            width: 32
             anchors.right: parent.right
             anchors.rightMargin: 20
             anchors.top: parent.top
-            anchors.topMargin: 20
+            anchors.topMargin: 14
             fillMode: Image.PreserveAspectFit
-            height: 20
-            width: 20
             source: "qrc:/content/images/close.svg"
+
             MouseArea {
                 anchors.fill: parent
                 onClicked: Qt.quit()
@@ -88,13 +116,12 @@ Rectangle {
 
     TabBar {
         id: tabBar
-
+        height: 60
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 60
         currentIndex: argCurrentIndex != null ? argCurrentIndex : swipeView.currentIndex
-        height: 60
 
         // background: Rectangle {
         //     color: "#FFFFFF"
@@ -109,12 +136,7 @@ Rectangle {
         MyControls.TabButton {
             text: qsTr("Maintenance")
             visible: argCurrentIndex === 1 || argCurrentIndex == null
-
-            onClicked: {
-                labelDrawer.text = qsTr("* Please do not execute any operation which might cause corruption of middleware files.")
-                drawer.open()
-                timer.running = true
-            }
+            onClicked: maintenanceTip()
         }
 
         MyControls.TabButton {
@@ -135,12 +157,7 @@ Rectangle {
         MyControls.TabButton {
             text: qsTr("Face Recognition")
             visible: argCurrentIndex === 5 || argCurrentIndex == null
-
-            onClicked: {
-                labelDrawer.text = qsTr("* Please check if you can connect to the Internet first.")
-                drawer.open()
-                timer.running = true
-            }
+            onClicked: faceRecognitionTip()
         }
 
         MyControls.TabButton {
@@ -174,75 +191,80 @@ Rectangle {
         currentIndex: tabBar.currentIndex
         interactive: argCurrentIndex == null
 
-        Item {
-            Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Monitoring.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+        onCurrentIndexChanged: {
+            switch (currentIndex) {
+                case 1:
+                    maintenanceTip()
+                    break
+                case 5:
+                    faceRecognitionTip()
+                    break
             }
         }
-        Item {
-            Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Maintenance.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Monitoring.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-            Loader {
-                anchors.fill: parent
-                source: "qrc:/content/EditorDrug.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Maintenance.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Serial.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+
+        Loader {
+            source: {
+                switch (productType) {
+                    case 0:
+                        return "qrc:/content/EditorConsumable.qml"
+                    case 1:
+                        return "qrc:/content/EditorDrug.qml"
+                    // 抢救车设置页还未规划配置项，展示药品柜设置页
+                    case 2:
+                        return "qrc:/content/EditorDrug.qml"
+                        // return "qrc:/content/EditorEcart.qml"
+                    // 未知设备类型默认展示药品柜设置页
+                    case -1:
+                        return "qrc:/content/EditorDrug.qml"
+                }
             }
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Fingerprint.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Serial.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Activation.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Fingerprint.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Camera.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Activation.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Network.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Camera.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/Timezone.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Network.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
-        Item {
-           Loader {
-                anchors.fill: parent
-                source: "qrc:/content/LogDownloader.qml"
-                // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
-            }
+
+        Loader {
+            source: "qrc:/content/Timezone.qml"
+            // active: funcVisible()
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+        }
+
+        Loader {
+            source: "qrc:/content/LogDownloader.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
     }
 }

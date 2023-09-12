@@ -7,7 +7,7 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 import utils.resource
 from utils.translator import JsonTranslator
-from utils.env import root_path
+from utils.env import root_path, product_type
 
 # 导入需要在QML中实例化的类
 from monitoring import SystemInfoModel
@@ -19,6 +19,7 @@ from editor import ConfigEditor
 from activation import Activation
 from network import Network
 from timezone import TimeEditor
+from downloader import LogDownloader
 
 
 def set_qt_environment():
@@ -26,9 +27,8 @@ def set_qt_environment():
     os.environ["QT_VIRTUALKEYBOARD_DESKTOP_DISABLE"] = "1"
     os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
     os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
-    os.environ["QT_QUICK_CONTROLS_CONF"] = f"{root_path}/qtquickcontrols2.conf"
-    os.environ["QT_DEBUG_PLUGINS"] = "0"
     os.environ["QT_MEDIA_BACKEND"] = "ffmpeg"
+    os.environ["QT_DEBUG_PLUGINS"] = "0"
 
 
 def parse_args(app):
@@ -82,6 +82,7 @@ def main():
 
     engine.addImportPath("qrc:/imports")
     # print(engine.importPathList())
+    engine.rootContext().setContextProperty("productType", product_type)
     engine.rootContext().setContextProperty("argCurrentIndex", idx)
 
     engine.load(url)

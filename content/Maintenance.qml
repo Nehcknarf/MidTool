@@ -112,7 +112,7 @@ Item {
                     }
                 }
                 MyControls.Button {
-                    text: qsTr("Select update package")
+                    text: qsTr("Select update package...")
 
                     onClicked: fileDialogUpdate.open()
                 }

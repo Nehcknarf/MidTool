@@ -96,9 +96,14 @@ Item {
                 MyControls.TextField {
                     id: textFieldDateTime
                     implicitWidth: 300
-                    placeholderText: "YYYY-MM-DD HH:MM:SS"
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
+                    placeholderText: "YYYY-MM-DD HH:MM:SS"
+                    text: new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd hh:mm:ss")
+                    inputMethodHints: Qt.ImhPreferNumbers
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^(19|20)\d\d-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) (0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$/
+                    }
                 }
 
                 Dialog {
@@ -147,6 +152,7 @@ Item {
                     placeholderText: qsTr("Servers are separated by space")
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
+                    inputMethodHints: Qt.ImhPreferNumbers
                 }
 
                 Dialog {
