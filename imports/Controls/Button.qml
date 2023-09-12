@@ -3,11 +3,11 @@ import QtQuick.Controls
 
 Button {
     id: control
-    font.pixelSize: 16
 
     contentItem: Text {
         text: control.text
-        font: control.font
+        font.family: medium.font.family
+        font.pixelSize: 16
         color: "#FFFFFF"
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

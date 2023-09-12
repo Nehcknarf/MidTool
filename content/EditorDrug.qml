@@ -64,7 +64,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Network Video Recorder")
             }
@@ -99,6 +99,7 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Enabled NVR")
                 }
@@ -108,40 +109,43 @@ Item {
                     checked: configEditor.nvr_cfg["enabled"] === undefined ? 0 : configEditor.nvr_cfg["enabled"]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Host")
                 }
                 MyControls.TextField {
                     id: textFieldNvrServerIp
 
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.nvr_cfg["server_ip"] === undefined ? null : configEditor.nvr_cfg["server_ip"]
-                    // validator: RegularExpressionValidator {
-                    // regularExpression:
-                    // }
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Username")
                 }
                 MyControls.TextField {
                     id: textFieldNvrUserName
 
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.nvr_cfg["username"] === undefined ? null : configEditor.nvr_cfg["username"]
+                    inputMethodHints: Qt.ImhPreferLowercase
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Password")
                 }
                 MyControls.TextField {
                     id: textFieldNvrPassword
 
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.nvr_cfg["password"] === undefined ? null : configEditor.nvr_cfg["password"]
+                    inputMethodHints: Qt.ImhPreferLowercase
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Enabled Video Upload")
                 }
@@ -151,6 +155,7 @@ Item {
                     checked: configEditor.nvr_cfg["enabled_upload"] === undefined ? 0 : configEditor.nvr_cfg["enabled_upload"]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Sever video storage path")
                 }
@@ -159,16 +164,18 @@ Item {
 
                     implicitWidth: 250
                     text: configEditor.nvr_cfg["upload_save_dir"] === undefined ? null : configEditor.nvr_cfg["upload_save_dir"]
+                    inputMethodHints: Qt.ImhUrlCharactersOnly
                 }
             }
 
             RowLayout {
                 anchors.right: parent.right
-                anchors.rightMargin: 185
+                anchors.rightMargin: 150
                 anchors.top: parent.top
                 anchors.topMargin: 54
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Product Channel Configuration")
                 }
@@ -188,7 +195,7 @@ Item {
                 width: 420
 
                 anchors.right: parent.right
-                anchors.rightMargin: 100
+                anchors.rightMargin: 50
                 anchors.top: parent.top
                 anchors.topMargin: 119
 
@@ -215,7 +222,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Fingerprint")
             }
@@ -238,6 +245,7 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Device Type")
                 }
@@ -249,6 +257,7 @@ Item {
                     model: [qsTr("Square Fingerprint"), qsTr("Round Fingerprint"), qsTr("Optical Fingerprint")]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Square Fingerprint baud rate")
                 }
@@ -260,6 +269,7 @@ Item {
                     model: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Fingerprint matching threshold")
                 }
@@ -283,7 +293,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Action Delay")
             }
@@ -306,35 +316,35 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Interval between command (ms)")
                 }
                 MyControls.TextField {
                     id: textFieldActionDelayMillis
-
-                    implicitWidth: 100
+                    implicitWidth: 70
                     text: configEditor.action_delay_cfg["delay_millis"] === undefined ? null : configEditor.action_delay_cfg["delay_millis"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Batch unlock delay (ms)")
                 }
                 MyControls.TextField {
                     id: textFieldActionDelayLock
-
-                    implicitWidth: 100
+                    implicitWidth: 70
                     text: configEditor.action_delay_cfg["delay_lock"] === undefined ? null : configEditor.action_delay_cfg["delay_lock"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Unclosed drawer check interval (ms)")
                 }
                 MyControls.TextField {
                     id: textFieldActionDelayTimeOut
-
-                    implicitWidth: 100
+                    implicitWidth: 70
                     text: configEditor.action_delay_cfg["time_out_no_lock"] === undefined ? null : configEditor.action_delay_cfg["time_out_no_lock"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -345,7 +355,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.bold: true
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Synchronization/Middleware Control Center/WebSocket")
             }
@@ -370,46 +380,44 @@ Item {
                 rows: 10
 
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Synchronized Host IP")
                 }
                 MyControls.TextField {
                     id: textFieldSyncHost
-
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.sync_cfg["host"] === undefined ? null : configEditor.sync_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Connect to MCC at starting")
                 }
                 MyControls.Switch {
                     id: textFieldMccEnable
-
                     checked: configEditor.mcc_cfg["enable"] === undefined ? 0 : configEditor.mcc_cfg["enable"]
-                    implicitWidth: 200
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("MCC Host IP")
                 }
                 MyControls.TextField {
                     id: textFieldMccHost
-
-                    implicitWidth: 200
+                    implicitWidth: 150
                     text: configEditor.mcc_cfg["host"] === undefined ? null : configEditor.mcc_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
                 Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("WebSocket protocol restructure")
                 }
                 MyControls.Switch {
                     id: textFieldWsRestructure
-
                     checked: configEditor.ws_cfg["restructure"] === undefined ? 0 : configEditor.ws_cfg["restructure"]
-                    implicitWidth: 200
                 }
             }
         }

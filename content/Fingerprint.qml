@@ -59,7 +59,7 @@ Item {
                 width: 500
 
                 Label {
-                    font.bold: true
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Config")
                 }
@@ -70,6 +70,7 @@ Item {
                     rows: 2
 
                     Label {
+                        font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Serial Port")
                     }
@@ -80,6 +81,7 @@ Item {
                         // currentIndex: -1
                     }
                      Label {
+                        font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Connect")
                     }
@@ -95,6 +97,7 @@ Item {
                         }
                     }
                     Label {
+                        font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Baud Rate")
                     }
@@ -115,7 +118,7 @@ Item {
                 height: 160
 
                 Label {
-                    font.bold: true
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Func.")
                 }
@@ -223,7 +226,7 @@ Item {
                 width: 500
 
                 Label {
-                    font.bold: true
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Config")
                 }
@@ -234,6 +237,7 @@ Item {
                     rows: 2
 
                     Label {
+                        font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Serial Port")
                     }
@@ -246,6 +250,7 @@ Item {
                         valueRole: "value"
                     }
                     Label {
+                        font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Connect")
                     }
@@ -261,6 +266,7 @@ Item {
                         }
                     }
                     Label {
+                        font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Baud Rate")
                     }
@@ -281,7 +287,7 @@ Item {
                 height: 160
 
                 Label {
-                    font.bold: true
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Func.")
                 }
@@ -354,7 +360,7 @@ Item {
         anchors.topMargin: 192
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
@@ -379,8 +385,9 @@ Item {
 
             TextArea {
                 id: textAreaFingerprint
-
                 anchors.fill: parent
+                font.family: medium.font.family
+                font.pixelSize: 16
                 readOnly: true
             }
         }

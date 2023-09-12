@@ -20,7 +20,7 @@ Item {
         width: 400
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Middleware Service Management")
         }
@@ -161,7 +161,7 @@ Item {
         height: 160
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Service Running Status")
         }
@@ -194,10 +194,13 @@ Item {
                         spacing: 2
 
                         Text {
-                            font.bold: true
+                            font.family: medium.font.family
+                            font.pixelSize: 16
                             text: name
                         }
                         Text {
+                            font.family: medium.font.family
+                            font.pixelSize: 16
                             text: percent + "%"
                         }
                     }
@@ -221,7 +224,7 @@ Item {
         anchors.topMargin: 192
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
@@ -229,7 +232,6 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             text: qsTr("Clear")
-            font: fontLoader.font
 
             onClicked: textArea.clear()
         }
@@ -247,8 +249,9 @@ Item {
 
             TextArea {
                 id: textArea
-
                 anchors.fill: parent
+                font.family: medium.font.family
+                font.pixelSize: 16
                 readOnly: true
             }
         }

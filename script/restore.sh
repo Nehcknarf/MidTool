@@ -19,6 +19,6 @@ elif [ -d /nubomed/ecart-service/ ]; then
    rm -rf /nubomed/ecart-service
    cp -r /nubomed/mid_bakup/$option/ecart-service /nubomed/
 else
-   echo "非法环境"
+   echo "type error"
    exit 1
 fi

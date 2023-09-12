@@ -20,7 +20,7 @@ Item {
         height: 110
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Config")
         }
@@ -33,6 +33,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Serial Port")
             }
@@ -43,6 +44,7 @@ Item {
                 // currentIndex: -1
             }
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Baud Rate")
             }
@@ -52,6 +54,7 @@ Item {
                 model: serial.baud_rates
             }
             Label {
+                font.family: bold.font.family
                 font.pixelSize: 16
                 text: qsTr("Connect")
             }
@@ -73,7 +76,7 @@ Item {
         anchors.topMargin: 16
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
@@ -98,8 +101,9 @@ Item {
 
             TextArea {
                 id: textAreaSerial
-
                 anchors.fill: parent
+                font.family: medium.font.family
+                font.pixelSize: 16
                 readOnly: true
             }
         }

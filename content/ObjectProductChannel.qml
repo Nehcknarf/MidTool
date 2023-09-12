@@ -12,6 +12,7 @@ RowLayout {
     property int channel
 
     Label {
+        font.family: bold.font.family
         font.pixelSize: 16
         text: qsTr("Product No")
     }
@@ -25,12 +26,13 @@ RowLayout {
     }
 
     Label {
+        font.family: bold.font.family
         font.pixelSize: 16
         text: qsTr("Channel")
     }
 
     MyControls.TextField {
-        implicitWidth: 100
+        implicitWidth: 50
         text: root.channel
         inputMethodHints: Qt.ImhDigitsOnly
         onTextChanged: {

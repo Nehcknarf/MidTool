@@ -49,6 +49,7 @@ action_delay_cfg_path = cfg_root_path / cfg_file_name["action_delay"]
 
 # System
 system = platform.system()
+ubuntu_version = platform.freedesktop_os_release()["VERSION_ID"]
 
 if system == "Linux":
     # For Shell
@@ -58,7 +59,12 @@ if system == "Linux":
     coding = "UTF-8"
     sep = "\n"
     # For running
-    os.environ["QT_QPA_PLATFORM"] = "xcb"
+    if ubuntu_version == "22.04":
+        # Ubuntu 22.04 下 Qt Wayland 程序无法拖拽窗口，属于系统bug，故先使用 X11
+        # os.environ["QT_QPA_PLATFORM"] = "wayland"
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
+    elif ubuntu_version == "20.04":
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 elif system == "Windows":
     # For Shell

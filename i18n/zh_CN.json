@@ -11,6 +11,7 @@
   "Camera": "摄像头",
   "Network": "网络",
   "Time": "时间",
+  "Log Downloader": "日志下载器",
   "Starting": "开始运行",
   "Running": "运行中",
   "Not running": "未运行",
@@ -38,7 +39,7 @@
   "Update (For Implementation Engineer)": "升级 (实施工程师使用)",
   "Update package (*.tar.gz)": "升级包 (*.tar.gz)",
   "Please select middleware update package": "请选择中台升级包",
-  "Select update package": "选择升级包",
+  "Select update package...": "选择升级包...",
   "Execute update": "执行升级",
   "Backup restore": "备份还原",
   "Select a middleware backup": "请选择中台备份",
@@ -203,5 +204,11 @@
   "Set DateTime": "设置日期-时间",
   "NTP Servers": "NTP服务器",
   "Servers are separated by space": "填写多个服务器时请使用空格分割",
-  "Set NTP Servers": "设置NTP服务器"
+  "Set NTP Servers": "设置NTP服务器",
+  "System logs": "系统日志",
+  "Middleware logs": "中台日志",
+  "Start Date": "起始日期",
+  "End Date": "结束日期",
+  "Please select a folder to save logs": "请选择日志将要保存到的文件夹",
+  "Save to...": "保存到..."
 }

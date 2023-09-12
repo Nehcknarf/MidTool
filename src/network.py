@@ -17,7 +17,8 @@ class Network(Process):
 
     @Slot()
     def show_route(self):
-        self.start("ip route show")
+        # self.start("ip route show")
+        self.start("route -n")
 
     @Slot(str, str, str, str)
     def add_route(self, destination, mask, gateway, password):

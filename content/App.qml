@@ -3,14 +3,22 @@ import QtQuick.VirtualKeyboard 6.5
 
 
 Window {
-    height: mainScreen.height
+    id: window
     title: "MidTool"
-    visible: true
-    // flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
+    x: Screen.width / 2 - width / 2
+    y: Screen.height / 2 - height / 2
     width: mainScreen.width
+    height: mainScreen.height
+    visible: true
+    flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
 
     FontLoader {
-        id: fontLoader
+        id: bold
+        source: "qrc:/content/fonts/OPlusSans3-Bold.ttf"
+    }
+
+    FontLoader {
+        id: medium
         source: "qrc:/content/fonts/OPlusSans3-Medium.ttf"
     }
 
@@ -19,15 +27,14 @@ Window {
     }
 
     InputPanel {
-        id: inputPanel
-
         property bool showKeyboard: active
 
-        anchors.left: parent.left
-        anchors.leftMargin: 1280 / 5
-        anchors.right: parent.right
-        anchors.rightMargin: 1280 / 5
         y: showKeyboard ? parent.height - height : parent.height
+
+        anchors.left: parent.left
+        anchors.leftMargin: mainScreen.width / 5
+        anchors.right: parent.right
+        anchors.rightMargin: mainScreen.width / 5
 
         Behavior on y  {
             NumberAnimation {
@@ -37,4 +44,3 @@ Window {
         }
     }
 }
-

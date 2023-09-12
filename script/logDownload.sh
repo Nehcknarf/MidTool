@@ -56,7 +56,7 @@ elif [ "$4" = "2" ]; then
    echo $passwd | sudo -S mv /var/log/sys_logs$now_time.zip $download_dir
    echo $passwd | sudo -S chown -R nuobo:nuobo $download_dir/sys_logs$now_time.zip
 else
-   echo "类型错误"
+   echo "type error"
    exit 1
 fi
 

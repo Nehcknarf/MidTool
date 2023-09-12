@@ -1,6 +1,7 @@
 import QtQuick 6.5
 import QtQuick.Controls 6.5
 import QtQuick.Layouts 6.5
+import QtQuick.Dialogs 6.5
 
 import Controls as MyControls
 
@@ -49,7 +50,7 @@ Item {
              height: 110
 
              Label {
-                 font.bold: true
+                 font.family: bold.font.family
                  font.pixelSize: 16
                  text: qsTr("Telnet")
              }
@@ -59,22 +60,28 @@ Item {
                  anchors.verticalCenter: parent.verticalCenter
 
                  Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("IP address")
                 }
 
                 MyControls.TextField {
                      id: textFieldIp
-                     implicitWidth: 200
+                     implicitWidth: 150
+                     inputMask: "000.000.000.000;_"
+                     inputMethodHints: Qt.ImhDigitsOnly
                 }
 
                  Label {
+                    font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Port")
                 }
 
                  MyControls.TextField {
                      id: textFieldPort
+                     implicitWidth: 70
+                     inputMethodHints: Qt.ImhDigitsOnly
                 }
 
                 MyControls.Button {
@@ -98,7 +105,7 @@ Item {
              height: 110
 
              Label {
-                 font.bold: true
+                 font.family: bold.font.family
                  font.pixelSize: 16
                  text: qsTr("Route")
              }
@@ -119,34 +126,39 @@ Item {
 
                  RowLayout {
                      Label {
+                         font.family: bold.font.family
                          font.pixelSize: 16
                          text: qsTr("Destination")
                      }
 
                      MyControls.TextField {
                          id: textFieldDestination
-                         implicitWidth: 200
+                         implicitWidth: 150
+                         inputMask: "000.000.000.000;_"
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
 
                      Label {
+                         font.family: bold.font.family
                          font.pixelSize: 16
                          text: qsTr("Genmask")
                      }
 
                      MyControls.TextField {
                          id: textFieldGenmask
+                         implicitWidth: 150
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
 
                      Label {
+                         font.family: bold.font.family
                          font.pixelSize: 16
                          text: qsTr("Gateway")
                      }
 
                      MyControls.TextField {
                          id: textFieldGateway
-                         implicitWidth: 200
+                         implicitWidth: 230
                          placeholderText: qsTr("Leave empty when deleting")
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
@@ -242,7 +254,7 @@ Item {
         anchors.topMargin: 192
 
         Label {
-            font.bold: true
+            font.family: bold.font.family
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
@@ -268,6 +280,8 @@ Item {
             TextArea {
                 id: textAreaNetwork
                 anchors.fill: parent
+                font.family: medium.font.family
+                font.pixelSize: 16
                 readOnly: true
             }
         }
