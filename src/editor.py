@@ -4,9 +4,10 @@ from PySide6.QtCore import QObject, Signal, Slot, Property
 from PySide6.QtQml import QmlElement
 
 from utils.env import nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, mcc_cfg_path, ws_cfg_path
+from utils.env import product_type
 
 
-QML_IMPORT_NAME = "src.editor.drug"
+QML_IMPORT_NAME = "src.editor"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
@@ -45,8 +46,8 @@ class ConfigEditor(QObject):
                 for i in product_channels:
                     product_channels_list.append([i.get("productNo"), i.get("channel")])
 
-        except Exception:
-            pass
+        except Exception as err:
+            print(err)
 
         else:
             return {
@@ -78,33 +79,48 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.nvr_cfg_dict, f)
 
         except Exception as err:
-            pass
+            print(err)
 
     def read_extern_cfg(self):
         try:
             with open(extern_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.extern_cfg_dict = self.yaml.load(f)
-                zaz_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("enabled")
-                zaz0a0_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz0a0").get("enabled")
-                legacy_enabled = self.extern_cfg_dict.get("serial").get("finger").get("legacy").get("enabled")
-                idx = [zaz_enabled, zaz0a0_enabled, legacy_enabled].index(True)
-                baud_no = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("baud-no")
-                match_threshold = self.extern_cfg_dict.get("serial").get("finger").get("match-threshold")
+                if product_type == 0:
+                    if self.extern_cfg_dict.get("rodin") is not None:
+                        reader_enabled = self.extern_cfg_dict.get("rodin").get("server").get("enabled")
+                        readers = self.extern_cfg_dict.get("rodin").get("server").get("readers")
+                        readers_list = []
+                        for reader in readers:
+                            readers_list.append([reader.get("cabinet-id"), reader.get("host"), str(reader.get("antennaNos", []))])
 
-        except Exception:
-            pass
+                elif product_type == 1:
+                    zaz_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("enabled")
+                    zaz0a0_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz0a0").get("enabled")
+                    legacy_enabled = self.extern_cfg_dict.get("serial").get("finger").get("legacy").get("enabled")
+                    idx = [zaz_enabled, zaz0a0_enabled, legacy_enabled].index(True)
+                    baud_no = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("baud-no")
+                    match_threshold = self.extern_cfg_dict.get("serial").get("finger").get("match-threshold")
+
+        except Exception as err:
+            print(err)
 
         else:
-            return {
-                "device_type": idx,
-                "baud_no": baud_no - 1,
-                "match_threshold": match_threshold
-            }
+            if product_type == 0:
+                return {
+                    "enabled": reader_enabled,
+                    "readers": readers_list
+                }
+            elif product_type == 1:
+                return {
+                    "device_type": idx,
+                    "baud_no": baud_no - 1,
+                    "match_threshold": match_threshold
+                }
 
     extern_config = Property(dict, read_extern_cfg, notify=cfgChanged)
 
     @Slot(int, int, int)
-    def save_extern_cfg(self, device_type, baud_no, match_threshold):
+    def save_drug_extern_cfg(self, device_type, baud_no, match_threshold):
         try:
             with open(extern_cfg_path, mode='w', encoding="UTF-8") as f:
                 if device_type == 0:
@@ -125,7 +141,28 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.extern_cfg_dict, f)
 
         except Exception as err:
-            pass
+            print(err)
+
+    @Slot(bool, list)
+    def save_consumable_extern_cfg(self, enabled, readers):
+        try:
+            with open(extern_cfg_path, mode='w', encoding="UTF-8") as f:
+                if self.extern_cfg_dict.get("rodin") is not None:
+                    self.extern_cfg_dict["rodin"]["server"]["enabled"] = enabled
+                    readers_list = []
+                    for i in readers:
+                        cabinet_id = i[0]
+                        host = i[1]
+                        if i[2] is not None:
+                            antenna_nos = eval(i[2])
+                            readers_list.append({"antennaNos": antenna_nos, "cabinet-id": cabinet_id, "host": host, "port": 4001})
+                        else:
+                            readers_list.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
+                    self.extern_cfg_dict["rodin"]["server"]["readers"] = readers_list
+                self.yaml.dump(self.extern_cfg_dict, f)
+
+        except Exception as err:
+            print(err)
 
     def read_action_delay_cfg(self):
         try:
@@ -135,8 +172,8 @@ class ConfigEditor(QObject):
                 delay_lock = self.action_delay_cfg_dict.get("actions").get("delay").get("delay-lock")
                 time_out_no_lock = self.action_delay_cfg_dict.get("actions").get("delay").get("time-out-no-lock")
 
-        except Exception:
-            pass
+        except Exception as err:
+            print(err)
 
         else:
             return {
@@ -157,15 +194,16 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.action_delay_cfg_dict, f)
 
         except Exception as err:
-            pass
+            print(err)
 
     def read_sync_cfg(self):
         try:
             with open(sync_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.sync_cfg_dict = self.yaml.load(f)
                 host = self.sync_cfg_dict.get("sync").get("server").get("host")
-        except Exception:
-            pass
+
+        except Exception as err:
+            print(err)
 
         else:
             return {"host": host}
@@ -180,7 +218,7 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.sync_cfg_dict, f)
 
         except Exception as err:
-            pass
+            print(err)
 
     def read_mcc_cfg(self):
         try:
@@ -188,8 +226,9 @@ class ConfigEditor(QObject):
                 self.mcc_cfg_dict = self.yaml.load(f)
                 enable = self.mcc_cfg_dict.get("mcc").get("enable")
                 host = self.mcc_cfg_dict.get("mcc").get("hub").get("host")
-        except Exception:
-            pass
+
+        except Exception as err:
+            print(err)
 
         else:
             return {"enable": enable, "host": host}
@@ -205,15 +244,16 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.mcc_cfg_dict, f)
 
         except Exception as err:
-            pass
+            print(err)
 
     def read_ws_cfg(self):
         try:
             with open(ws_cfg_path, mode='r', encoding="UTF-8") as f:
                 self.ws_cfg_dict = self.yaml.load(f)
                 restructure = self.ws_cfg_dict.get("protocol").get("restructure")
-        except Exception:
-            pass
+
+        except Exception as err:
+            print(err)
 
         else:
             return {"restructure": restructure}
@@ -228,4 +268,4 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.ws_cfg_dict, f)
 
         except Exception as err:
-            pass
+            print(err)

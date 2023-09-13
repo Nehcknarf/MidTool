@@ -9,8 +9,7 @@ root_path = sys._MEIPASS if getattr(sys, 'frozen', False) and hasattr(sys, '_MEI
 
 # Middleware config path
 consumable_cabinet_cfg_path = "/nubomed/consumable-cabinet-service/conf/"
-# drug_cabinet_cfg_path = "/nubomed/midpkg/drug-middleware/conf/"
-drug_cabinet_cfg_path = "D:/Downloads/conf/"
+drug_cabinet_cfg_path = "/nubomed/midpkg/drug-middleware/conf/"
 ecart_cfg_path = "/nubomed/ecart-service/conf/"
 
 # Middleware config file
@@ -49,7 +48,6 @@ action_delay_cfg_path = cfg_root_path / cfg_file_name["action_delay"]
 
 # System
 system = platform.system()
-ubuntu_version = platform.freedesktop_os_release()["VERSION_ID"]
 
 if system == "Linux":
     # For Shell
@@ -59,6 +57,8 @@ if system == "Linux":
     coding = "UTF-8"
     sep = "\n"
     # For running
+    ubuntu_version = platform.freedesktop_os_release()["VERSION_ID"]
+
     if ubuntu_version == "22.04":
         # Ubuntu 22.04 下 Qt Wayland 程序无法拖拽窗口，属于系统bug，故先使用 X11
         # os.environ["QT_QPA_PLATFORM"] = "wayland"

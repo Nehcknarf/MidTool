@@ -130,7 +130,6 @@ Item {
 
                     Dialog {
                         id: dialogSet
-
                         modal: true
                         standardButtons: Dialog.Ok | Dialog.Cancel
                         title: qsTr("Please input an integer from 1 to 1049.")
@@ -142,9 +141,10 @@ Item {
 
                             TextField {
                                 id: textFieldSetID
-
                                 anchors.centerIn: parent
                                 placeholderText: qsTr("Input an integer")
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                focus: true
                             }
                         }
 
@@ -161,7 +161,6 @@ Item {
                     }
                     Dialog {
                         id: dialogDelS
-
                         modal: true
                         standardButtons: Dialog.Ok | Dialog.Cancel
                         title: qsTr("Please input an integer from 1 to 1049.")
@@ -173,9 +172,10 @@ Item {
 
                             TextField {
                                 id: textFieldDelIDS
-
                                 anchors.centerIn: parent
                                 placeholderText: qsTr("Input an integer")
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                focus: true
                             }
                         }
 
@@ -304,7 +304,6 @@ Item {
                     }
                     Dialog {
                         id: dialogDelR
-
                         modal: true
                         standardButtons: Dialog.Ok | Dialog.Cancel
                         title: qsTr("Please input an integer from 1 to 500.")
@@ -316,9 +315,10 @@ Item {
 
                             TextField {
                                 id: textFieldDelIDR
-
                                 anchors.centerIn: parent
                                 placeholderText: qsTr("Input an integer")
+                                inputMethodHints: Qt.ImhDigitsOnly
+                                focus: true
                             }
                         }
 

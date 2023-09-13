@@ -24,6 +24,12 @@ Rectangle {
         timer.running = true
     }
 
+    function fingerprintTip() {
+        labelDrawer.text = qsTr("* Please stop middleware service first before testing fingerprint sensor.")
+        drawer.open()
+        timer.running = true
+    }
+
     function faceRecognitionTip() {
         labelDrawer.text = qsTr("* Please check if you can connect to the Internet first.")
         drawer.open()
@@ -152,6 +158,7 @@ Rectangle {
         MyControls.TabButton {
             text: qsTr("Fingerprint")
             visible: argCurrentIndex === 4 || argCurrentIndex == null
+            onClicked: fingerprintTip()
         }
 
         MyControls.TabButton {
@@ -196,6 +203,9 @@ Rectangle {
                 case 1:
                     maintenanceTip()
                     break
+                case 4:
+                    fingerprintTip()
+                    break
                 case 5:
                     faceRecognitionTip()
                     break
@@ -215,17 +225,19 @@ Rectangle {
         Loader {
             source: {
                 switch (productType) {
+                    // 耗材柜
                     case 0:
                         return "qrc:/content/EditorConsumable.qml"
+                    // 药品柜
                     case 1:
                         return "qrc:/content/EditorDrug.qml"
-                    // 抢救车设置页还未规划配置项，展示药品柜设置页
+                    // TODO 抢救车 抢救车还未规划配置项，展示药品柜设置页
                     case 2:
                         return "qrc:/content/EditorDrug.qml"
                         // return "qrc:/content/EditorEcart.qml"
-                    // 未知设备类型默认展示药品柜设置页
+                    // 未知设备 默认展示耗材柜设置页
                     case -1:
-                        return "qrc:/content/EditorDrug.qml"
+                        return "qrc:/content/EditorConsumable.qml"
                 }
             }
             // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
