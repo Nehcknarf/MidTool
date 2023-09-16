@@ -180,6 +180,7 @@ Item {
                                  echoMode: TextInput.Password
                                  placeholderText: qsTr("Input user password")
                                  focus: true
+                                 Keys.onReturnPressed: dialogAddRoute.accept()
                              }
                          }
 
@@ -218,6 +219,7 @@ Item {
                                  echoMode: TextInput.Password
                                  placeholderText: qsTr("Input user password")
                                  focus: true
+                                 Keys.onReturnPressed: dialogDelRoute.accept()
                              }
                          }
 

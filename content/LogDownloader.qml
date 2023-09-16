@@ -9,11 +9,11 @@ import src.logDownloader
 
 
 Item {
-    property string logType: "1"
+    property int logType: 1
 
     LogDownloader {
         id: logDownloader
-        Component.onCompleted: logDownloader.Stdout.connect(textAreaDownload.append)
+        Component.onCompleted: logDownloader.Output.connect(textAreaDownload.append)
     }
 
     MyControls.GroupBox {
@@ -38,26 +38,18 @@ Item {
             ButtonGroup {
                 id: buttonGroup
                 exclusive: true
-                onClicked: button => {
-                    switch (button.text) {
-                        case "Middleware logs":
-                            logType = "1"
-                            break
-                        case "System logs":
-                            logType = "2"
-                            break
-                    }
-                }
             }
 
             MyControls.RadioButton {
                 text: qsTr("Middleware logs")
                 ButtonGroup.group: buttonGroup
+                onClicked: logType = 1
             }
 
             MyControls.RadioButton {
                 text: qsTr("System logs")
                 ButtonGroup.group: buttonGroup
+                onClicked: logType = 2
             }
 
             ToolSeparator {

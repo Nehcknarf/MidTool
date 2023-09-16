@@ -47,6 +47,7 @@ Item {
                     echoMode: TextInput.Password
                     placeholderText: qsTr("Input user password")
                     focus: true
+                    Keys.onReturnPressed: dialogStart.accept()
                 }
             }
 
@@ -74,6 +75,7 @@ Item {
                     echoMode: TextInput.Password
                     placeholderText: qsTr("Input user password")
                     focus: true
+                    Keys.onReturnPressed: dialogRestart.accept()
                 }
             }
 
@@ -101,6 +103,7 @@ Item {
                     echoMode: TextInput.Password
                     placeholderText: qsTr("Input user password")
                     focus: true
+                    Keys.onReturnPressed: dialogStop.accept()
                 }
             }
 

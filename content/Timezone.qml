@@ -50,7 +50,8 @@ Item {
                     id: comboBoxComTimezone
                     implicitWidth: 300
                     model: timeEditor.timezones
-                    // currentIndex: -1
+                    // TODO 展示当前系统时区
+                    Component.onCompleted: currentIndex = indexOfValue("Asia/Shanghai")
                 }
 
                 Dialog {
@@ -70,6 +71,7 @@ Item {
                              echoMode: TextInput.Password
                              placeholderText: qsTr("Input user password")
                              focus: true
+                             Keys.onReturnPressed: dialogSetTz.accept()
                          }
                      }
 
@@ -123,6 +125,7 @@ Item {
                              echoMode: TextInput.Password
                              placeholderText: qsTr("Input user password")
                              focus: true
+                             Keys.onReturnPressed: dialogSetDateTime.accept()
                          }
                      }
 
@@ -172,6 +175,7 @@ Item {
                              echoMode: TextInput.Password
                              placeholderText: qsTr("Input user password")
                              focus: true
+                             Keys.onReturnPressed: dialogSetNTP.accept()
                          }
                      }
 

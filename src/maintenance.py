@@ -1,4 +1,3 @@
-# TODO 整合glob
 import glob
 from pathlib import Path
 
@@ -23,6 +22,8 @@ class Maintenance(Process):
         p = Path("/nubomed/Device_defaultconf")
         if p.exists():
             return [x.name for x in p.iterdir() if x.is_dir()]
+        else:
+            return []
 
     cabinets = Property(list, get_cabinets, notify=cabinetsChanged)
 
@@ -48,5 +49,5 @@ class Maintenance(Process):
     backups = Property(list, get_middleware_backup, notify=backupChanged)
 
     @Slot(str)
-    def update_middleware(self, backup):
+    def restore_middleware(self, backup):
         self.start(f"bash restore.sh {backup}", f"{root_path}/script/")

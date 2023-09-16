@@ -5,46 +5,44 @@ from pathlib import Path
 
 
 # midtool running path
-root_path = sys._MEIPASS if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS') else Path(__file__).parent.parent.parent
+if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+    root_path = sys._MEIPASS
+else:
+    root_path = Path(__file__).parents[2]
 
-# Middleware config path
-consumable_cabinet_cfg_path = "/nubomed/consumable-cabinet-service/conf/"
-drug_cabinet_cfg_path = "/nubomed/midpkg/drug-middleware/conf/"
-ecart_cfg_path = "/nubomed/ecart-service/conf/"
-
-# Middleware config file
-cfg_file_name = {
-    "nvr": "application-nvr.yml",
-    "extern": "application-extern.yml",
-    "sync": "application-sync.yml",
-    "ws": "application-ws.yml",
-    "mcc": "application-mcc.yml",
-    "action_delay": "application-action-delay.yml"
-}
+# Middleware path
+consumable_cabinet_path = "/nubomed/consumable-cabinet-service/"
+drug_cabinet_path = "/nubomed/midpkg/drug-middleware/"
+ecart_path = "/nubomed/ecart-service/"
 
 # Product
-if Path(consumable_cabinet_cfg_path).exists():
-    cfg_root_path = Path(consumable_cabinet_cfg_path)
+if Path(consumable_cabinet_path).exists():
     # 耗材
     product_type = 0
-elif Path(drug_cabinet_cfg_path).exists():
-    cfg_root_path = Path(drug_cabinet_cfg_path)
+    middleware_root_path = Path(consumable_cabinet_path)
+elif Path(drug_cabinet_path).exists():
     # 药品
     product_type = 1
-elif Path(ecart_cfg_path).exists():
-    cfg_root_path = Path(ecart_cfg_path)
+    middleware_root_path = Path(drug_cabinet_path)
+elif Path(ecart_path).exists():
     # 抢救车
     product_type = 2
+    middleware_root_path = Path(ecart_path)
 else:
-    cfg_root_path = Path()
+    # 未知设备
     product_type = -1
+    middleware_root_path = Path(".")
 
-sync_cfg_path = cfg_root_path / cfg_file_name["sync"]
-nvr_cfg_path = cfg_root_path / cfg_file_name["nvr"]
-extern_cfg_path = cfg_root_path / cfg_file_name["extern"]
-ws_cfg_path = cfg_root_path / cfg_file_name["ws"]
-mcc_cfg_path = cfg_root_path / cfg_file_name["mcc"]
-action_delay_cfg_path = cfg_root_path / cfg_file_name["action_delay"]
+# Middleware sub folder
+middleware_cfg_path = middleware_root_path / "conf"
+middleware_log_path = middleware_root_path / "logs"
+# Middleware config file
+sync_cfg_path = middleware_cfg_path / "application-sync.yml"
+nvr_cfg_path = middleware_cfg_path / "application-nvr.yml"
+extern_cfg_path = middleware_cfg_path / "application-extern.yml"
+ws_cfg_path = middleware_cfg_path / "application-ws.yml"
+mcc_cfg_path = middleware_cfg_path / "application-mcc.yml"
+action_delay_cfg_path = middleware_cfg_path / "application-action-delay.yml"
 
 # System
 system = platform.system()

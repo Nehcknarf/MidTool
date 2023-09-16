@@ -218,5 +218,11 @@
   "Start Date": "起始日期",
   "End Date": "结束日期",
   "Please select a folder to save logs": "请选择日志将要保存到的文件夹",
-  "Save to...": "保存到..."
+  "Save to...": "保存到...",
+  "Add archived {} to the zip": "添加已归档日志 {} 到压缩包",
+  "{} isn't between date range, skip": "{} 最后修改日期不在选定的日期范围内，跳过",
+  "Middleware logs saved in {}": "中台日志已保存到 {}",
+  "Add real-time {} to the zip": "添加实时日志 {} 到压缩包",
+  "System logs saved in {}": "系统日志已保存到 {}",
+  "Start Date must be earlier than or equal to End Date": "开始日期必须早于或者等于结束日期"
 }
