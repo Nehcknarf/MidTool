@@ -4,7 +4,7 @@ import QtQuick.Layouts 6.5
 
 import Controls as MyControls
 
-import src.editor.drug
+import src.editor
 
 
 Item {
@@ -168,40 +168,42 @@ Item {
                 }
             }
 
-            RowLayout {
-                anchors.right: parent.right
-                anchors.rightMargin: 150
+            ColumnLayout {
+                id: columnLayoutProductChannelFixPart
+                anchors.left: parent.left
+                anchors.leftMargin: 600
                 anchors.top: parent.top
                 anchors.topMargin: 54
+                spacing: 20
 
-                Label {
-                    font.family: bold.font.family
-                    font.pixelSize: 16
-                    text: qsTr("Product Channel Configuration")
-                }
+                RowLayout {
+                    Label {
+                        font.family: bold.font.family
+                        font.pixelSize: 16
+                        text: qsTr("Product Channel Configuration")
+                    }
 
-                MyControls.Button {
-                    implicitWidth: 40
-                    text: qsTr("+")
-                    onClicked: {
-                        let component = Qt.createComponent("qrc:/content/ObjectProductChannel.qml")
-                        component.createObject(columnLayoutProductChannel)
+                    MyControls.Button {
+                        implicitWidth: 40
+                        text: qsTr("+")
+                        onClicked: {
+                            let component = Qt.createComponent("qrc:/content/ObjectProductChannel.qml")
+                            component.createObject(columnLayoutProductChannel)
+                        }
                     }
                 }
             }
 
             ScrollView {
-                height: 410
-                width: 420
-
-                anchors.right: parent.right
-                anchors.rightMargin: 50
-                anchors.top: parent.top
-                anchors.topMargin: 119
+                anchors.left: parent.left
+                anchors.leftMargin: 600
+                anchors.top: columnLayoutProductChannelFixPart.bottom
+                anchors.topMargin: 20
+                width: columnLayoutProductChannel.width + 10
+                height: 400
 
                 ColumnLayout {
                     id: columnLayoutProductChannel
-                    anchors.fill: parent
                     spacing: 20
 
                     Component.onCompleted: {
@@ -232,7 +234,7 @@ Item {
                 text: qsTr("Save")
 
                 onClicked: {
-                    configEditor.save_extern_cfg(comboBoxFingerprintDeviceType.currentIndex, comboBoxFingerprintBaudRate.currentText, textFieldFingerprintMatchingThreshold.text);
+                    configEditor.save_drug_extern_cfg(comboBoxFingerprintDeviceType.currentIndex, comboBoxFingerprintBaudRate.currentText, textFieldFingerprintMatchingThreshold.text);
                 }
             }
             GridLayout {

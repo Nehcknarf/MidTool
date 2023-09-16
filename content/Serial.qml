@@ -50,8 +50,8 @@ Item {
             }
             MyControls.ComboBox {
                 id: comboBoxSerBaudRate
-
                 model: serial.baud_rates
+                Component.onCompleted: currentIndex = indexOfValue(115200)
             }
             Label {
                 font.family: bold.font.family

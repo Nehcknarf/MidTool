@@ -68,7 +68,7 @@ Item {
                 MyControls.TextField {
                      id: textFieldIp
                      implicitWidth: 150
-                     inputMask: "000.000.000.000;_"
+                     // inputMask: "000.000.000.000;_"
                      inputMethodHints: Qt.ImhDigitsOnly
                 }
 
@@ -134,7 +134,7 @@ Item {
                      MyControls.TextField {
                          id: textFieldDestination
                          implicitWidth: 150
-                         inputMask: "000.000.000.000;_"
+                         // inputMask: "000.000.000.000;_"
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
 
@@ -166,7 +166,6 @@ Item {
                      Dialog {
                          id: dialogAddRoute
                          modal: true
-                         focus: true
                          standardButtons: Dialog.Ok | Dialog.Cancel
                          title: qsTr("Please input user password")
 
@@ -180,6 +179,8 @@ Item {
                                  anchors.centerIn: parent
                                  echoMode: TextInput.Password
                                  placeholderText: qsTr("Input user password")
+                                 focus: true
+                                 Keys.onReturnPressed: dialogAddRoute.accept()
                              }
                          }
 
@@ -204,7 +205,6 @@ Item {
                      Dialog {
                          id: dialogDelRoute
                          modal: true
-                         focus: true
                          standardButtons: Dialog.Ok | Dialog.Cancel
                          title: qsTr("Please input user password")
 
@@ -218,6 +218,8 @@ Item {
                                  anchors.centerIn: parent
                                  echoMode: TextInput.Password
                                  placeholderText: qsTr("Input user password")
+                                 focus: true
+                                 Keys.onReturnPressed: dialogDelRoute.accept()
                              }
                          }
 

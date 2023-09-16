@@ -50,13 +50,13 @@ Item {
                     id: comboBoxComTimezone
                     implicitWidth: 300
                     model: timeEditor.timezones
-                    // currentIndex: -1
+                    // TODO 展示当前系统时区
+                    Component.onCompleted: currentIndex = indexOfValue("Asia/Shanghai")
                 }
 
                 Dialog {
                      id: dialogSetTz
                      modal: true
-                     focus: true
                      standardButtons: Dialog.Ok | Dialog.Cancel
                      title: qsTr("Please input user password")
 
@@ -70,6 +70,8 @@ Item {
                              anchors.centerIn: parent
                              echoMode: TextInput.Password
                              placeholderText: qsTr("Input user password")
+                             focus: true
+                             Keys.onReturnPressed: dialogSetTz.accept()
                          }
                      }
 
@@ -109,7 +111,6 @@ Item {
                 Dialog {
                      id: dialogSetDateTime
                      modal: true
-                     focus: true
                      standardButtons: Dialog.Ok | Dialog.Cancel
                      title: qsTr("Please input user password")
 
@@ -123,6 +124,8 @@ Item {
                              anchors.centerIn: parent
                              echoMode: TextInput.Password
                              placeholderText: qsTr("Input user password")
+                             focus: true
+                             Keys.onReturnPressed: dialogSetDateTime.accept()
                          }
                      }
 
@@ -158,7 +161,6 @@ Item {
                 Dialog {
                      id: dialogSetNTP
                      modal: true
-                     focus: true
                      standardButtons: Dialog.Ok | Dialog.Cancel
                      title: qsTr("Please input user password")
 
@@ -172,6 +174,8 @@ Item {
                              anchors.centerIn: parent
                              echoMode: TextInput.Password
                              placeholderText: qsTr("Input user password")
+                             focus: true
+                             Keys.onReturnPressed: dialogSetNTP.accept()
                          }
                      }
 

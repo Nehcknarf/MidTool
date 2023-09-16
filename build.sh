@@ -12,5 +12,8 @@ pyinstaller src/main.py \
 --name midtool2 \
 --add-data './lib/fingerprint/*.so:./lib/fingerprint/' \
 --add-data './script:./script' \
---add-data './qtquickcontrols2.conf:./' \
---add-data './lib/libpyside6qml.abi3.so.6.5:./'
+--add-data './i18n:./i18n' \
+--add-data './content/images/icon.png:./' \
+--add-data './lib/libpyside6qml.abi3.so.6.5:./' \
+--collect-all tzdata \
+--clean

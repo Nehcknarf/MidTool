@@ -156,7 +156,7 @@ Item {
                     text: qsTr("Restore")
 
                     onClicked: {
-                        maintenance.update_middleware(comboBoxBackUp.currentText)
+                        maintenance.restore_middleware(comboBoxBackUp.currentText)
                     }
                 }
             }

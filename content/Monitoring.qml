@@ -33,7 +33,6 @@ Item {
         Dialog {
             id: dialogStart
             modal: true
-            focus: true
             standardButtons: Dialog.Ok | Dialog.Cancel
             title: qsTr("Please input user password")
 
@@ -47,6 +46,8 @@ Item {
                     anchors.centerIn: parent
                     echoMode: TextInput.Password
                     placeholderText: qsTr("Input user password")
+                    focus: true
+                    Keys.onReturnPressed: dialogStart.accept()
                 }
             }
 
@@ -60,7 +61,6 @@ Item {
         Dialog {
             id: dialogRestart
             modal: true
-            focus: true
             standardButtons: Dialog.Ok | Dialog.Cancel
             title: qsTr("Please input user password")
 
@@ -74,6 +74,8 @@ Item {
                     anchors.centerIn: parent
                     echoMode: TextInput.Password
                     placeholderText: qsTr("Input user password")
+                    focus: true
+                    Keys.onReturnPressed: dialogRestart.accept()
                 }
             }
 
@@ -87,7 +89,6 @@ Item {
         Dialog {
             id: dialogStop
             modal: true
-            focus: true
             standardButtons: Dialog.Ok | Dialog.Cancel
             title: qsTr("Please input user password")
 
@@ -101,6 +102,8 @@ Item {
                     anchors.centerIn: parent
                     echoMode: TextInput.Password
                     placeholderText: qsTr("Input user password")
+                    focus: true
+                    Keys.onReturnPressed: dialogStop.accept()
                 }
             }
 
