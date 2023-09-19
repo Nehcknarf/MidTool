@@ -4,7 +4,8 @@ from PySide6.QtCore import QObject, QCoreApplication, Property, Signal, Slot, QR
 from PySide6.QtSerialPort import QSerialPortInfo
 from PySide6.QtQml import QmlElement
 
-from utils.env import system, root_path
+from utils.adapter import system, root_path
+from utils.dictionary import code_dict, new_code_dict
 
 
 QML_IMPORT_NAME = "src.fingerprint"
@@ -12,35 +13,6 @@ QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
 
 threadpool = QThreadPool.globalInstance()
-
-
-# 指昂方形指纹模块返回码字典
-code_dict = {
-    0: QCoreApplication.translate("SquareFingerPrint", "Executed Successfully"),
-    1: QCoreApplication.translate("SquareFingerPrint", "Data pacakge error"),
-    2: QCoreApplication.translate("SquareFingerPrint", "No finger on the sensor"),
-    3: QCoreApplication.translate("SquareFingerPrint", "Collect fingerprint image failed"),
-    4: QCoreApplication.translate("SquareFingerPrint", "Fingerprint is too unclear"),
-    5: QCoreApplication.translate("SquareFingerPrint", "Fingerprint is too blurry"),
-    6: QCoreApplication.translate("SquareFingerPrint", "Fingerprint is too messy"),
-    7: QCoreApplication.translate("SquareFingerPrint", "Fingerprint is lack of features"),
-    8: QCoreApplication.translate("SquareFingerPrint", "Fingerprint mismatched"),
-    9: QCoreApplication.translate("SquareFingerPrint", "Fingerprint is not found"),
-    10: QCoreApplication.translate("SquareFingerPrint", "Features merge failed"),
-    11: QCoreApplication.translate("SquareFingerPrint", "The number is out of database"),
-    12: QCoreApplication.translate("SquareFingerPrint", "Get fingerprint from database failed"),
-    13: QCoreApplication.translate("SquareFingerPrint", "Upload feature failed"),
-    14: QCoreApplication.translate("SquareFingerPrint", "Module can't receive subsequent data package"),
-    15: QCoreApplication.translate("SquareFingerPrint", "Upload image failed"),
-    16: QCoreApplication.translate("SquareFingerPrint", "Delete fingerprint failed"),
-    17: QCoreApplication.translate("SquareFingerPrint", "Clear fingerprint database failed"),
-    18: QCoreApplication.translate("SquareFingerPrint", "Can't enter sleep mode"),
-    19: QCoreApplication.translate("SquareFingerPrint", "Incorrect password"),
-    20: QCoreApplication.translate("SquareFingerPrint", "Reset system failed"),
-    21: QCoreApplication.translate("SquareFingerPrint", "Invalid fingerprint image"),
-    -1: QCoreApplication.translate("SquareFingerPrint", "Send failed"),
-    -2: QCoreApplication.translate("SquareFingerPrint", "Receive failed")
-}
 
 
 class GetFingerprint(QRunnable):
@@ -175,13 +147,13 @@ class SquareFingerPrint(QObject):
         iBaud = int(baud_rate / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
 
         ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
-        self.Output.emit(self.tr("The fingerprint sensor has opened! {}").format(ret) if ret == 0 else self.tr("The fingerprint sensor open failed! {}").format(ret))
+        self.Output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
     @Slot(result=int)
     def close_device(self):
         ret = self.libc.ZAZCloseDeviceEx(self.handle)
-        self.Output.emit(self.tr("The fingerprint sensor has closed! {}").format(ret) if ret in [0, 1] else self.tr("The fingerprint sensor close failed! {}").format(ret))
+        self.Output.emit(self.tr("The fingerprint sensor has closed!") if ret in [0, 1] else self.tr("The fingerprint sensor close failed!"))
         return ret
 
     @Slot(int)
@@ -209,34 +181,6 @@ class SquareFingerPrint(QObject):
     def clean_flash(self):
         ret = self.libc.ZAZEmpty(self.handle, c_int(0xffffffff))
         self.Output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else self.tr("Clear Fingerprint database failed"))
-
-
-# 指昂圆形指纹模块返回码字典
-new_code_dict = {
-    0: QCoreApplication.translate("RoundFingerPrint", "Process successfully"),
-    1: QCoreApplication.translate("RoundFingerPrint", "Process failed"),
-    16: QCoreApplication.translate("RoundFingerPrint", "1:1 match fingerprint with specified template failed"),
-    17: QCoreApplication.translate("RoundFingerPrint", "1:N comparison has been conducted, but there are no matching template"),
-    18: QCoreApplication.translate("RoundFingerPrint", "There is no registered template within the specified number"),
-    19: QCoreApplication.translate("RoundFingerPrint", "Template already exists within the specified range"),
-    20: QCoreApplication.translate("RoundFingerPrint", "There is no registered template"),
-    21: QCoreApplication.translate("RoundFingerPrint", "There is no template ID that can be registered"),
-    22: QCoreApplication.translate("RoundFingerPrint", "There is no corrupted template"),
-    23: QCoreApplication.translate("RoundFingerPrint", "The specified template data is invalid"),
-    24: QCoreApplication.translate("RoundFingerPrint", "The fingerprint is already registered"),
-    25: QCoreApplication.translate("RoundFingerPrint", "Fingerprint image quality is poor"),
-    26: QCoreApplication.translate("RoundFingerPrint", "Merge Template failed"),
-    27: QCoreApplication.translate("RoundFingerPrint", "Communication password confirmation is not conducted"),
-    28: QCoreApplication.translate("RoundFingerPrint", "Burn external flash error"),
-    29: QCoreApplication.translate("RoundFingerPrint", "The specified template number is invalid"),
-    34: QCoreApplication.translate("RoundFingerPrint", "Incorrect parameters are used"),
-    35: QCoreApplication.translate("RoundFingerPrint", "Timeout, no fingerprint input"),
-    37: QCoreApplication.translate("RoundFingerPrint", "The number of combined fingerprints is invalid"),
-    38: QCoreApplication.translate("RoundFingerPrint", "Buffer ID value is incorrect"),
-    40: QCoreApplication.translate("RoundFingerPrint", "There is no fingerprint input on the sensor"),
-    65: QCoreApplication.translate("RoundFingerPrint", "Instruction is cancelled"),
-    -1: QCoreApplication.translate("RoundFingerPrint", "Send failed")
-}
 
 
 class GetFingerprint2(QRunnable):
@@ -334,13 +278,13 @@ class RoundFingerPrint(QObject):
     def open_device(self, port_name, baud_rate):
         self.libc.OpenDevice(bytes(port_name, 'utf-8'), baud_rate)
         ret = self.libc.TestConection()
-        self.Output.emit(self.tr("The fingerprint sensor has opened! {}").format(ret) if ret == 0 else self.tr("The fingerprint sensor open failed! {}").format(ret))
+        self.Output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
     @Slot(result=int)
     def close_device(self):
         ret = self.libc.CloseDevice()
-        self.Output.emit(self.tr("The fingerprint sensor has closed! {}").format(ret) if ret == 1 else self.tr("The fingerprint sensor close failed! {}").format(ret))
+        self.Output.emit(self.tr("The fingerprint sensor has closed!") if ret == 1 else self.tr("The fingerprint sensor close failed!"))
         return ret
 
     @Slot()

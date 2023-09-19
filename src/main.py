@@ -7,7 +7,8 @@ from PySide6.QtQml import QQmlApplicationEngine
 
 import utils.resource
 from utils.translator import JsonTranslator
-from utils.env import root_path, product_type
+from utils.adapter import root_path, product_type
+from utils.version import midtool_version, python_version, qt_version
 
 # 导入需要在QML中实例化的类
 from monitoring import SystemInfoModel
@@ -62,9 +63,10 @@ def main():
     app.setWindowIcon(QIcon(":/content/images/icon.png"))
 
     translator = JsonTranslator(app)
-    if QLocale.system().name() == "zh_CN":
+    locale = QLocale.system().name()
+    if locale == "zh_CN":
         translator.load(f"{root_path}/i18n/zh_CN.json")
-    elif QLocale.system().name() == "zh_TW":
+    elif locale == "zh_TW":
         translator.load(f"{root_path}/i18n/zh_TW.json")
     app.installTranslator(translator)
 
@@ -82,8 +84,12 @@ def main():
 
     engine.addImportPath("qrc:/imports")
     # print(engine.importPathList())
+
     engine.rootContext().setContextProperty("productType", product_type)
     engine.rootContext().setContextProperty("argCurrentIndex", idx)
+    engine.rootContext().setContextProperty("midToolVersion", midtool_version)
+    engine.rootContext().setContextProperty("pythonVersion", python_version)
+    engine.rootContext().setContextProperty("qtVersion", qt_version)
 
     engine.load(url)
 

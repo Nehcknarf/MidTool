@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta
 from PySide6.QtCore import Slot, QUrl, QObject, Signal
 from PySide6.QtQml import QmlElement
 
-from utils.env import middleware_log_path, work_path
+from utils.adapter import middleware_log_path, work_path
 
 
 QML_IMPORT_NAME = "src.logDownloader"

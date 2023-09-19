@@ -2,7 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtQml import QmlElement
 
 from process import Process
-from utils.env import root_path
+from utils.adapter import root_path
 
 
 QML_IMPORT_NAME = "src.activation"

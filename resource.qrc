@@ -30,6 +30,7 @@
         <file>content/fonts/OPlusSans3-Bold.ttf</file>
         <file>content/fonts/OPlusSans3-Medium.ttf</file>
         <file>content/images/close.svg</file>
+        <file>content/images/about.svg</file>
         <file>content/images/icon.png</file>
         <file>content/images/logo.png</file>
     </qresource>

@@ -1,5 +1,6 @@
 import QtQuick 6.5
 import QtQuick.Controls 6.5
+import QtQuick.Layouts 6.5
 
 import Controls as MyControls
 
@@ -101,6 +102,75 @@ Rectangle {
             anchors.topMargin: 14
             fillMode: Image.PreserveAspectFit
             source: "qrc:/content/images/logo.png"
+        }
+
+        Popup {
+            id: popupAbout
+            x: (window.width - width) / 2
+            y: (window.height - height) / 2
+            modal: true
+
+            background: Rectangle {
+                // border.color: "#FFFFFF"
+                radius: 8
+            }
+
+            ColumnLayout {
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("About")
+                        font.family: bold.font.family
+                        font.pixelSize: 20
+                    }
+                }
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Image {
+                        Layout.preferredHeight: 64
+                        Layout.preferredWidth: 64
+                        fillMode: Image.PreserveAspectFit
+                        source: "qrc:/content/images/icon.png"
+                    }
+                    Label {
+                        text: "MidTool " + midToolVersion
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                    }
+                }
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("Powered by") + " Python " + pythonVersion + " & Qt " + qtVersion
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                    }
+                }
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("Copyright @ 2022-2023 NuboMed. All Rights Reserved.")
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                    }
+                }
+            }
+        }
+
+        Image {
+            height: 32
+            width: 32
+            anchors.right: parent.right
+            anchors.rightMargin: 66
+            anchors.top: parent.top
+            anchors.topMargin: 14
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/content/images/about.svg"
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: popupAbout.open()
+            }
         }
 
         Image {
