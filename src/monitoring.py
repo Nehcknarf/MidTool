@@ -4,6 +4,7 @@ from PySide6.QtCore import QAbstractListModel, QByteArray, Qt, QModelIndex, Slot
 from PySide6.QtQml import QmlElement
 
 from process import Process
+from utils.log import logger
 
 
 QML_IMPORT_NAME = "src.monitoring"
@@ -15,19 +16,23 @@ QML_IMPORT_MINOR_VERSION = 0
 class MiddlewareManager(Process):
     @Slot(str)
     def start_middleware_sv(self, password):
+        logger.info("Start middleware through Supervisor...")
         self.start(f"sudo supervisorctl start all", password=password)
 
     @Slot(QUrl)
     def start_middleware_pm2(self, qurl):
         path = qurl.toLocalFile()
+        logger.info("Start middleware through PM2...")
         self.start(f"pm2 start {path} -m && pm2 save -m")
 
     @Slot(str)
     def restart_middleware(self, password):
+        logger.info("Restart middleware...")
         self.start(f"sudo supervisorctl restart all || pm2 restart NuboMedCabinetService -m || pm2 restart NuboMedEmergencyService -m", password=password)
 
     @Slot(str)
     def stop_middleware(self, password):
+        logger.info("Stop middleware...")
         self.start(f"sudo supervisorctl stop all || pm2 stop NuboMedCabinetService -m || pm2 stop NuboMedEmergencyService -m", password=password)
 
 

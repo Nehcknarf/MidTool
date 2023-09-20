@@ -3,6 +3,7 @@ from ruamel.yaml import YAML
 from PySide6.QtCore import QObject, Signal, Slot, Property
 from PySide6.QtQml import QmlElement
 
+from utils.log import logger
 from utils.adapter import product_type, nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, mcc_cfg_path, ws_cfg_path
 
 
@@ -46,7 +47,7 @@ class ConfigEditor(QObject):
                     product_channels_list.append([i.get("productNo"), i.get("channel")])
 
         except Exception as err:
-            print(err)
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
         else:
             return {
@@ -64,6 +65,7 @@ class ConfigEditor(QObject):
     @Slot(bool, str, str, str, bool, str, list)
     def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, channels):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(nvr_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.nvr_cfg_dict["nvr"]["enabled"] = enabled
                 self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["server-ip"] = server_ip
@@ -78,7 +80,7 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.nvr_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)
 
     def read_extern_cfg(self):
         try:
@@ -91,6 +93,10 @@ class ConfigEditor(QObject):
                         readers_list = []
                         for reader in readers:
                             readers_list.append([reader.get("cabinet-id"), reader.get("host"), str(reader.get("antennaNos", []))])
+                        return {
+                            "enabled": reader_enabled,
+                            "readers": readers_list
+                        }
 
                 elif product_type == 1:
                     zaz_enabled = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("enabled")
@@ -99,28 +105,21 @@ class ConfigEditor(QObject):
                     idx = [zaz_enabled, zaz0a0_enabled, legacy_enabled].index(True)
                     baud_no = self.extern_cfg_dict.get("serial").get("finger").get("zaz").get("baud-no")
                     match_threshold = self.extern_cfg_dict.get("serial").get("finger").get("match-threshold")
+                    return {
+                        "device_type": idx,
+                        "baud_no": baud_no - 1,
+                        "match_threshold": match_threshold
+                    }
 
         except Exception as err:
-            print(err)
-
-        else:
-            if product_type == 0:
-                return {
-                    "enabled": reader_enabled,
-                    "readers": readers_list
-                }
-            elif product_type == 1:
-                return {
-                    "device_type": idx,
-                    "baud_no": baud_no - 1,
-                    "match_threshold": match_threshold
-                }
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
     extern_config = Property(dict, read_extern_cfg, notify=cfgChanged)
 
     @Slot(int, int, int)
     def save_drug_extern_cfg(self, device_type, baud_no, match_threshold):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(extern_cfg_path, mode='w', encoding="UTF-8") as f:
                 if device_type == 0:
                     self.extern_cfg_dict["serial"]["finger"]["zaz"]["enabled"] = True
@@ -140,11 +139,12 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.extern_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)
 
     @Slot(bool, list)
     def save_consumable_extern_cfg(self, enabled, readers):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(extern_cfg_path, mode='w', encoding="UTF-8") as f:
                 if self.extern_cfg_dict.get("rodin") is not None:
                     self.extern_cfg_dict["rodin"]["server"]["enabled"] = enabled
@@ -161,7 +161,7 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.extern_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)
 
     def read_action_delay_cfg(self):
         try:
@@ -172,7 +172,7 @@ class ConfigEditor(QObject):
                 time_out_no_lock = self.action_delay_cfg_dict.get("actions").get("delay").get("time-out-no-lock")
 
         except Exception as err:
-            print(err)
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
         else:
             return {
@@ -186,6 +186,7 @@ class ConfigEditor(QObject):
     @Slot(int, int, int)
     def save_action_delay_cfg(self, delay_millis, delay_lock, time_out_no_lock):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(action_delay_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.action_delay_cfg_dict["actions"]["delay"]["delay-millis"] = delay_millis
                 self.action_delay_cfg_dict["actions"]["delay"]["delay-lock"] = delay_lock
@@ -193,7 +194,7 @@ class ConfigEditor(QObject):
                 self.yaml.dump(self.action_delay_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)
 
     def read_sync_cfg(self):
         try:
@@ -202,7 +203,7 @@ class ConfigEditor(QObject):
                 host = self.sync_cfg_dict.get("sync").get("server").get("host")
 
         except Exception as err:
-            print(err)
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
         else:
             return {"host": host}
@@ -212,12 +213,13 @@ class ConfigEditor(QObject):
     @Slot(str)
     def save_sync_cfg(self, host):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(sync_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.sync_cfg_dict["sync"]["server"]["host"] = host
                 self.yaml.dump(self.sync_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)
 
     def read_mcc_cfg(self):
         try:
@@ -227,7 +229,7 @@ class ConfigEditor(QObject):
                 host = self.mcc_cfg_dict.get("mcc").get("hub").get("host")
 
         except Exception as err:
-            print(err)
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
         else:
             return {"enable": enable, "host": host}
@@ -237,13 +239,14 @@ class ConfigEditor(QObject):
     @Slot(bool, str)
     def save_mcc_cfg(self, enable, host):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(mcc_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.mcc_cfg_dict["mcc"]["enable"] = enable
                 self.mcc_cfg_dict["mcc"]["hub"]["host"] = host
                 self.yaml.dump(self.mcc_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)
 
     def read_ws_cfg(self):
         try:
@@ -252,7 +255,7 @@ class ConfigEditor(QObject):
                 restructure = self.ws_cfg_dict.get("protocol").get("restructure")
 
         except Exception as err:
-            print(err)
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
         else:
             return {"restructure": restructure}
@@ -262,9 +265,10 @@ class ConfigEditor(QObject):
     @Slot(bool)
     def save_ws_cfg(self, restructure):
         try:
+            logger.info(f"Try to save configs to yaml")
             with open(ws_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.ws_cfg_dict["protocol"]["restructure"] = restructure
                 self.yaml.dump(self.ws_cfg_dict, f)
 
         except Exception as err:
-            print(err)
+            logger.error(err, exc_info=True)

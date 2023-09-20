@@ -6,6 +6,8 @@ from PySide6.QtCore import QObject, Slot, Signal, Property, QIODevice, QCoreAppl
 from PySide6.QtQml import QmlElement
 from PySide6.QtSerialPort import QSerialPort, QSerialPortInfo
 
+from utils.log import logger
+
 
 QML_IMPORT_NAME = "src.serial"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -43,6 +45,7 @@ class Serial(QObject):
         if self.ser.isOpen():
             return
         else:
+            logger.info(f"Try to connect serial port through {port_name}@{baud_rate}")
             self.ser.setPortName(port_name)
             self.ser.setBaudRate(int(baud_rate))
             # self.ser.setReadBufferSize(0)
@@ -62,8 +65,8 @@ class Serial(QObject):
         if self.ser.bytesAvailable():
             bytes_data = self.ser.readAll().data()  # bytes
             self.total_data += bytes_data
+            logger.info(f"Serial port pinout: {self.total_data}")
             # self.Pinout.emit(self.tr("Data flow: {}, String: {}").format(self.total_data.hex(), str(self.total_data)))
-
             if length_domain := re.findall(b'~(.{2})\x02', self.total_data):
                 try:
                     length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度

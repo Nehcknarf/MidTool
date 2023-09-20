@@ -4,6 +4,7 @@ from PySide6.QtCore import QObject, QCoreApplication, Property, Signal, Slot, QR
 from PySide6.QtSerialPort import QSerialPortInfo
 from PySide6.QtQml import QmlElement
 
+from utils.log import logger
 from utils.adapter import system, root_path
 from utils.dictionary import code_dict, new_code_dict
 
@@ -33,39 +34,23 @@ class GetFingerprint(QRunnable):
     @Slot()
     def run(self):
         nAddr = c_int(0xffffffff)
-        self.signal.emit(QCoreApplication.translate("GetFingerprint", "Please put your finger on the sensor..."))
-        ret = 2  # 传感器上没有手指
-        timeout = 0
-        while ret == 2 and timeout <= 99:
-            # QApplication.processEvents()
-            self.signal.emit(QCoreApplication.translate("GetFingerprint", "Collect fingerprint... Attempt {}, return value: {}").format(timeout + 1, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
-            ret = self.libc.ZAZGetImage(self.handle, nAddr)
-            timeout += 1
-        if timeout == 100:
-            self.signal.emit(QCoreApplication.translate("GetFingerprint", "Timeout! Please try again"))
-            return
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "First round"))
+        for i in range(2):
+            timeout = 0
+            ret = 2  # 传感器上没有手指
+            self.signal.emit(QCoreApplication.translate("GetFingerprint", "Please put your finger on the sensor..."))
+            while ret == 2 and timeout <= 99:
+                ret = self.libc.ZAZGetImage(self.handle, nAddr)
+                timeout += 1
+                self.signal.emit(QCoreApplication.translate("GetFingerprint", "Collect fingerprint... Attempt {}, return value: {}").format(timeout, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
+            if timeout == 100:
+                self.signal.emit(QCoreApplication.translate("GetFingerprint", "Timeout! Please try again"))
+                return
 
-        ret = self.libc.ZAZGenChar(self.handle, nAddr, 2)
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Generating feature A"))
+            ret = self.libc.ZAZGenChar(self.handle, nAddr, i + 1)
+            self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Generating feature {}").format(i + 1))
 
-        self.signal.emit(QCoreApplication.translate("GetFingerprint", "Please raise your finger!"))
-        self.signal.emit(QCoreApplication.translate("GetFingerprint", "Please put your finger on sensor again..."))
-
-        ret = 2  # 传感器上没有手指
-        timeout = 0
-        while ret == 2 and timeout <= 99:
-            # QApplication.processEvents()
-            self.signal.emit(QCoreApplication.translate("GetFingerprint", "Collect fingerprint... Attempt {}, return value: {}").format(timeout + 1, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
-            ret = self.libc.ZAZGetImage(self.handle, nAddr)
-            timeout += 1
-        if timeout == 100:
-            self.signal.emit(QCoreApplication.translate("GetFingerprint", "Timeout! Please try again"))
-            return
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Second round"))
-
-        ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Generating feature B"))
+            self.signal.emit(QCoreApplication.translate("GetFingerprint", "Please raise your finger!"))
+            QThread.sleep(1)
 
         ret = self.libc.ZAZRegModule(self.handle, nAddr)
         self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Merge features"))
@@ -83,36 +68,28 @@ class SearchFingerprint(QRunnable):
 
     @Slot()
     def run(self):
-        self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Please put your finger on the sensor..."))
         i = c_int(0)
         score = c_int(0)
         nAddr = c_int(0xffffffff)
         ret = 2  # 传感器上没有手指
         timeout = 0
+        self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Please put your finger on the sensor..."))
         while ret == 2 and timeout <= 99:
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Collect fingerprint... Attempt {}, return value: {}")
-                             .format(timeout + 1, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
             ret = self.libc.ZAZGetImage(self.handle, nAddr)
             timeout += 1
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Collect fingerprint... Attempt {}, return value: {}").format(timeout, code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
         if timeout == 100:
             self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Timeout! Please try again"))
-            # self.close_device()
-            return
-        if ret == 0:
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Collect fingerprint successfully"))
-        else:
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Collect fingerprint failed"))
-            # self.close_device()
             return
 
         ret = self.libc.ZAZGenChar(self.handle, nAddr, 1)
         if ret == 0:
             self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Successfully generated features"))
             code = self.libc.ZAZSearch(self.handle, c_int(0xffffffff), 1, 0, 1049, byref(i), byref(score))
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "***If the return type/code is \"Fingerprint is not found\" and the matching score is 0, then the matched ID is not correct. Please just ignore***"))
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Return type/code: {}").format(code_dict.get(code, self.libc.ZAZErr2Str(code))))
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Matching ID: Not found") if i.value == 65022 else self.tr("Matching ID: {}").format(str(i.value)))
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Matching Score: {}").format(str(score.value)))
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "***If the return type/code is \"Fingerprint is not found\" and the matching score is 0, then the matched flash slot is not correct. Please just ignore***"))
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Start matching (return type/code: {})").format(code_dict.get(code, self.libc.ZAZErr2Str(code))))
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Matched flash slot: Not found") if i.value == 65022 else QCoreApplication.translate("SearchFingerprint", "Matched flash slot: {}").format(i.value))
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Matching Score: {}").format(score.value))
         else:
             self.signal.emit(QCoreApplication.translate("SearchFingerprint", "Generating features failed (error type/code: {})").format(code_dict.get(ret, self.libc.ZAZErr2Str(ret))))
 
@@ -124,11 +101,11 @@ class SquareFingerPrint(QObject):
 
     def __init__(self):
         super().__init__()
+        self.handle = c_int64(0)
         if system == "Windows":
             self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.dll')
         elif system == "Linux":
             self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.so')
-        self.handle = c_int64(0)
 
     def get_ports(self):
         com_model = [com.portName() for com in QSerialPortInfo.availablePorts()]
@@ -145,8 +122,8 @@ class SquareFingerPrint(QObject):
         nDeviceType = 1  # 串口设备
         iCom = int(port_name[-1])  # 串口号 1-16
         iBaud = int(baud_rate / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
-
         ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
+        logger.info(f"(Square Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}")
         self.Output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
@@ -158,27 +135,32 @@ class SquareFingerPrint(QObject):
 
     @Slot(int)
     def get_fingerprint(self, storage_id):
+        logger.info("(Square Fingerprint) Try to collect fingerprint...")
         worker = GetFingerprint(self.Output, storage_id, self.libc, self.handle)
         threadpool.start(worker)
 
     @Slot()
     def search_fingerprint(self):
+        logger.info("(Square Fingerprint) Try to search fingerprint in database...")
         worker = SearchFingerprint(self.Output, self.libc, self.handle)
         threadpool.start(worker)
 
     @Slot()
     def get_template_num(self):
         num = c_int(0)
+        logger.info("(Square Fingerprint) Try to count fingerprints")
         ret = self.libc.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
         self.Output.emit(self.tr("The number of valid fingerprints: {}").format(num.value) if ret == 0 else self.tr("Get the number of valid fingerprints failed"))
 
     @Slot(int)
     def del_flash(self, storage_id):
+        logger.info(f"(Square Fingerprint) Try to del the fingerprint in slot {storage_id}")
         ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), storage_id, 1)
         self.Output.emit(self.tr("Successfully delete the fingerprint {}").format(storage_id) if ret == 0 else self.tr("Delete the fingerprint {} failed").format(storage_id))
 
     @Slot()
     def clean_flash(self):
+        logger.info("(Square Fingerprint) Try to clear fingerprint database")
         ret = self.libc.ZAZEmpty(self.handle, c_int(0xffffffff))
         self.Output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else self.tr("Clear Fingerprint database failed"))
 
@@ -202,17 +184,19 @@ class GetFingerprint2(QRunnable):
             timeout = 0
             ret = 40  # 传感器上没有手指
             self.signal.emit(QCoreApplication.translate("GetFingerprint2", "Please put your finger on the sensor..."))
-            while ret != 0 and timeout <= 9:
+            while ret == 40 and timeout <= 99:
                 ret = self.libc.GetImage()
-                self.signal.emit(QCoreApplication.translate("GetFingerprint2", "Collect fingerprint... Attempt {}, return value: {}").format(timeout + 1, new_code_dict.get(ret)))
-                QThread.sleep(1)
                 timeout += 1
-            if ret != 0:
-                break
+                self.signal.emit(QCoreApplication.translate("GetFingerprint2", "Collect fingerprint... Attempt {}, return value: {}").format(timeout, new_code_dict.get(ret)))
+            if timeout == 100:
+                self.signal.emit(QCoreApplication.translate("GetFingerprint2", "Timeout! Please try again"))
+                return
 
             ret = self.libc.GetChar(i)
             self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Generating feature {}").format(i + 1))
+
             self.signal.emit(QCoreApplication.translate("GetFingerprint2", "Please raise your finger!"))
+            QThread.sleep(1)
 
         ret = self.libc.MergeChar(0, 3)
         self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Merge features"))
@@ -230,21 +214,24 @@ class SearchFingerprint2(QRunnable):
 
     @Slot()
     def run(self):
-        self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Please put your finger on the sensor..."))
-        storage_id = c_int(0)
         score = c_int(0)
-        timeout = 0
+        storage_id = c_int(0)
         ret = 40  # 传感器上没有手指
-        while ret != 0 and timeout <= 9:
+        timeout = 0
+        self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Please put your finger on the sensor..."))
+        while ret == 40 and timeout <= 99:
             ret = self.libc.GetImage()
-            self.signal.emit(f"{new_code_dict.get(ret)}")
-            QThread.sleep(1)
             timeout += 1
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Collect fingerprint... Attempt {}, return value: {}").format(timeout, new_code_dict.get(ret)))
+        if timeout == 100:
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Timeout! Please try again"))
+            return
+
         ret = self.libc.GetChar(0)
         if ret == 0:
             self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Successfully generated features"))
-            ret = self.libc.SearchChar(0, byref(storage_id), byref(score))
-            self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Start matching (return type/code: {})").format(new_code_dict.get(ret)))
+            code = self.libc.SearchChar(0, byref(storage_id), byref(score))
+            self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Start matching (return type/code: {})").format(new_code_dict.get(code)))
             self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Matched flash slot: {}").format(storage_id.value))
             self.signal.emit(QCoreApplication.translate("SearchFingerprint2", "Matching Score: {}").format(score.value * 100))
         else:
@@ -278,6 +265,7 @@ class RoundFingerPrint(QObject):
     def open_device(self, port_name, baud_rate):
         self.libc.OpenDevice(bytes(port_name, 'utf-8'), baud_rate)
         ret = self.libc.TestConection()
+        logger.info(f"(Round Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}")
         self.Output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
@@ -289,20 +277,24 @@ class RoundFingerPrint(QObject):
 
     @Slot()
     def get_fingerprint(self):
+        logger.info("(Round Fingerprint) Try to collect fingerprint...")
         worker = GetFingerprint2(self.Output, self.libc)
         threadpool.start(worker)
 
     @Slot()
     def search_fingerprint(self):
+        logger.info("(Round Fingerprint) Try to search fingerprint in database...")
         worker = SearchFingerprint2(self.Output, self.libc)
         threadpool.start(worker)
 
     @Slot(int)
     def del_flash(self, storage_id):
+        logger.info(f"(Round Fingerprint) Try to del the fingerprint in slot {storage_id}")
         ret = self.libc.DelChar(storage_id, storage_id, 0)
         self.Output.emit(self.tr("Successfully delete the fingerprint {}").format(storage_id) if ret == 0 else self.tr("Delete the fingerprint {} failed").format(storage_id))
 
     @Slot()
     def clean_flash(self):
+        logger.info("(Round Fingerprint) Try to clear fingerprint database")
         ret = self.libc.DelChar(1, 500, 0)
-        self.Output.emit(f"{new_code_dict.get(ret)}")
+        self.Output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else f"{new_code_dict.get(ret)}")

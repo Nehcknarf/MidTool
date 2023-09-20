@@ -2,6 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtQml import QmlElement
 
 from process import Process
+from utils.log import logger
 
 
 QML_IMPORT_NAME = "src.network"
@@ -22,8 +23,12 @@ class Network(Process):
 
     @Slot(str, str, str, str)
     def add_route(self, destination, mask, gateway, password):
+        logger.info(f"Try to add ip route {destination}/{mask} via {gateway}")
         self.start(f"sudo ip route add {destination}/{mask} via {gateway}", password=password)
+        self.Stdout.emit(self.tr("Add ip route {}/{} via {}").format(destination, mask, gateway))
 
     @Slot(str, str, str)
     def del_route(self, destination, mask, password):
+        logger.info(f"Try to del ip route {destination}/{mask}")
         self.start(f"sudo ip route del {destination}/{mask}", password=password)
+        self.Stdout.emit(self.tr("Del ip route {}/{}").format(destination, mask))
