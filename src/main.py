@@ -66,7 +66,7 @@ def main():
     locale = QLocale.system().name()
     if locale == "zh_CN":
         translator.load(f"{root_path}/i18n/zh_CN.json")
-    elif locale == "zh_TW":
+    elif locale in ["zh_TW", "zh_HK", "zh_MO"]:
         translator.load(f"{root_path}/i18n/zh_TW.json")
     app.installTranslator(translator)
 
