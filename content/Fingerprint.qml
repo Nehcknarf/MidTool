@@ -10,7 +10,6 @@ import src.fingerprint
 Item {
     MyControls.VertTabBar {
         id: vertTabBarFingerprint
-
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.top: parent.top
@@ -21,15 +20,16 @@ Item {
             anchors.right: parent.right
             text: qsTr("Square Fingerprint")
         }
+
         MyControls.TabButton {
             anchors.left: parent.left
             anchors.right: parent.right
             text: qsTr("Round Fingerprint")
         }
     }
+
     StackLayout {
         id: stackLayout
-
         anchors.bottom: groupBoxFPOutput.top
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -45,12 +45,11 @@ Item {
 
             SquareFingerPrint {
                 id: squareFingerPrint
-
-                Component.onCompleted: squareFingerPrint.Output.connect(textAreaFingerprint.append)
+                Component.onCompleted: squareFingerPrint.output.connect(textAreaFingerprint.append)
             }
+
             MyControls.GroupBox {
                 id: groupBoxConfigS
-
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.top: parent.top
@@ -62,6 +61,7 @@ Item {
                     font.pixelSize: 16
                     text: qsTr("Config")
                 }
+
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -73,17 +73,20 @@ Item {
                         font.pixelSize: 16
                         text: qsTr("Serial Port")
                     }
+
                     MyControls.ComboBox {
                         id: comboBoxComS
-
-                        model: squareFingerPrint.coms
+                        model: squareFingerPrint.availablePorts
                         // currentIndex: -1
+                        popup.onOpened: squareFingerPrint.update_ports()
                     }
+
                      Label {
                         font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Connect")
                     }
+
                     MyControls.Switch {
                         id: switchSquareFingerPrint
                         onCheckedChanged: {
@@ -97,18 +100,21 @@ Item {
                             }
                         }
                     }
+
                     Label {
                         font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Baud Rate")
                     }
+
                     MyControls.ComboBox {
                         id: comboBoxBaudRateS
-                        model: squareFingerPrint.baud_rates
+                        model: squareFingerPrint.baudRates
                         Component.onCompleted: currentIndex = indexOfValue(57600)
                     }
                 }
             }
+
             MyControls.GroupBox {
                 anchors.bottom: parent.bottom
                 anchors.left: groupBoxConfigS.right
@@ -122,6 +128,7 @@ Item {
                     font.pixelSize: 16
                     text: qsTr("Func.")
                 }
+
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -155,11 +162,13 @@ Item {
                             }
                         }
                     }
+
                     MyControls.Button {
                         text: qsTr("Collect Fingerprint")
                         enabled: switchSquareFingerPrint.checked
                         onClicked: dialogSet.open()
                     }
+
                     Dialog {
                         id: dialogDelS
                         modal: true
@@ -187,21 +196,25 @@ Item {
                             }
                         }
                     }
+
                     MyControls.Button {
                         text: qsTr("Delete Specific Fingerprint")
                         enabled: switchSquareFingerPrint.checked
                         onClicked: dialogDelS.open()
                     }
+
                     MyControls.Button {
                         text: qsTr("Search Fingerprint")
                         enabled: switchSquareFingerPrint.checked
                         onClicked: squareFingerPrint.search_fingerprint()
                     }
+
                     MyControls.Button {
                         text: qsTr("Delete All Fingerprints")
                         enabled: switchSquareFingerPrint.checked
                         onClicked: squareFingerPrint.clean_flash()
                     }
+
                     MyControls.Button {
                         text: qsTr("Count Fingerprints")
                         enabled: switchSquareFingerPrint.checked
@@ -215,12 +228,11 @@ Item {
 
             RoundFingerPrint {
                 id: roundFingerPrint
-
-                Component.onCompleted: roundFingerPrint.Output.connect(textAreaFingerprint.append)
+                Component.onCompleted: roundFingerPrint.output.connect(textAreaFingerprint.append)
             }
+
             MyControls.GroupBox {
                 id: groupBoxConfigR
-
                 anchors.bottom: parent.bottom
                 anchors.left: parent.left
                 anchors.top: parent.top
@@ -232,6 +244,7 @@ Item {
                     font.pixelSize: 16
                     text: qsTr("Config")
                 }
+
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -243,19 +256,22 @@ Item {
                         font.pixelSize: 16
                         text: qsTr("Serial Port")
                     }
+
                     MyControls.ComboBox {
                         id: comboBoxComR
-
-                        model: roundFingerPrint.coms
+                        model: roundFingerPrint.availablePorts
                         // currentIndex: -1
                         textRole: "text"
                         valueRole: "value"
+                        popup.onOpened: roundFingerPrint.update_ports()
                     }
+
                     Label {
                         font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Connect")
                     }
+
                     MyControls.Switch {
                         id: switchRoundFingerPrint
                         onCheckedChanged: {
@@ -269,18 +285,21 @@ Item {
                             }
                         }
                     }
+
                     Label {
                         font.family: bold.font.family
                         font.pixelSize: 16
                         text: qsTr("Baud Rate")
                     }
+
                     MyControls.ComboBox {
                         id: comboBoxBaudRateR
-                        model: roundFingerPrint.baud_rates
+                        model: roundFingerPrint.baudRates
                         Component.onCompleted: currentIndex = indexOfValue(57600)
                     }
                 }
             }
+
             MyControls.GroupBox {
                 anchors.bottom: parent.bottom
                 anchors.left: groupBoxConfigR.right
@@ -294,6 +313,7 @@ Item {
                     font.pixelSize: 16
                     text: qsTr("Func.")
                 }
+
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -305,6 +325,7 @@ Item {
                         enabled: switchRoundFingerPrint.checked
                         onClicked: roundFingerPrint.get_fingerprint()
                     }
+
                     Dialog {
                         id: dialogDelR
                         modal: true
@@ -332,16 +353,19 @@ Item {
                             }
                         }
                     }
+
                     MyControls.Button {
                         text: qsTr("Delete Specific Fingerprint")
                         enabled: switchRoundFingerPrint.checked
                         onClicked: dialogDelR.open()
                     }
+
                     MyControls.Button {
                         text: qsTr("Search Fingerprint")
                         enabled: switchRoundFingerPrint.checked
                         onClicked: roundFingerPrint.search_fingerprint()
                     }
+
                     MyControls.Button {
                         text: qsTr("Delete All Fingerprints")
                         enabled: switchRoundFingerPrint.checked
@@ -351,9 +375,9 @@ Item {
             }
         }
     }
+
     MyControls.GroupBox {
         id: groupBoxFPOutput
-
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -368,13 +392,14 @@ Item {
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
+
         MyControls.Button {
             anchors.right: parent.right
             anchors.top: parent.top
             text: qsTr("Clear")
-
             onClicked: textAreaFingerprint.clear()
         }
+
         ScrollView {
             anchors.bottom: parent.bottom
             anchors.left: parent.left

@@ -38,9 +38,6 @@ Item {
             }
             MyControls.TextField {
                 id: textFieldKeyPart1
-
-                horizontalAlignment: TextInput.AlignHCenter
-
                 // maximumLength: 4
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
@@ -55,9 +52,6 @@ Item {
             }
             MyControls.TextField {
                 id: textFieldKeyPart2
-
-                horizontalAlignment: TextInput.AlignHCenter
-
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
                 }
@@ -71,9 +65,6 @@ Item {
             }
             MyControls.TextField {
                 id: textFieldKeyPart3
-
-                horizontalAlignment: TextInput.AlignHCenter
-
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
                 }
@@ -87,9 +78,6 @@ Item {
             }
             MyControls.TextField {
                 id: textFieldKeyPart4
-
-                horizontalAlignment: TextInput.AlignHCenter
-
                 validator: RegularExpressionValidator {
                     regularExpression: /[0-9a-zA-Z]{1,4}/
                 }

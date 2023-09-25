@@ -26,7 +26,7 @@ Item {
         }
         Serial {
             id: serial
-            Component.onCompleted: serial.Pinout.connect(textAreaSerial.append)
+            Component.onCompleted: serial.pinout.connect(textAreaSerial.append)
         }
         RowLayout {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -38,10 +38,10 @@ Item {
                 text: qsTr("Serial Port")
             }
             MyControls.ComboBox {
-                id: comboBoxSerCom
-
-                model: serial.coms
+                id: comboBoxSerPort
+                model: serial.availablePorts
                 // currentIndex: -1
+                popup.onOpened: serial.update_ports()
             }
             Label {
                 font.family: bold.font.family
@@ -50,7 +50,7 @@ Item {
             }
             MyControls.ComboBox {
                 id: comboBoxSerBaudRate
-                model: serial.baud_rates
+                model: serial.baudRates
                 Component.onCompleted: currentIndex = indexOfValue(115200)
             }
             Label {
@@ -60,7 +60,7 @@ Item {
             }
             MyControls.Switch {
                 onCheckedChanged: {
-                    checked ? serial.open_device(comboBoxSerCom.currentValue, comboBoxSerBaudRate.currentValue) : serial.close_device();
+                    checked ? serial.open_device(comboBoxSerPort.currentValue, comboBoxSerBaudRate.currentValue) : serial.close_device();
                 }
             }
         }

@@ -49,7 +49,6 @@ Item {
                     id: comboBoxComTimezone
                     implicitWidth: 300
                     model: timeEditor.timezones
-                    // TODO 展示当前系统时区
                     Component.onCompleted: currentIndex = indexOfValue("Asia/Shanghai")
                 }
 
@@ -97,8 +96,6 @@ Item {
                 MyControls.TextField {
                     id: textFieldDateTime
                     implicitWidth: 300
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
                     placeholderText: "YYYY-MM-DD HH:MM:SS"
                     text: new Date().toLocaleString(Qt.locale(), "yyyy-MM-dd hh:mm:ss")
                     inputMethodHints: Qt.ImhPreferNumbers
@@ -152,8 +149,6 @@ Item {
                     id: textFieldNTP
                     implicitWidth: 300
                     placeholderText: qsTr("Servers are separated by space")
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
                     inputMethodHints: Qt.ImhPreferNumbers
                 }
 

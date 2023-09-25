@@ -18,9 +18,8 @@ pyinstaller src/main.py \
 --collect-all tzdata \
 --clean
 
-echo "Delete useless lib"
 cd dist/midtool2 || exit
-
+echo "Delete useless lib"
 rm -f \
 libQt6Charts.so.6 \
 libQt6ChartsQml.so.6 \
@@ -97,3 +96,7 @@ PySide6/Qt/qml/QtRemoteObjects \
 PySide6/Qt/plugins/tls \
 PySide6/Qt/plugins/networkinformation \
 PySide6/Qt/plugins/qmltooling
+
+cd ..
+echo "Compress the folder to *.tar.bz2 pkg"
+tar -jvcf midtool2_.tar.bz2 midtool2

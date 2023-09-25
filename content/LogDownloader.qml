@@ -69,8 +69,6 @@ Item {
 
             MyControls.TextField {
                 id: textFieldStratTime
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
                 placeholderText: "YYYY-MM-DD"
                 text: new Date().toLocaleDateString(Qt.locale(), "yyyy-MM-dd")
                 inputMethodHints: Qt.ImhDate | Qt.ImhFormattedNumbersOnly
@@ -87,8 +85,6 @@ Item {
 
             MyControls.TextField {
                 id: textFieldEndTime
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
                 placeholderText: "YYYY-MM-DD"
                 text: new Date().toLocaleDateString(Qt.locale(), "yyyy-MM-dd")
                 inputMethodHints: Qt.ImhDate | Qt.ImhFormattedNumbersOnly

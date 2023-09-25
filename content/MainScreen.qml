@@ -78,7 +78,7 @@ Rectangle {
         MouseArea {
             anchors.fill: parent
 
-            property variant pressedPos: "0,0"
+            property var pressedPos: "0,0"
 
             onClicked: {
                 Qt.inputMethod.hide()

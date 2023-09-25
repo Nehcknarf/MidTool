@@ -39,12 +39,12 @@ Item {
     }
     ConfigEditor {
         id: configEditor
-        property variant nvr_cfg: configEditor.nvr_config
-        property variant extern_cfg: configEditor.extern_config
-        property variant action_delay_cfg: configEditor.action_delay_config
-        property variant sync_cfg: configEditor.sync_config
-        property variant mcc_cfg: configEditor.mcc_config
-        property variant ws_cfg: configEditor.ws_config
+        property var nvr_cfg: configEditor.nvr_config
+        property var extern_cfg: configEditor.extern_config
+        property var action_delay_cfg: configEditor.action_delay_config
+        property var sync_cfg: configEditor.sync_config
+        property var mcc_cfg: configEditor.mcc_config
+        property var ws_cfg: configEditor.ws_config
     }
 
     StackLayout {

@@ -59,6 +59,13 @@ if locale == "zh_CN":
         -1: "发送失败"
     }
 
+    # 串口板设备类型字典
+    device_dict = {
+        "0708": "身份RFID读卡器类",
+        "0107": "条码扫描头类",
+        "020a": "人体感应类"
+    }
+
 elif locale in ["zh_TW", "zh_HK", "zh_MO"]:
     code_dict = {
         0: "執行成功",
@@ -113,6 +120,12 @@ elif locale in ["zh_TW", "zh_HK", "zh_MO"]:
         -1: "發送失敗"
     }
 
+    device_dict = {
+        "0708": "身份RFID讀卡器類",
+        "0107": "條碼掃描頭類",
+        "020a": "人體感應類"
+    }
+
 else:
     code_dict = {
         0: "Executed Successfully",
@@ -165,4 +178,10 @@ else:
         40: "There is no fingerprint input on the sensor",
         65: "Instruction is cancelled",
         -1: "Send failed"
+    }
+
+    device_dict = {
+        "0708": "RFID reader",
+        "0107": "Code scanner",
+        "020a": "Human presence sensor"
     }

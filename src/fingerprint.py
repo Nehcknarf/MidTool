@@ -96,26 +96,40 @@ class SearchFingerprint(QRunnable):
 
 @QmlElement
 class SquareFingerPrint(QObject):
-    comChanged = Signal()
-    Output = Signal(str)
+    output = Signal(str, arguments="output")
+    getPort = Signal()
+    getBaudRate = Signal()
 
     def __init__(self):
         super().__init__()
         self.handle = c_int64(0)
+
         if system == "Windows":
             self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.dll')
         elif system == "Linux":
             self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.so')
 
+        self.ports = [port.portName() for port in QSerialPortInfo.availablePorts()]
+        self.baud_rates = QSerialPortInfo.standardBaudRates()
+
     def get_ports(self):
-        com_model = [com.portName() for com in QSerialPortInfo.availablePorts()]
-        return com_model
+        return self.ports
+
+    def set_ports(self, ports):
+        if self.ports != ports:
+            self.ports = ports
+            self.getPort.emit()
+
+    @Slot()
+    def update_ports(self):
+        self.set_ports([com.portName() for com in QSerialPortInfo.availablePorts()])
+
+    availablePorts = Property(list, get_ports, notify=getPort)
 
     def get_baud_rates(self):
-        return QSerialPortInfo.standardBaudRates()
+        return self.baud_rates
 
-    coms = Property(list, get_ports, notify=comChanged)
-    baud_rates = Property(list, get_baud_rates, notify=comChanged)
+    baudRates = Property(list, get_baud_rates, notify=getBaudRate)
 
     @Slot(str, int, result=int)
     def open_device(self, port_name, baud_rate):
@@ -124,25 +138,25 @@ class SquareFingerPrint(QObject):
         iBaud = int(baud_rate / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
         ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
         logger.info(f"(Square Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}")
-        self.Output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
+        self.output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
     @Slot(result=int)
     def close_device(self):
         ret = self.libc.ZAZCloseDeviceEx(self.handle)
-        self.Output.emit(self.tr("The fingerprint sensor has closed!") if ret in [0, 1] else self.tr("The fingerprint sensor close failed!"))
+        self.output.emit(self.tr("The fingerprint sensor has closed!") if ret in [0, 1] else self.tr("The fingerprint sensor close failed!"))
         return ret
 
     @Slot(int)
     def get_fingerprint(self, storage_id):
         logger.info("(Square Fingerprint) Try to collect fingerprint...")
-        worker = GetFingerprint(self.Output, storage_id, self.libc, self.handle)
+        worker = GetFingerprint(self.output, storage_id, self.libc, self.handle)
         threadpool.start(worker)
 
     @Slot()
     def search_fingerprint(self):
         logger.info("(Square Fingerprint) Try to search fingerprint in database...")
-        worker = SearchFingerprint(self.Output, self.libc, self.handle)
+        worker = SearchFingerprint(self.output, self.libc, self.handle)
         threadpool.start(worker)
 
     @Slot()
@@ -150,19 +164,19 @@ class SquareFingerPrint(QObject):
         num = c_int(0)
         logger.info("(Square Fingerprint) Try to count fingerprints")
         ret = self.libc.ZAZTemplateNum(self.handle, c_int(0xffffffff), byref(num))
-        self.Output.emit(self.tr("The number of valid fingerprints: {}").format(num.value) if ret == 0 else self.tr("Get the number of valid fingerprints failed"))
+        self.output.emit(self.tr("The number of valid fingerprints: {}").format(num.value) if ret == 0 else self.tr("Get the number of valid fingerprints failed"))
 
     @Slot(int)
     def del_flash(self, storage_id):
         logger.info(f"(Square Fingerprint) Try to del the fingerprint in slot {storage_id}")
         ret = self.libc.ZAZDelChar(self.handle, c_int(0xffffffff), storage_id, 1)
-        self.Output.emit(self.tr("Successfully delete the fingerprint {}").format(storage_id) if ret == 0 else self.tr("Delete the fingerprint {} failed").format(storage_id))
+        self.output.emit(self.tr("Successfully delete the fingerprint {}").format(storage_id) if ret == 0 else self.tr("Delete the fingerprint {} failed").format(storage_id))
 
     @Slot()
     def clean_flash(self):
         logger.info("(Square Fingerprint) Try to clear fingerprint database")
         ret = self.libc.ZAZEmpty(self.handle, c_int(0xffffffff))
-        self.Output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else self.tr("Clear Fingerprint database failed"))
+        self.output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else self.tr("Clear Fingerprint database failed"))
 
 
 class GetFingerprint2(QRunnable):
@@ -240,61 +254,72 @@ class SearchFingerprint2(QRunnable):
 
 @QmlElement
 class RoundFingerPrint(QObject):
-    comChanged = Signal()
-    Output = Signal(str)
+    output = Signal(str, arguments="output")
+    getPort = Signal()
+    getBaudRate = Signal()
 
     def __init__(self):
         super().__init__()
+
         if system == "Linux":
             self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/lib0a0.so')
 
+        self.ports = [{"value": port.systemLocation(), "text": port.portName()} for port in QSerialPortInfo.availablePorts()]
+        self.baud_rates = QSerialPortInfo.standardBaudRates()
+
     def get_ports(self):
-        com_model = [
-            {"value": com.systemLocation(), "text": com.portName()}
-            for com in QSerialPortInfo.availablePorts()
-        ]
-        return com_model
+        return self.ports
+
+    def set_ports(self, ports):
+        if self.ports != ports:
+            self.ports = ports
+            self.getPort.emit()
+
+    @Slot()
+    def update_ports(self):
+        self.set_ports([{"value": port.systemLocation(), "text": port.portName()} for port in QSerialPortInfo.availablePorts()])
+
+    availablePorts = Property(list, get_ports, notify=getPort)
 
     def get_baud_rates(self):
-        return QSerialPortInfo.standardBaudRates()
+        return self.baud_rates
 
-    coms = Property(list, get_ports, notify=comChanged)
-    baud_rates = Property(list, get_baud_rates, notify=comChanged)
+    baudRates = Property(list, get_baud_rates, notify=getBaudRate)
 
     @Slot(str, int, result=int)
     def open_device(self, port_name, baud_rate):
         self.libc.OpenDevice(bytes(port_name, 'utf-8'), baud_rate)
         ret = self.libc.TestConection()
         logger.info(f"(Round Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}")
-        self.Output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
+        self.output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
     @Slot(result=int)
     def close_device(self):
         ret = self.libc.CloseDevice()
-        self.Output.emit(self.tr("The fingerprint sensor has closed!") if ret == 1 else self.tr("The fingerprint sensor close failed!"))
+        self.output.emit(self.tr("The fingerprint sensor has closed!") if ret == 1 else self.tr("The fingerprint sensor close failed!"))
         return ret
 
     @Slot()
     def get_fingerprint(self):
         logger.info("(Round Fingerprint) Try to collect fingerprint...")
-        worker = GetFingerprint2(self.Output, self.libc)
+        worker = GetFingerprint2(self.output, self.libc)
         threadpool.start(worker)
 
     @Slot()
     def search_fingerprint(self):
         logger.info("(Round Fingerprint) Try to search fingerprint in database...")
-        worker = SearchFingerprint2(self.Output, self.libc)
+        worker = SearchFingerprint2(self.output, self.libc)
         threadpool.start(worker)
 
     @Slot(int)
     def del_flash(self, storage_id):
         logger.info(f"(Round Fingerprint) Try to del the fingerprint in slot {storage_id}")
         ret = self.libc.DelChar(storage_id, storage_id, 0)
-        self.Output.emit(self.tr("Successfully delete the fingerprint {}").format(storage_id) if ret == 0 else self.tr("Delete the fingerprint {} failed").format(storage_id))
+        self.output.emit(self.tr("Successfully delete the fingerprint {}").format(storage_id) if ret == 0 else self.tr("Delete the fingerprint {} failed").format(storage_id))
 
     @Slot()
     def clean_flash(self):
         logger.info("(Round Fingerprint) Try to clear fingerprint database")
         ret = self.libc.DelChar(1, 500, 0)
-        self.Output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else f"{new_code_dict.get(ret)}")
+        self.output.emit(self.tr("Successfully clear fingerprint database") if ret == 0 else f"{new_code_dict.get(ret)}")

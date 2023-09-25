@@ -35,9 +35,9 @@ Item {
 
     ConfigEditor {
         id: configEditor
-        property variant nvr_cfg: configEditor.nvr_config
-        property variant extern_cfg: configEditor.extern_config
-        property variant sync_cfg: configEditor.sync_config
+        property var nvr_cfg: configEditor.nvr_config
+        property var extern_cfg: configEditor.extern_config
+        property var sync_cfg: configEditor.sync_config
     }
 
     StackLayout {
