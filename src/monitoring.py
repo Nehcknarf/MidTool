@@ -39,7 +39,7 @@ class MiddlewareManager(Process):
 @QmlElement
 class SystemInfoModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1
-    PercentRole = Qt.UserRole + 2
+    StatusRole = Qt.UserRole + 2
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -55,8 +55,8 @@ class SystemInfoModel(QAbstractListModel):
             ret = None
         elif role == self.NameRole:
             ret = self.system_info_model[index.row()]["name"]
-        elif role == self.PercentRole:
-            ret = self.system_info_model[index.row()]["percent"]
+        elif role == self.StatusRole:
+            ret = self.system_info_model[index.row()]["status"]
         else:
             ret = None
         return ret
@@ -64,7 +64,7 @@ class SystemInfoModel(QAbstractListModel):
     def roleNames(self):
         default = super().roleNames()
         default[self.NameRole] = QByteArray(b"name")
-        default[self.PercentRole] = QByteArray(b"percent")
+        default[self.StatusRole] = QByteArray(b"status")
         return default
 
     @Slot()
@@ -77,10 +77,20 @@ class SystemInfoModel(QAbstractListModel):
     def get_system_info_model(self):
         cpu_percent = psutil.cpu_percent()
         memory_percent = psutil.virtual_memory().percent
-        disk_percent = psutil.disk_usage('/').percent
+        disk_percent = psutil.disk_usage("/").percent
+
+        status = self.tr("stopped")
+        for p in psutil.process_iter(['name', "cmdline"]):
+            # 中台主入口
+            if p.info['name'] == "java":
+                if p.info['cmdline'][-1] in ["com.nubomed.mid.drug.DrugMiddlewareServer", "com.nubomed.mid.ecart.ECartServiceApp", "com.nubomed.mid.consumable.cabinet.ConsumableCabinetApp"]:
+                    # psutil返回被进程管理应用守护的中台状态不准确，running时始终为sleeping
+                    # status = p.status()
+                    status = self.tr("running")
 
         self.system_info_model = [
-            {"name": self.tr("CPU"), "percent": format(cpu_percent, ".1f")},
-            {"name": self.tr("Memory"), "percent": format(memory_percent, ".1f")},
-            {"name": self.tr("Disk"), "percent": format(disk_percent, ".1f")}
+            {"name": self.tr("CPU"), "status": format(cpu_percent, ".1f")},
+            {"name": self.tr("Memory"), "status": format(memory_percent, ".1f")},
+            {"name": self.tr("Disk"), "status": format(disk_percent, ".1f")},
+            {"name": self.tr("Middleware"), "status": status}
         ]

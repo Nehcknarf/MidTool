@@ -11,7 +11,6 @@ import src.monitoring
 Item {
     MyControls.GroupBox {
         id: groupBox
-
         anchors.left: parent.left
         anchors.leftMargin: 16
         anchors.top: parent.top
@@ -116,11 +115,9 @@ Item {
 
         FileDialog {
             id: fileDialog
-
             currentFolder: "/nubomed"
             nameFilters: [qsTr("Json file (*.json)")]
             title: qsTr("Please select middleware config file, if no need just cancel")
-
             onAccepted: middlewareManager.start_middleware_pm2(selectedFile)
             onRejected: middlewareManager.start_middleware_sv(textFieldPsw.text)
         }
@@ -136,6 +133,7 @@ Item {
                     dialogStart.open()
                 }
             }
+
             MyControls.Button {
                 id: buttonRestart
                 text: qsTr("Restart")
@@ -143,6 +141,7 @@ Item {
                     dialogRestart.open()
                 }
             }
+
             MyControls.Button {
                 id: buttonStop
                 text: qsTr("Stop")
@@ -152,9 +151,9 @@ Item {
             }
         }
     }
+
     MyControls.GroupBox {
         id: groupBox1
-
         anchors.left: groupBox.right
         anchors.leftMargin: 16
         anchors.right: parent.right
@@ -168,54 +167,50 @@ Item {
             font.pixelSize: 16
             text: qsTr("Service Running Status")
         }
+
         Timer {
             interval: 1000
             repeat: true
             running: true
-
             onTriggered: listView.model.set_data()
         }
+
         ListView {
             id: listView
-
-            anchors.bottomMargin: 50
             anchors.fill: parent
             anchors.leftMargin: 50
             anchors.rightMargin: 50
-            anchors.topMargin: 50
+            anchors.topMargin: 40
+            anchors.bottomMargin: 40
             orientation: ListView.Horizontal
 
             delegate: Item {
-                height: 40
-                width: 110
-                x: 5
+                width: 85
 
                 Column {
-                    spacing: 10
-
-                    Row {
-                        spacing: 2
-
-                        Text {
-                            font.family: medium.font.family
-                            font.pixelSize: 16
-                            text: name
-                        }
-                        Text {
-                            font.family: medium.font.family
-                            font.pixelSize: 16
-                            text: percent + "%"
-                        }
+                    Text {
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                        text: name
                     }
+
+                    Text {
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                        text: status.includes(".") ? status + "%" : status
+                    }
+
                     MyControls.ProgressBar {
-                        value: percent / 100
-                        width: 90
+                        value: status / 100
+                        width: 75
+                        visible: status.includes(".")
                     }
                 }
             }
             model: SystemInfoModel {}
         }
     }
+
     MyControls.GroupBox {
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
@@ -231,13 +226,14 @@ Item {
             font.pixelSize: 16
             text: qsTr("Terminal Output")
         }
+
         MyControls.Button {
             anchors.right: parent.right
             anchors.top: parent.top
             text: qsTr("Clear")
-
             onClicked: textArea.clear()
         }
+
         ScrollView {
             anchors.bottom: parent.bottom
             anchors.left: parent.left

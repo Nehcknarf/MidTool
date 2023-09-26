@@ -1,9 +1,9 @@
 import os
 import sys
 
-from PySide6.QtCore import QUrl, QLocale, QCommandLineParser, QCommandLineOption
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
+from PySide6.QtCore import QUrl, QLocale, QCommandLineParser, QCommandLineOption
 
 import utils.resource
 from utils.translator import JsonTranslator
@@ -13,11 +13,11 @@ from utils.version import midtool_version, python_version, qt_version
 # 导入需要在QML中实例化的类
 from monitoring import SystemInfoModel
 from maintenance import Maintenance
+from editor import ConfigEditor
 from serial import Serial
 from fingerprint import SquareFingerPrint, RoundFingerPrint
-from camera import CameraModel
-from editor import ConfigEditor
 from activation import Activation
+from camera import CameraModel
 from network import Network
 from timezone import TimeEditor
 from downloader import LogDownloader
@@ -76,12 +76,6 @@ def main():
 
     url = QUrl("qrc:/content/App.qml")
 
-    # def handle_object_created(obj, obj_url):
-    #     if obj is None and url == obj_url:
-    #         QCoreApplication.exit(-1)
-    #
-    # engine.objectCreated.connect(handle_object_created, Qt.QueuedConnection)
-
     engine.addImportPath("qrc:/imports")
     # print(engine.importPathList())
 
@@ -95,6 +89,7 @@ def main():
 
     if not engine.rootObjects():
         sys.exit(-1)
+
     sys.exit(app.exec())
 
 
