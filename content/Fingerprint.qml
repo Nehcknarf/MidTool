@@ -1,8 +1,9 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
+import Components as MyComponents
 
 import src.fingerprint
 
@@ -30,7 +31,7 @@ Item {
 
     StackLayout {
         id: stackLayout
-        anchors.bottom: groupBoxFPOutput.top
+        anchors.bottom: terminalOutputFp.top
         anchors.bottomMargin: 16
         anchors.left: parent.left
         anchors.leftMargin: 196
@@ -45,7 +46,7 @@ Item {
 
             SquareFingerPrint {
                 id: squareFingerPrint
-                Component.onCompleted: squareFingerPrint.output.connect(textAreaFingerprint.append)
+                Component.onCompleted: squareFingerPrint.output.connect(terminalOutputFp.textArea.append)
             }
 
             MyControls.GroupBox {
@@ -129,72 +130,38 @@ Item {
                     text: qsTr("Func.")
                 }
 
+                MyComponents.Dialog {
+                    id: dialogSet
+                    title: qsTr("Please input an integer from 1 to 1049.")
+                    placeholder: qsTr("Input an integer")
+                    echoMode: TextInput.Normal
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAction: {
+                        squareFingerPrint.get_fingerprint(input)
+                    }
+                }
+
+                MyComponents.Dialog {
+                    id: dialogDelS
+                    title: qsTr("Please input an integer from 1 to 1049.")
+                    placeholder: qsTr("Input an integer")
+                    echoMode: TextInput.Normal
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAction: {
+                        squareFingerPrint.del_flash(input)
+                    }
+                }
+
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
                     columns: 2
                     rows: 3
 
-                    Dialog {
-                        id: dialogSet
-                        modal: true
-                        standardButtons: Dialog.Ok | Dialog.Cancel
-                        title: qsTr("Please input an integer from 1 to 1049.")
-
-                        contentItem: Rectangle {
-                            color: "#FFFFFF"
-                            implicitHeight: 50
-                            implicitWidth: 200
-
-                            TextField {
-                                id: textFieldSetID
-                                anchors.centerIn: parent
-                                placeholderText: qsTr("Input an integer")
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                focus: true
-                                Keys.onReturnPressed: dialogSet.accept()
-                            }
-                        }
-
-                        onAccepted: {
-                            if (textFieldSetID.text) {
-                                squareFingerPrint.get_fingerprint(textFieldSetID.text);
-                            }
-                        }
-                    }
-
                     MyControls.Button {
                         text: qsTr("Collect Fingerprint")
                         enabled: switchSquareFingerPrint.checked
                         onClicked: dialogSet.open()
-                    }
-
-                    Dialog {
-                        id: dialogDelS
-                        modal: true
-                        standardButtons: Dialog.Ok | Dialog.Cancel
-                        title: qsTr("Please input an integer from 1 to 1049.")
-
-                        contentItem: Rectangle {
-                            color: "#FFFFFF"
-                            implicitHeight: 50
-                            implicitWidth: 200
-
-                            TextField {
-                                id: textFieldDelIDS
-                                anchors.centerIn: parent
-                                placeholderText: qsTr("Input an integer")
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                focus: true
-                                Keys.onReturnPressed: dialogDelS.accept()
-                            }
-                        }
-
-                        onAccepted: {
-                            if (textFieldDelIDS.text) {
-                                squareFingerPrint.del_flash(textFieldDelIDS.text);
-                            }
-                        }
                     }
 
                     MyControls.Button {
@@ -223,12 +190,13 @@ Item {
                 }
             }
         }
+
         Rectangle {
             color: "transparent"
 
             RoundFingerPrint {
                 id: roundFingerPrint
-                Component.onCompleted: roundFingerPrint.output.connect(textAreaFingerprint.append)
+                Component.onCompleted: roundFingerPrint.output.connect(terminalOutputFp.textArea.append)
             }
 
             MyControls.GroupBox {
@@ -314,6 +282,17 @@ Item {
                     text: qsTr("Func.")
                 }
 
+                MyComponents.Dialog {
+                    id: dialogDelR
+                    title: qsTr("Please input an integer from 1 to 500.")
+                    placeholder: qsTr("Input an integer")
+                    echoMode: TextInput.Normal
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAction: {
+                        roundFingerPrint.del_flash(input)
+                    }
+                }
+
                 GridLayout {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -324,34 +303,6 @@ Item {
                         text: qsTr("Collect Fingerprint")
                         enabled: switchRoundFingerPrint.checked
                         onClicked: roundFingerPrint.get_fingerprint()
-                    }
-
-                    Dialog {
-                        id: dialogDelR
-                        modal: true
-                        standardButtons: Dialog.Ok | Dialog.Cancel
-                        title: qsTr("Please input an integer from 1 to 500.")
-
-                        contentItem: Rectangle {
-                            color: "#FFFFFF"
-                            implicitHeight: 50
-                            implicitWidth: 200
-
-                            TextField {
-                                id: textFieldDelIDR
-                                anchors.centerIn: parent
-                                placeholderText: qsTr("Input an integer")
-                                inputMethodHints: Qt.ImhDigitsOnly
-                                focus: true
-                                Keys.onReturnPressed: dialogDelR.accept()
-                            }
-                        }
-
-                        onAccepted: {
-                            if (textFieldDelIDR.text) {
-                                roundFingerPrint.del_flash(textFieldDelIDR.text);
-                            }
-                        }
                     }
 
                     MyControls.Button {
@@ -376,8 +327,8 @@ Item {
         }
     }
 
-    MyControls.GroupBox {
-        id: groupBoxFPOutput
+    MyComponents.TerminalOutput {
+        id: terminalOutputFp
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -386,39 +337,5 @@ Item {
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 192
-
-        Label {
-            font.family: bold.font.family
-            font.pixelSize: 16
-            text: qsTr("Terminal Output")
-        }
-
-        MyControls.Button {
-            anchors.right: parent.right
-            anchors.top: parent.top
-            text: qsTr("Clear")
-            onClicked: textAreaFingerprint.clear()
-        }
-
-        ScrollView {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 54
-
-            background: Rectangle {
-                border.color: "#CAD0E0"
-                radius: 8
-            }
-
-            TextArea {
-                id: textAreaFingerprint
-                anchors.fill: parent
-                font.family: medium.font.family
-                font.pixelSize: 16
-                readOnly: true
-            }
-        }
     }
 }

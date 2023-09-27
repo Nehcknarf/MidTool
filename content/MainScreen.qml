@@ -1,6 +1,6 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
 
@@ -124,6 +124,7 @@ Rectangle {
                         font.pixelSize: 20
                     }
                 }
+
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     Image {
@@ -132,12 +133,14 @@ Rectangle {
                         fillMode: Image.PreserveAspectFit
                         source: "qrc:/content/images/icon.png"
                     }
+
                     Label {
                         text: "MidTool " + midToolVersion
                         font.family: medium.font.family
                         font.pixelSize: 16
                     }
                 }
+
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     Label {
@@ -146,6 +149,7 @@ Rectangle {
                         font.pixelSize: 16
                     }
                 }
+
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     Label {

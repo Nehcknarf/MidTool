@@ -1,8 +1,9 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
+import Components as MyComponents
 
 import src.time
 
@@ -33,6 +34,27 @@ Item {
                 text: qsTr("Settings")
             }
 
+            MyComponents.Dialog {
+                id: dialogSetTz
+                onAction: {
+                 timeEditor.set_timezone(comboBoxComTimezone.currentText, input)
+                }
+            }
+
+            MyComponents.Dialog {
+                id: dialogSetDateTime
+                onAction: {
+                 timeEditor.set_time(textFieldDateTime.text, input)
+                }
+            }
+
+            MyComponents.Dialog {
+                id: dialogSetNTP
+                onAction: {
+                 timeEditor.add_ntp_servers(textFieldNTP.text, input)
+                }
+            }
+
             GridLayout {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
@@ -51,34 +73,6 @@ Item {
                     model: timeEditor.timezones
                     Component.onCompleted: currentIndex = indexOfValue("Asia/Shanghai")
                 }
-
-                Dialog {
-                     id: dialogSetTz
-                     modal: true
-                     standardButtons: Dialog.Ok | Dialog.Cancel
-                     title: qsTr("Please input user password")
-
-                     contentItem: Rectangle {
-                         color: "#FFFFFF"
-                         implicitHeight: 50
-                         implicitWidth: 200
-
-                         TextField {
-                             id: textFieldPswSetTz
-                             anchors.centerIn: parent
-                             echoMode: TextInput.Password
-                             placeholderText: qsTr("Input user password")
-                             focus: true
-                             Keys.onReturnPressed: dialogSetTz.accept()
-                         }
-                     }
-
-                     onAccepted: {
-                         if (textFieldPswSetTz.text) {
-                             timeEditor.set_timezone(comboBoxComTimezone.currentText, textFieldPswSetTz.text)
-                         }
-                     }
-                 }
 
                 MyControls.Button {
                     text: qsTr("Set Timezone")
@@ -104,34 +98,6 @@ Item {
                     }
                 }
 
-                Dialog {
-                     id: dialogSetDateTime
-                     modal: true
-                     standardButtons: Dialog.Ok | Dialog.Cancel
-                     title: qsTr("Please input user password")
-
-                     contentItem: Rectangle {
-                         color: "#FFFFFF"
-                         implicitHeight: 50
-                         implicitWidth: 200
-
-                         TextField {
-                             id: textFieldPswSetDateTime
-                             anchors.centerIn: parent
-                             echoMode: TextInput.Password
-                             placeholderText: qsTr("Input user password")
-                             focus: true
-                             Keys.onReturnPressed: dialogSetDateTime.accept()
-                         }
-                     }
-
-                     onAccepted: {
-                         if (textFieldPswSetDateTime.text) {
-                             timeEditor.set_time(textFieldDateTime.text, textFieldPswSetDateTime.text)
-                         }
-                     }
-                 }
-
                 MyControls.Button {
                     text: qsTr("Set DateTime")
                     onClicked: {
@@ -151,34 +117,6 @@ Item {
                     placeholderText: qsTr("Servers are separated by space")
                     inputMethodHints: Qt.ImhPreferNumbers
                 }
-
-                Dialog {
-                     id: dialogSetNTP
-                     modal: true
-                     standardButtons: Dialog.Ok | Dialog.Cancel
-                     title: qsTr("Please input user password")
-
-                     contentItem: Rectangle {
-                         color: "#FFFFFF"
-                         implicitHeight: 50
-                         implicitWidth: 200
-
-                         TextField {
-                             id: textFieldPswSetNTP
-                             anchors.centerIn: parent
-                             echoMode: TextInput.Password
-                             placeholderText: qsTr("Input user password")
-                             focus: true
-                             Keys.onReturnPressed: dialogSetNTP.accept()
-                         }
-                     }
-
-                     onAccepted: {
-                         if (textFieldPswSetNTP.text) {
-                             timeEditor.add_ntp_servers(textFieldNTP.text, textFieldPswSetNTP.text)
-                         }
-                     }
-                 }
 
                 MyControls.Button {
                     text: qsTr("Set NTP Servers")

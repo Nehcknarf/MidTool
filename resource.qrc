@@ -27,6 +27,9 @@
         <file>imports/Controls/TabButton.qml</file>
         <file>imports/Controls/TextField.qml</file>
         <file>imports/Controls/VertTabBar.qml</file>
+        <file>imports/Components/qmldir</file>
+        <file>imports/Components/Dialog.qml</file>
+        <file>imports/Components/TerminalOutput.qml</file>
         <file>content/fonts/OPlusSans3-Bold.ttf</file>
         <file>content/fonts/OPlusSans3-Medium.ttf</file>
         <file>content/images/close.svg</file>

@@ -1,6 +1,6 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
 
@@ -10,7 +10,6 @@ import src.editor
 Item {
     MyControls.VertTabBar {
         id: vertTabBarConfig
-
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.top: parent.top
@@ -21,11 +20,13 @@ Item {
             anchors.right: parent.right
             text: qsTr("NVR")
         }
+
         MyControls.TabButton {
             anchors.left: parent.left
             anchors.right: parent.right
             text: qsTr("Reader")
         }
+
         MyControls.TabButton {
             anchors.left: parent.left
             anchors.right: parent.right
@@ -61,11 +62,11 @@ Item {
                 font.pixelSize: 16
                 text: qsTr("Network Video Recorder")
             }
+
             MyControls.Button {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 text: qsTr("Save")
-
                 onClicked: {
                     let productChannels = []
                     for (let i = 0; i < columnLayoutProductChannel.children.length; ++i) {
@@ -78,7 +79,7 @@ Item {
                         textFieldNvrPassword.text,
                         switchNvrEnabledUpload.checked,
                         textFieldNvrUploadSaveDir.text,
-                        productChannels);
+                        productChannels)
                 }
             }
 
@@ -96,65 +97,70 @@ Item {
                     font.pixelSize: 16
                     text: qsTr("Enabled NVR")
                 }
+
                 MyControls.Switch {
                     id: switchNvrEnabled
-
                     checked: configEditor.nvr_cfg["enabled"] === undefined ? 0 : configEditor.nvr_cfg["enabled"]
                 }
+
                 Label {
                     font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Host")
                 }
+
                 MyControls.TextField {
                     id: textFieldNvrServerIp
-
                     implicitWidth: 150
                     text: configEditor.nvr_cfg["server_ip"] === undefined ? null : configEditor.nvr_cfg["server_ip"]
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
+
                 Label {
                     font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Username")
                 }
+
                 MyControls.TextField {
                     id: textFieldNvrUserName
-
                     implicitWidth: 150
                     text: configEditor.nvr_cfg["username"] === undefined ? null : configEditor.nvr_cfg["username"]
                     inputMethodHints: Qt.ImhPreferLowercase
                 }
+
                 Label {
                     font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Password")
                 }
+
                 MyControls.TextField {
                     id: textFieldNvrPassword
-
                     implicitWidth: 150
                     text: configEditor.nvr_cfg["password"] === undefined ? null : configEditor.nvr_cfg["password"]
                     inputMethodHints: Qt.ImhPreferLowercase
                 }
+
                 Label {
                     font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Enabled Video Upload")
                 }
+
                 MyControls.Switch {
                     id: switchNvrEnabledUpload
-
                     checked: configEditor.nvr_cfg["enabled_upload"] === undefined ? 0 : configEditor.nvr_cfg["enabled_upload"]
                 }
+
                 Label {
                     font.family: bold.font.family
                     font.pixelSize: 16
                     text: qsTr("Sever video storage path")
                 }
+
                 MyControls.TextField {
                     id: textFieldNvrUploadSaveDir
-
                     implicitWidth: 250
                     text: configEditor.nvr_cfg["upload_save_dir"] === undefined ? null : configEditor.nvr_cfg["upload_save_dir"]
                     inputMethodHints: Qt.ImhUrlCharactersOnly
@@ -198,7 +204,6 @@ Item {
                 ColumnLayout {
                     id: columnLayoutProductChannel
                     spacing: 20
-
                     Component.onCompleted: {
                         let productChannels = configEditor.nvr_cfg["product_channels"]
                         if (productChannels !== undefined) {
@@ -226,9 +231,8 @@ Item {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 text: qsTr("Save")
-
                 onClicked: {
-                    configEditor.save_consumable_extern_cfg(switchReaderEnabled.checked, readers);
+                    configEditor.save_consumable_extern_cfg(switchReaderEnabled.checked, readers)
                 }
             }
 
@@ -282,7 +286,6 @@ Item {
                 ColumnLayout {
                     id: columnLayoutReader
                     spacing: 20
-
                     Component.onCompleted: {
                         let readers = configEditor.extern_cfg["readers"]
                         if (readers !== undefined) {
@@ -310,7 +313,6 @@ Item {
                 anchors.right: parent.right
                 anchors.top: parent.top
                 text: qsTr("Save")
-
                 onClicked: {
                     configEditor.save_sync_cfg(textFieldSyncHost.text)
                 }

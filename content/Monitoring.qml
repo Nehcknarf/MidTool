@@ -1,9 +1,10 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
-import QtQuick.Dialogs 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 import Controls as MyControls
+import Components as MyComponents
 
 import src.monitoring
 
@@ -26,90 +27,27 @@ Item {
 
         MiddlewareManager {
             id: middlewareManager
-            Component.onCompleted: middlewareManager.Stdout.connect(textArea.append)
+            Component.onCompleted: middlewareManager.Stdout.connect(terminalOutput.textArea.append)
         }
-        // Dialog 临时方案
-        Dialog {
+
+        MyComponents.Dialog {
             id: dialogStart
-            modal: true
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            title: qsTr("Please input user password")
-
-            contentItem: Rectangle {
-                color: "#FFFFFF"
-                implicitHeight: 50
-                implicitWidth: 200
-
-                TextField {
-                    id: textFieldPsw
-                    anchors.centerIn: parent
-                    echoMode: TextInput.Password
-                    placeholderText: qsTr("Input user password")
-                    focus: true
-                    Keys.onReturnPressed: dialogStart.accept()
-                }
-            }
-
-            onAccepted: {
-                if (textFieldPsw.text) {
-                    fileDialog.open()
-                }
+            onAction: {
+                fileDialog.open()
             }
         }
 
-        Dialog {
+        MyComponents.Dialog {
             id: dialogRestart
-            modal: true
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            title: qsTr("Please input user password")
-
-            contentItem: Rectangle {
-                color: "#FFFFFF"
-                implicitHeight: 50
-                implicitWidth: 200
-
-                TextField {
-                    id: textFieldPsw1
-                    anchors.centerIn: parent
-                    echoMode: TextInput.Password
-                    placeholderText: qsTr("Input user password")
-                    focus: true
-                    Keys.onReturnPressed: dialogRestart.accept()
-                }
-            }
-
-            onAccepted: {
-                if (textFieldPsw1.text) {
-                    middlewareManager.restart_middleware(textFieldPsw1.text)
-                }
+            onAction: {
+                middlewareManager.restart_middleware(input)
             }
         }
 
-        Dialog {
+        MyComponents.Dialog {
             id: dialogStop
-            modal: true
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            title: qsTr("Please input user password")
-
-            contentItem: Rectangle {
-                color: "#FFFFFF"
-                implicitHeight: 50
-                implicitWidth: 200
-
-                TextField {
-                    id: textFieldPsw2
-                    anchors.centerIn: parent
-                    echoMode: TextInput.Password
-                    placeholderText: qsTr("Input user password")
-                    focus: true
-                    Keys.onReturnPressed: dialogStop.accept()
-                }
-            }
-
-            onAccepted: {
-                if (textFieldPsw2.text) {
-                    middlewareManager.stop_middleware(textFieldPsw2.text)
-                }
+            onAction: {
+                middlewareManager.stop_middleware(input)
             }
         }
 
@@ -119,7 +57,7 @@ Item {
             nameFilters: [qsTr("Json file (*.json)")]
             title: qsTr("Please select middleware config file, if no need just cancel")
             onAccepted: middlewareManager.start_middleware_pm2(selectedFile)
-            onRejected: middlewareManager.start_middleware_sv(textFieldPsw.text)
+            onRejected: middlewareManager.start_middleware_sv(dialogStart.input)
         }
 
         RowLayout {
@@ -211,7 +149,8 @@ Item {
         }
     }
 
-    MyControls.GroupBox {
+    MyComponents.TerminalOutput {
+        id: terminalOutput
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -220,39 +159,5 @@ Item {
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 192
-
-        Label {
-            font.family: bold.font.family
-            font.pixelSize: 16
-            text: qsTr("Terminal Output")
-        }
-
-        MyControls.Button {
-            anchors.right: parent.right
-            anchors.top: parent.top
-            text: qsTr("Clear")
-            onClicked: textArea.clear()
-        }
-
-        ScrollView {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 54
-
-            background: Rectangle {
-                border.color: "#CAD0E0"
-                radius: 8
-            }
-
-            TextArea {
-                id: textArea
-                anchors.fill: parent
-                font.family: medium.font.family
-                font.pixelSize: 16
-                readOnly: true
-            }
-        }
     }
 }

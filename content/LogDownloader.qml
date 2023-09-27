@@ -1,9 +1,10 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
-import QtQuick.Dialogs 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 import Controls as MyControls
+import Components as MyComponents
 
 import src.logDownloader
 
@@ -13,7 +14,7 @@ Item {
 
     LogDownloader {
         id: logDownloader
-        Component.onCompleted: logDownloader.Output.connect(textAreaDownload.append)
+        Component.onCompleted: logDownloader.Output.connect(terminalOutputLog.textArea.append)
     }
 
     MyControls.GroupBox {
@@ -57,7 +58,6 @@ Item {
                 leftPadding: 3
                 bottomPadding: 0
                 topPadding: 0
-
                 Layout.fillHeight: true
             }
 
@@ -98,7 +98,6 @@ Item {
                 leftPadding: 3
                 bottomPadding: 0
                 topPadding: 0
-
                 Layout.fillHeight: true
             }
 
@@ -119,7 +118,8 @@ Item {
         }
     }
 
-    MyControls.GroupBox {
+    MyComponents.TerminalOutput {
+        id: terminalOutputLog
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -128,39 +128,5 @@ Item {
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 142
-
-        Label {
-            font.family: bold.font.family
-            font.pixelSize: 16
-            text: qsTr("Terminal Output")
-        }
-
-        MyControls.Button {
-            anchors.right: parent.right
-            anchors.top: parent.top
-            text: qsTr("Clear")
-            onClicked: textAreaDownload.clear()
-        }
-
-        ScrollView {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 54
-
-            background: Rectangle {
-                border.color: "#CAD0E0"
-                radius: 8
-            }
-
-            TextArea {
-                id: textAreaDownload
-                anchors.fill: parent
-                font.family: medium.font.family
-                font.pixelSize: 16
-                readOnly: true
-            }
-        }
     }
 }

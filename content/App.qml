@@ -1,5 +1,5 @@
-import QtQuick 6.5
-import QtQuick.VirtualKeyboard 6.5
+import QtQuick
+import QtQuick.VirtualKeyboard
 
 
 Window {
@@ -30,7 +30,6 @@ Window {
         property bool showKeyboard: active
 
         y: showKeyboard ? parent.height - height : parent.height
-
         anchors.left: parent.left
         anchors.leftMargin: mainScreen.width / 5
         anchors.right: parent.right
