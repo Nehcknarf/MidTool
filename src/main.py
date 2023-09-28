@@ -4,6 +4,8 @@ import sys
 from PySide6.QtGui import QGuiApplication, QIcon
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QUrl, QLocale, QCommandLineParser, QCommandLineOption
+# 为了打包 FFmpeg 而导入
+from PySide6.QtMultimedia import QMediaDevices
 
 import utils.resource
 from utils.translator import JsonTranslator
@@ -17,7 +19,6 @@ from editor import ConfigEditor
 from serial import Serial
 from fingerprint import SquareFingerPrint, RoundFingerPrint
 from activation import Activation
-from camera import CameraModel
 from network import Network
 from timezone import TimeEditor
 from downloader import LogDownloader
