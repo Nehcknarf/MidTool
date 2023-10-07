@@ -7,14 +7,8 @@ import Controls as MyControls
 
 
 MyControls.GroupBox {
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: 16
-    anchors.left: parent.left
-    anchors.leftMargin: 16
-    anchors.right: parent.right
-    anchors.rightMargin: 16
-    anchors.top: parent.top
-    anchors.topMargin: 16
+    anchors.fill: parent
+    anchors.margins: 16
 
     Label {
         font.family: bold.font.family

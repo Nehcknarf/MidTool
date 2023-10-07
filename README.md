@@ -4,14 +4,14 @@ MidTool 中台工具 Qt6 + QML 重构版本
 ## 开发环境
 ```
 Python 3.11
-PySide6 6.5.2
+PySide6 6.5
 ```
 
 ## 开发IDE
 ```
-Qt Design Studio 4.2 该IDE只能生成C++项目，Python无法直接套用。此IDE仅用于QML控件可视化调试，后将代码复制到QML文件中进行后续开发
-Qt Creator 11 用于QML调试
-PyCharm 2023.2.1 主力开发
+PyCharm 2023.2 Pro 用于主力开发，从该版本开始支持QML语法检查
+Qt Design Studio 4.2 该IDE只能生成C++项目，Python无法直接套用。此IDE仅用于QML控件可视化调试，后将代码复制到QML文件中进行后续开发。
+Qt Creator 11 可用于QML调试
 ```
 
 ## 创建并激活虚拟环境，安装依赖
@@ -33,17 +33,21 @@ pip install -r requirements.txt
 ## 将 qrc 资源文件编译到 py 文件
 `pyside6-rcc resource.qrc -o src/utils/resource.py`
 
-## Ubuntu 20.04 开发环境问题踩坑
+## 配置 Pycharm 显示 QML Debug 输出到控制台的方法
+```
+在 Pycharm 的 Run/Debug Configurations 设置中，找到 Modify options 下拉菜单，勾选 Emulate terminal in output console
+```
+
+## Ubuntu 20.04 开发环境运行问题踩坑
 ```
 libGL error: MESA-LOADER: failed to open swrast: /usr/lib/dri/swrast_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/x86_64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
 解决方式：添加环境变量
-export LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libffi.so.7
+在 Pycharm 的 Run/Debug Configurations 设置中，向 Environment variables 添加 LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libffi.so.7
+即可在 Ubuntu 20.04 开发环境下即时运行程序。Ubuntu 22.04 没有该问题，无需执行上述配置。
 ```
 
-## Ubuntu 22.04 开发环境问题踩坑
+## Ubuntu 22.04 打包问题踩坑
 ```
 https://github.com/pyinstaller/pyinstaller/issues/7197
-解决方式：创建软链接
-sudo find / -name libpyside6qml*
-sudo ln -s /home/z/miniconda3/envs/midtoolNext2204/lib/python3.11/site-packages/PySide6/libpyside6qml.abi3.so.6.5 /lib
+解决方式：Pyinstaller 6.0.0 已修复该问题
 ```
