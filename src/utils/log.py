@@ -1,11 +1,14 @@
 import logging.handlers
+from pathlib import Path
+
+from .adapter import root_path
 
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 handler = logging.handlers.TimedRotatingFileHandler(
-    filename="midtool.log",
+    filename=f"{Path(root_path).parent}/midtool.log",
     when="D",
     interval=90
 )

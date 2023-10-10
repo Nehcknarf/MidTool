@@ -33,7 +33,7 @@ Item {
         MyComponents.Dialog {
             id: dialogStart
             onAction: {
-                fileDialog.open()
+                middlewareManager.start_middleware(input)
             }
         }
 
@@ -51,14 +51,13 @@ Item {
             }
         }
 
-        FileDialog {
-            id: fileDialog
-            currentFolder: "/nubomed"
-            nameFilters: [qsTr("Json file (*.json)")]
-            title: qsTr("Please select middleware config file, if no need just cancel")
-            onAccepted: middlewareManager.start_middleware_pm2(selectedFile)
-            onRejected: middlewareManager.start_middleware_sv(dialogStart.input)
-        }
+        // FileDialog {
+        //     id: fileDialog
+        //     currentFolder: "/nubomed"
+        //     nameFilters: [qsTr("Json file (*.json)")]
+        //     title: qsTr("Please select middleware config file, if no need just cancel")
+        //     onAccepted: middlewareManager.start_middleware(dialogStart.input)
+        // }
 
         RowLayout {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -68,7 +67,11 @@ Item {
                 id: buttonStart
                 text: qsTr("Start")
                 onClicked: {
-                    dialogStart.open()
+                    if (productType === 1) {
+                        dialogStart.open()
+                    } else {
+                        middlewareManager.start_middleware("")
+                    }
                 }
             }
 
@@ -76,7 +79,11 @@ Item {
                 id: buttonRestart
                 text: qsTr("Restart")
                 onClicked: {
-                    dialogRestart.open()
+                    if (productType === 1) {
+                        dialogRestart.open()
+                    } else {
+                        middlewareManager.restart_middleware("")
+                    }
                 }
             }
 
@@ -84,7 +91,11 @@ Item {
                 id: buttonStop
                 text: qsTr("Stop")
                 onClicked: {
-                    dialogStop.open()
+                    if (productType === 1) {
+                        dialogStop.open()
+                    } else {
+                        middlewareManager.stop_middleware("")
+                    }
                 }
             }
         }

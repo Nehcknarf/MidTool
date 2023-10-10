@@ -8,6 +8,7 @@ pyinstaller src/main.py \
 --clean \
 --noconfirm \
 --name midtool2 \
+--add-data 'config:config' \
 --add-data 'lib/fingerprint/*.so:lib/fingerprint/' \
 --add-data 'script:script' \
 --add-data 'i18n:i18n' \

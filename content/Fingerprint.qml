@@ -78,6 +78,7 @@ Item {
                     MyControls.ComboBox {
                         id: comboBoxComS
                         model: squareFingerPrint.availablePorts
+                        enabled: ! switchSquareFingerPrint.checked
                         // currentIndex: -1
                         popup.onOpened: squareFingerPrint.update_ports()
                     }
@@ -111,6 +112,7 @@ Item {
                     MyControls.ComboBox {
                         id: comboBoxBaudRateS
                         model: squareFingerPrint.baudRates
+                        enabled: ! switchSquareFingerPrint.checked
                         Component.onCompleted: currentIndex = indexOfValue(57600)
                     }
                 }
@@ -228,6 +230,7 @@ Item {
                     MyControls.ComboBox {
                         id: comboBoxComR
                         model: roundFingerPrint.availablePorts
+                        enabled: ! switchRoundFingerPrint.checked
                         // currentIndex: -1
                         textRole: "text"
                         valueRole: "value"
@@ -263,6 +266,7 @@ Item {
                     MyControls.ComboBox {
                         id: comboBoxBaudRateR
                         model: roundFingerPrint.baudRates
+                        enabled: ! switchRoundFingerPrint.checked
                         Component.onCompleted: currentIndex = indexOfValue(57600)
                     }
                 }

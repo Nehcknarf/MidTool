@@ -17,6 +17,9 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     modal: true
 
+    Overlay.modal: Rectangle {
+        color: "transparent"
+    }
 
     contentItem: Rectangle {
         color: "#FFFFFF"

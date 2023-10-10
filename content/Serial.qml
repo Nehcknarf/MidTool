@@ -43,6 +43,7 @@ Item {
             MyControls.ComboBox {
                 id: comboBoxSerPort
                 model: serial.availablePorts
+                enabled: ! switchSer.checked
                 // currentIndex: -1
                 popup.onOpened: serial.update_ports()
             }
@@ -56,6 +57,7 @@ Item {
             MyControls.ComboBox {
                 id: comboBoxSerBaudRate
                 model: serial.baudRates
+                enabled: ! switchSer.checked
                 Component.onCompleted: currentIndex = indexOfValue(115200)
             }
 
@@ -66,6 +68,7 @@ Item {
             }
 
             MyControls.Switch {
+                id: switchSer
                 onCheckedChanged: {
                     checked ? serial.open_device(comboBoxSerPort.currentValue, comboBoxSerBaudRate.currentValue) : serial.close_device()
                 }

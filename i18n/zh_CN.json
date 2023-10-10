@@ -23,8 +23,6 @@
   "Middleware Service Management": "中台服务管理",
   "Please input user password": "请输入用户密码",
   "Input user password": "输入用户密码",
-  "Json file (*.json)": "Json 文件 (*.json)",
-  "Please select middleware config file, if no need just cancel": "请选择中台配置文件，如果不需要请取消",
   "Start": "启动",
   "Restart": "重启",
   "Stop": "停止",

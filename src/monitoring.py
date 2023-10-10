@@ -4,6 +4,8 @@ from PySide6.QtCore import QAbstractListModel, QByteArray, Qt, QModelIndex, Slot
 from PySide6.QtQml import QmlElement
 
 from process import Process
+from utils.adapter import product_type, consumable_cabinet_path, consumable_cabinet_cfg, ecart_cfg, ecart_path, \
+    consumable_cabinet_service, ecart_service
 from utils.log import logger
 
 
@@ -15,25 +17,34 @@ QML_IMPORT_MINOR_VERSION = 0
 @QmlElement
 class MiddlewareManager(Process):
     @Slot(str)
-    def start_middleware_sv(self, password):
-        logger.info("Start middleware through Supervisor...")
-        self.start(f"sudo supervisorctl start all", password=password)
-
-    @Slot(QUrl)
-    def start_middleware_pm2(self, qurl):
-        path = qurl.toLocalFile()
-        logger.info("Start middleware through PM2...")
-        self.start(f"pm2 start {path} -m && pm2 save -m")
+    def start_middleware(self, password):
+        logger.info("Start middleware...")
+        if product_type == 0:
+            self.start(f"pm2 start {consumable_cabinet_path + consumable_cabinet_cfg} -m && pm2 save -m")
+        elif product_type == 2:
+            self.start(f"pm2 start {ecart_path + ecart_cfg} -m && pm2 save -m")
+        elif product_type == 1:
+            self.start(f"sudo supervisorctl start all", password=password)
 
     @Slot(str)
     def restart_middleware(self, password):
         logger.info("Restart middleware...")
-        self.start(f"sudo supervisorctl restart all || pm2 restart NuboMedCabinetService -m || pm2 restart NuboMedEmergencyService -m", password=password)
+        if product_type == 0:
+            self.start(f"pm2 restart {consumable_cabinet_service} -m")
+        elif product_type == 2:
+            self.start(f"pm2 restart {ecart_service} -m")
+        elif product_type == 1:
+            self.start(f"sudo supervisorctl restart all", password=password)
 
     @Slot(str)
     def stop_middleware(self, password):
         logger.info("Stop middleware...")
-        self.start(f"sudo supervisorctl stop all || pm2 stop NuboMedCabinetService -m || pm2 stop NuboMedEmergencyService -m", password=password)
+        if product_type == 0:
+            self.start(f"pm2 stop {consumable_cabinet_service} -m")
+        elif product_type == 2:
+            self.start(f"pm2 stop {ecart_service} -m")
+        elif product_type == 1:
+            self.start(f"sudo supervisorctl stop all", password=password)
 
 
 @QmlElement

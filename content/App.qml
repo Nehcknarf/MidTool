@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.VirtualKeyboard
+import QtQuick.VirtualKeyboard.Settings
 
 
 Window {
@@ -34,6 +35,8 @@ Window {
         anchors.leftMargin: mainScreen.width / 5
         anchors.right: parent.right
         anchors.rightMargin: mainScreen.width / 5
+
+        Component.onCompleted: VirtualKeyboardSettings.activeLocales  = "en_US"
 
         Behavior on y  {
             NumberAnimation {
