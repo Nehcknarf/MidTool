@@ -1,6 +1,6 @@
 from PySide6.QtCore import QObject, QProcess, Signal, Slot
 
-from utils.env import root_path, work_path, shell, coding, sep
+from utils.adapter import work_path, shell, coding, sep
 
 
 class Process(QObject):

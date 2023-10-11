@@ -1,5 +1,6 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
 
@@ -77,7 +78,7 @@ Rectangle {
         MouseArea {
             anchors.fill: parent
 
-            property variant pressedPos: "0,0"
+            property var pressedPos: "0,0"
 
             onClicked: {
                 Qt.inputMethod.hide()
@@ -101,6 +102,79 @@ Rectangle {
             anchors.topMargin: 14
             fillMode: Image.PreserveAspectFit
             source: "qrc:/content/images/logo.png"
+        }
+
+        Popup {
+            id: popupAbout
+            x: (window.width - width) / 2
+            y: (window.height - height) / 2
+            modal: true
+
+            background: Rectangle {
+                // border.color: "#FFFFFF"
+                radius: 8
+            }
+
+            ColumnLayout {
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("About")
+                        font.family: bold.font.family
+                        font.pixelSize: 20
+                    }
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Image {
+                        Layout.preferredHeight: 64
+                        Layout.preferredWidth: 64
+                        fillMode: Image.PreserveAspectFit
+                        source: "qrc:/content/images/icon.png"
+                    }
+
+                    Label {
+                        text: "MidTool " + midToolVersion
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                    }
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("Powered by") + " Python " + pythonVersion + " & Qt " + qtVersion
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                    }
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("Copyright @ 2022-2023 NuboMed. All Rights Reserved.")
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                    }
+                }
+            }
+        }
+
+        Image {
+            height: 32
+            width: 32
+            anchors.right: parent.right
+            anchors.rightMargin: 66
+            anchors.top: parent.top
+            anchors.topMargin: 14
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/content/images/about.svg"
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: popupAbout.open()
+            }
         }
 
         Image {
@@ -231,10 +305,9 @@ Rectangle {
                     // 药品柜
                     case 1:
                         return "qrc:/content/EditorDrug.qml"
-                    // TODO 抢救车 抢救车还未规划配置项，展示药品柜设置页
+                    // 抢救车 抢救车还未规划配置项，展示空页
                     case 2:
-                        return "qrc:/content/EditorDrug.qml"
-                        // return "qrc:/content/EditorEcart.qml"
+                        return "qrc:/content/EditorEcart.qml"
                     // 未知设备 默认展示耗材柜设置页
                     case -1:
                         return "qrc:/content/EditorConsumable.qml"

@@ -1,9 +1,10 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
-import QtQuick.Dialogs 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtQuick.Dialogs
 
 import Controls as MyControls
+import Components as MyComponents
 
 import src.monitoring
 
@@ -11,7 +12,6 @@ import src.monitoring
 Item {
     MyControls.GroupBox {
         id: groupBox
-
         anchors.left: parent.left
         anchors.leftMargin: 16
         anchors.top: parent.top
@@ -27,103 +27,37 @@ Item {
 
         MiddlewareManager {
             id: middlewareManager
-            Component.onCompleted: middlewareManager.Stdout.connect(textArea.append)
+            Component.onCompleted: middlewareManager.Stdout.connect(terminalOutput.textArea.append)
         }
-        // Dialog 临时方案
-        Dialog {
+
+        MyComponents.Dialog {
             id: dialogStart
-            modal: true
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            title: qsTr("Please input user password")
-
-            contentItem: Rectangle {
-                color: "#FFFFFF"
-                implicitHeight: 50
-                implicitWidth: 200
-
-                TextField {
-                    id: textFieldPsw
-                    anchors.centerIn: parent
-                    echoMode: TextInput.Password
-                    placeholderText: qsTr("Input user password")
-                    focus: true
-                    Keys.onReturnPressed: dialogStart.accept()
-                }
-            }
-
-            onAccepted: {
-                if (textFieldPsw.text) {
-                    fileDialog.open()
-                }
+            onAction: {
+                middlewareManager.start_middleware(input)
             }
         }
 
-        Dialog {
+        MyComponents.Dialog {
             id: dialogRestart
-            modal: true
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            title: qsTr("Please input user password")
-
-            contentItem: Rectangle {
-                color: "#FFFFFF"
-                implicitHeight: 50
-                implicitWidth: 200
-
-                TextField {
-                    id: textFieldPsw1
-                    anchors.centerIn: parent
-                    echoMode: TextInput.Password
-                    placeholderText: qsTr("Input user password")
-                    focus: true
-                    Keys.onReturnPressed: dialogRestart.accept()
-                }
-            }
-
-            onAccepted: {
-                if (textFieldPsw1.text) {
-                    middlewareManager.restart_middleware(textFieldPsw1.text)
-                }
+            onAction: {
+                middlewareManager.restart_middleware(input)
             }
         }
 
-        Dialog {
+        MyComponents.Dialog {
             id: dialogStop
-            modal: true
-            standardButtons: Dialog.Ok | Dialog.Cancel
-            title: qsTr("Please input user password")
-
-            contentItem: Rectangle {
-                color: "#FFFFFF"
-                implicitHeight: 50
-                implicitWidth: 200
-
-                TextField {
-                    id: textFieldPsw2
-                    anchors.centerIn: parent
-                    echoMode: TextInput.Password
-                    placeholderText: qsTr("Input user password")
-                    focus: true
-                    Keys.onReturnPressed: dialogStop.accept()
-                }
-            }
-
-            onAccepted: {
-                if (textFieldPsw2.text) {
-                    middlewareManager.stop_middleware(textFieldPsw2.text)
-                }
+            onAction: {
+                middlewareManager.stop_middleware(input)
             }
         }
 
-        FileDialog {
-            id: fileDialog
-
-            currentFolder: "/nubomed"
-            nameFilters: [qsTr("Json file (*.json)")]
-            title: qsTr("Please select middleware config file, if no need just cancel")
-
-            onAccepted: middlewareManager.start_middleware_pm2(selectedFile)
-            onRejected: middlewareManager.start_middleware_sv(textFieldPsw.text)
-        }
+        // FileDialog {
+        //     id: fileDialog
+        //     currentFolder: "/nubomed"
+        //     nameFilters: [qsTr("Json file (*.json)")]
+        //     title: qsTr("Please select middleware config file, if no need just cancel")
+        //     onAccepted: middlewareManager.start_middleware(dialogStart.input)
+        // }
 
         RowLayout {
             anchors.horizontalCenter: parent.horizontalCenter
@@ -133,28 +67,42 @@ Item {
                 id: buttonStart
                 text: qsTr("Start")
                 onClicked: {
-                    dialogStart.open()
+                    if (productType === 1) {
+                        dialogStart.open()
+                    } else {
+                        middlewareManager.start_middleware("")
+                    }
                 }
             }
+
             MyControls.Button {
                 id: buttonRestart
                 text: qsTr("Restart")
                 onClicked: {
-                    dialogRestart.open()
+                    if (productType === 1) {
+                        dialogRestart.open()
+                    } else {
+                        middlewareManager.restart_middleware("")
+                    }
                 }
             }
+
             MyControls.Button {
                 id: buttonStop
                 text: qsTr("Stop")
                 onClicked: {
-                    dialogStop.open()
+                    if (productType === 1) {
+                        dialogStop.open()
+                    } else {
+                        middlewareManager.stop_middleware("")
+                    }
                 }
             }
         }
     }
+
     MyControls.GroupBox {
         id: groupBox1
-
         anchors.left: groupBox.right
         anchors.leftMargin: 16
         anchors.right: parent.right
@@ -168,55 +116,52 @@ Item {
             font.pixelSize: 16
             text: qsTr("Service Running Status")
         }
+
         Timer {
             interval: 1000
             repeat: true
             running: true
-
             onTriggered: listView.model.set_data()
         }
+
         ListView {
             id: listView
-
-            anchors.bottomMargin: 50
             anchors.fill: parent
             anchors.leftMargin: 50
             anchors.rightMargin: 50
-            anchors.topMargin: 50
+            anchors.topMargin: 40
+            anchors.bottomMargin: 40
             orientation: ListView.Horizontal
 
             delegate: Item {
-                height: 40
-                width: 110
-                x: 5
+                width: 85
 
                 Column {
-                    spacing: 10
-
-                    Row {
-                        spacing: 2
-
-                        Text {
-                            font.family: medium.font.family
-                            font.pixelSize: 16
-                            text: name
-                        }
-                        Text {
-                            font.family: medium.font.family
-                            font.pixelSize: 16
-                            text: percent + "%"
-                        }
+                    Text {
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                        text: name
                     }
+
+                    Text {
+                        font.family: medium.font.family
+                        font.pixelSize: 16
+                        text: status.includes(".") ? status + "%" : status
+                    }
+
                     MyControls.ProgressBar {
-                        value: percent / 100
-                        width: 90
+                        value: status / 100
+                        width: 75
+                        visible: status.includes(".")
                     }
                 }
             }
             model: SystemInfoModel {}
         }
     }
-    MyControls.GroupBox {
+
+    MyComponents.TerminalOutput {
+        id: terminalOutput
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -225,38 +170,5 @@ Item {
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 192
-
-        Label {
-            font.family: bold.font.family
-            font.pixelSize: 16
-            text: qsTr("Terminal Output")
-        }
-        MyControls.Button {
-            anchors.right: parent.right
-            anchors.top: parent.top
-            text: qsTr("Clear")
-
-            onClicked: textArea.clear()
-        }
-        ScrollView {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 54
-
-            background: Rectangle {
-                border.color: "#CAD0E0"
-                radius: 8
-            }
-
-            TextArea {
-                id: textArea
-                anchors.fill: parent
-                font.family: medium.font.family
-                font.pixelSize: 16
-                readOnly: true
-            }
-        }
     }
 }

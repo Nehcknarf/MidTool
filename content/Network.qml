@@ -1,9 +1,9 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
-import QtQuick.Dialogs 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
+import Components as MyComponents
 
 import src.network
 
@@ -36,13 +36,13 @@ Item {
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 16
-        anchors.bottom: groupBoxNetwork.top
+        anchors.bottom: terminalOutputNw.top
         anchors.bottomMargin: 16
         currentIndex: vertTabBarNetwork.currentIndex
 
         Network {
             id: network
-            Component.onCompleted: network.Stdout.connect(textAreaNetwork.append)
+            Component.onCompleted: network.Stdout.connect(terminalOutputNw.textArea.append)
         }
 
          MyControls.GroupBox {
@@ -110,6 +110,29 @@ Item {
                  text: qsTr("Route")
              }
 
+             MyComponents.Dialog {
+                 id: dialogAddRoute
+                 onAction: {
+                     network.add_route(
+                         textFieldDestination.text,
+                         textFieldGenmask.text,
+                         textFieldGateway.text,
+                         input
+                     )
+                 }
+             }
+
+             MyComponents.Dialog {
+                 id: dialogDelRoute
+                 onAction: {
+                     network.del_route(
+                         textFieldDestination.text,
+                         textFieldGenmask.text,
+                         input
+                     )
+                 }
+             }
+
              ColumnLayout {
                  anchors.horizontalCenter: parent.horizontalCenter
                  anchors.verticalCenter: parent.verticalCenter
@@ -163,75 +186,10 @@ Item {
                          inputMethodHints: Qt.ImhDigitsOnly
                      }
 
-                     Dialog {
-                         id: dialogAddRoute
-                         modal: true
-                         standardButtons: Dialog.Ok | Dialog.Cancel
-                         title: qsTr("Please input user password")
-
-                         contentItem: Rectangle {
-                             color: "#FFFFFF"
-                             implicitHeight: 50
-                             implicitWidth: 200
-
-                             TextField {
-                                 id: textFieldPswAddRoute
-                                 anchors.centerIn: parent
-                                 echoMode: TextInput.Password
-                                 placeholderText: qsTr("Input user password")
-                                 focus: true
-                                 Keys.onReturnPressed: dialogAddRoute.accept()
-                             }
-                         }
-
-                         onAccepted: {
-                             if (textFieldPswAddRoute.text) {
-                                 network.add_route(
-                                     textFieldDestination.text,
-                                     textFieldGenmask.text,
-                                     textFieldGateway.text,
-                                     textFieldPswAddRoute.text
-                                 )
-                             }
-                         }
-                     }
-
                      MyControls.Button {
                          text: qsTr("+")
                          implicitWidth: 40
                          onClicked: dialogAddRoute.open()
-                     }
-
-                     Dialog {
-                         id: dialogDelRoute
-                         modal: true
-                         standardButtons: Dialog.Ok | Dialog.Cancel
-                         title: qsTr("Please input user password")
-
-                         contentItem: Rectangle {
-                             color: "#FFFFFF"
-                             implicitHeight: 50
-                             implicitWidth: 200
-
-                             TextField {
-                                 id: textFieldPswDelRoute
-                                 anchors.centerIn: parent
-                                 echoMode: TextInput.Password
-                                 placeholderText: qsTr("Input user password")
-                                 focus: true
-                                 Keys.onReturnPressed: dialogDelRoute.accept()
-                             }
-                         }
-
-                         onAccepted: {
-                             if (textFieldPswDelRoute.text) {
-                                 network.del_route(
-                                     textFieldDestination.text,
-                                     textFieldGenmask.text,
-                                     textFieldPswDelRoute.text
-                                 )
-                             }
-                         }
                      }
 
                      MyControls.Button {
@@ -244,8 +202,8 @@ Item {
          }
     }
 
-    MyControls.GroupBox {
-        id: groupBoxNetwork
+    MyComponents.TerminalOutput {
+        id: terminalOutputNw
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 16
         anchors.left: parent.left
@@ -254,38 +212,5 @@ Item {
         anchors.rightMargin: 16
         anchors.top: parent.top
         anchors.topMargin: 192
-
-        Label {
-            font.family: bold.font.family
-            font.pixelSize: 16
-            text: qsTr("Terminal Output")
-        }
-        MyControls.Button {
-            anchors.right: parent.right
-            anchors.top: parent.top
-            text: qsTr("Clear")
-
-            onClicked: textAreaNetwork.clear()
-        }
-        ScrollView {
-            anchors.bottom: parent.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: parent.top
-            anchors.topMargin: 54
-
-            background: Rectangle {
-                border.color: "#CAD0E0"
-                radius: 8
-            }
-
-            TextArea {
-                id: textAreaNetwork
-                anchors.fill: parent
-                font.family: medium.font.family
-                font.pixelSize: 16
-                readOnly: true
-            }
-        }
     }
 }

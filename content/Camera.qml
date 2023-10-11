@@ -1,22 +1,14 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
-import QtMultimedia 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import QtMultimedia
 
 import Controls as MyControls
 
-import src.camera
-
 
 MyControls.GroupBox {
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: 16
-    anchors.left: parent.left
-    anchors.leftMargin: 16
-    anchors.right: parent.right
-    anchors.rightMargin: 16
-    anchors.top: parent.top
-    anchors.topMargin: 16
+    anchors.fill: parent
+    anchors.margins: 16
 
     Label {
         font.family: bold.font.family
@@ -24,19 +16,19 @@ MyControls.GroupBox {
         text: qsTr("Camera Preview")
     }
 
-    CameraModel {
-        id: cameraModel
-    }
-
     MediaDevices {
         id: mediaDevices
     }
 
     CaptureSession {
-        id: cptureSession
+        id: captureSession
         videoOutput: videoOutput
         camera: Camera {
-            cameraDevice: comboBoxCamera.currentValue === undefined ? mediaDevices.defaultVideoInput : comboBoxCamera.currentValue
+            active: switchCamera.checked ? 1 : 0
+            focusMode: Camera.FocusModeAutoNear
+            onErrorOccurred: function (error, errorString) {
+                console.log(errorString)
+            }
         }
     }
 
@@ -52,10 +44,10 @@ MyControls.GroupBox {
 
         MyControls.ComboBox {
             id: comboBoxCamera
-            model: cameraModel.cameras
-            // currentIndex: -1
-            textRole: "text"
-            valueRole: "value"
+            model: mediaDevices.videoInputs
+            textRole: "description"
+            displayText: captureSession.camera.cameraDevice.description
+            onActivated: captureSession.camera.cameraDevice = comboBoxCamera.currentValue
         }
 
         Label {
@@ -65,7 +57,7 @@ MyControls.GroupBox {
         }
 
         MyControls.Switch {
-            onCheckedChanged: checked ? cptureSession.camera.start() : cptureSession.camera.stop()
+            id: switchCamera
         }
 
         Rectangle {

@@ -6,6 +6,8 @@ TextField {
     placeholderText: qsTr("Enter")
     font.family: medium.font.family
     font.pixelSize: 16
+    horizontalAlignment: Text.AlignHCenter
+    verticalAlignment: Text.AlignVCenter
 
     background: Rectangle {
         implicitWidth: 100

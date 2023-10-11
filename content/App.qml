@@ -1,5 +1,6 @@
-import QtQuick 6.5
-import QtQuick.VirtualKeyboard 6.5
+import QtQuick
+import QtQuick.VirtualKeyboard
+import QtQuick.VirtualKeyboard.Settings
 
 
 Window {
@@ -10,7 +11,7 @@ Window {
     width: mainScreen.width
     height: mainScreen.height
     visible: true
-    flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
+    flags: argCurrentIndex ? Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint : Qt.FramelessWindowHint | Qt.Window
 
     FontLoader {
         id: bold
@@ -30,17 +31,11 @@ Window {
         property bool showKeyboard: active
 
         y: showKeyboard ? parent.height - height : parent.height
-
         anchors.left: parent.left
         anchors.leftMargin: mainScreen.width / 5
         anchors.right: parent.right
         anchors.rightMargin: mainScreen.width / 5
 
-        Behavior on y  {
-            NumberAnimation {
-                duration: 200
-                easing.type: Easing.InOutQuad
-            }
-        }
+        Component.onCompleted: VirtualKeyboardSettings.activeLocales  = "en_US"
     }
 }

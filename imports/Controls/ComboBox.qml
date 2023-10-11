@@ -14,7 +14,6 @@ ComboBox {
             font.family: medium.font.family
             font.pixelSize: 16
             verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
             elide: Text.ElideRight
         }
         highlighted: control.highlightedIndex === index
@@ -45,7 +44,7 @@ ComboBox {
     }
 
     contentItem: Text {
-        leftPadding: 0
+        leftPadding: 13
         rightPadding: control.indicator.width + control.spacing
 
         text: control.displayText
@@ -53,7 +52,6 @@ ComboBox {
         font.pixelSize: 16
         color: "#181D41"
         verticalAlignment: Text.AlignVCenter
-        horizontalAlignment: Text.AlignHCenter
         elide: Text.ElideRight
     }
 

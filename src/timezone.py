@@ -5,6 +5,8 @@ from PySide6.QtQml import QmlElement
 
 from process import Process
 
+from utils.log import logger
+
 
 QML_IMPORT_NAME = "src.time"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -27,12 +29,15 @@ class TimeEditor(Process):
 
     @Slot(str, str)
     def set_timezone(self, timezone, password):
+        logger.info(f"Set system timezone to {timezone}")
         self.start(f"sudo timedatectl set-timezone {timezone}", password=password)
 
     @Slot(str, str)
     def set_time(self, time, password):
+        logger.info(f"Set system time to {time}")
         self.start(f"sudo timedatectl set-time '{time}'", password=password)
 
     @Slot(str, str)
     def add_ntp_servers(self, ntp_servers, password):
+        logger.info(f"Replace system NTP servers to {ntp_servers} (/etc/systemd/timesyncd.conf)")
         self.start(f"sudo sed -i 's/^#*NTP=.*/NTP={ntp_servers}/' /etc/systemd/timesyncd.conf && systemctl restart systemd-timesyncd", password=password)

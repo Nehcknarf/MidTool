@@ -1,19 +1,29 @@
 import os
 import sys
 import platform
+import tomllib
 from pathlib import Path
 
 
-# midtool running path
+# MidTool running path
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     root_path = sys._MEIPASS
 else:
     root_path = Path(__file__).parents[2]
 
 # Middleware path
-consumable_cabinet_path = "/nubomed/consumable-cabinet-service/"
-drug_cabinet_path = "/nubomed/midpkg/drug-middleware/"
-ecart_path = "/nubomed/ecart-service/"
+with open(f"{root_path}/config/config.toml", "rb") as f:
+    cfg = tomllib.load(f)
+
+    consumable_cabinet_path = cfg["consumable_cabinet"]["path"]
+    drug_cabinet_path = cfg["drug_cabinet"]["path"]
+    ecart_path = cfg["ecart"]["path"]
+
+    consumable_cabinet_cfg = cfg["consumable_cabinet"]["mid_cfg"]
+    ecart_cfg = cfg["ecart"]["mid_cfg"]
+
+    consumable_cabinet_service = cfg["consumable_cabinet"]["service"]
+    ecart_service = cfg["ecart"]["service"]
 
 # Product
 if Path(consumable_cabinet_path).exists():
@@ -34,15 +44,15 @@ else:
     middleware_root_path = Path(".")
 
 # Middleware sub folder
-middleware_cfg_path = middleware_root_path / "conf"
-middleware_log_path = middleware_root_path / "logs"
-# Middleware config file
-sync_cfg_path = middleware_cfg_path / "application-sync.yml"
-nvr_cfg_path = middleware_cfg_path / "application-nvr.yml"
-extern_cfg_path = middleware_cfg_path / "application-extern.yml"
-ws_cfg_path = middleware_cfg_path / "application-ws.yml"
-mcc_cfg_path = middleware_cfg_path / "application-mcc.yml"
-action_delay_cfg_path = middleware_cfg_path / "application-action-delay.yml"
+middleware_cfg_path = middleware_root_path / cfg["common"]["conf_dir"]
+middleware_log_path = middleware_root_path / cfg["common"]["log_dir"]
+# Config file
+sync_cfg_path = middleware_cfg_path / cfg["common"]["sync_cfg"]
+nvr_cfg_path = middleware_cfg_path / cfg["common"]["nvr_cfg"]
+extern_cfg_path = middleware_cfg_path / cfg["common"]["extern_cfg"]
+ws_cfg_path = middleware_cfg_path / cfg["common"]["ws_cfg"]
+mcc_cfg_path = middleware_cfg_path / cfg["common"]["mcc_cfg"]
+action_delay_cfg_path = middleware_cfg_path / cfg["common"]["action_delay_cfg"]
 
 # System
 system = platform.system()

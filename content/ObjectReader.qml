@@ -1,6 +1,6 @@
-import QtQuick 6.5
-import QtQuick.Controls 6.5
-import QtQuick.Layouts 6.5
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
 
 import Controls as MyControls
 
@@ -36,6 +36,9 @@ RowLayout {
         implicitWidth: 150
         text: root.host
         inputMethodHints: Qt.ImhDigitsOnly
+        validator: RegularExpressionValidator {
+            regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+        }
         onTextChanged: {
             root.host = this.text
         }
