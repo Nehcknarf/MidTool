@@ -36,6 +36,9 @@ RowLayout {
         implicitWidth: 150
         text: root.host
         inputMethodHints: Qt.ImhDigitsOnly
+        validator: RegularExpressionValidator {
+            regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+        }
         onTextChanged: {
             root.host = this.text
         }

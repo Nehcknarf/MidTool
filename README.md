@@ -49,3 +49,9 @@ pip install -r requirements.txt
 相关问题：https://github.com/pyinstaller/pyinstaller/issues/7197
 解决方式：升级 Ubuntu 22.04，获得最新的 glibc 修复
 ```
+
+## Linux 下 QML Camera 开启后关闭，无法再次打开的问题
+```
+关联BUG：https://bugreports.qt.io/browse/QTBUG-116470
+解决方式：疑似为 PySide6 6.5 小版本引入的 BUG，等待 Qt 官方修复 BUG
+```

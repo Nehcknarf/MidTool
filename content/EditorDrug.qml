@@ -123,6 +123,9 @@ Item {
                     implicitWidth: 150
                     text: configEditor.nvr_cfg["server_ip"] === undefined ? null : configEditor.nvr_cfg["server_ip"]
                     inputMethodHints: Qt.ImhDigitsOnly
+                    validator: RegularExpressionValidator {
+                        regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                    }
                 }
 
                 Label {
@@ -291,9 +294,12 @@ Item {
                     id: textFieldFingerprintMatchingThreshold
                     implicitWidth: 100
                     text: configEditor.extern_cfg["match_threshold"] === undefined ? null : configEditor.extern_cfg["match_threshold"]
-                    validator: IntValidator {
-                        bottom: 0
-                        top: 100
+                    // validator: IntValidator {
+                    //     bottom: 0
+                    //     top: 100
+                    // }
+                    validator: RegularExpressionValidator {
+                        regularExpression: /^([1-9][0-9]{0,1}|100)$/
                     }
                     inputMethodHints: Qt.ImhDigitsOnly
                 }
@@ -410,6 +416,9 @@ Item {
                     implicitWidth: 150
                     text: configEditor.sync_cfg["host"] === undefined ? null : configEditor.sync_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
+                    validator: RegularExpressionValidator {
+                        regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                    }
                 }
 
                 Label {
@@ -434,6 +443,9 @@ Item {
                     implicitWidth: 150
                     text: configEditor.mcc_cfg["host"] === undefined ? null : configEditor.mcc_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
+                    validator: RegularExpressionValidator {
+                        regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                    }
                 }
 
                 Label {

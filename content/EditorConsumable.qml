@@ -114,6 +114,9 @@ Item {
                     implicitWidth: 150
                     text: configEditor.nvr_cfg["server_ip"] === undefined ? null : configEditor.nvr_cfg["server_ip"]
                     inputMethodHints: Qt.ImhDigitsOnly
+                    validator: RegularExpressionValidator {
+                        regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                    }
                 }
 
                 Label {
@@ -338,6 +341,9 @@ Item {
                     implicitWidth: 150
                     text: configEditor.sync_cfg["host"] === undefined ? null : configEditor.sync_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
+                    validator: RegularExpressionValidator {
+                        regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                    }
                 }
             }
         }

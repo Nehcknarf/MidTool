@@ -11,7 +11,7 @@ Window {
     width: mainScreen.width
     height: mainScreen.height
     visible: true
-    flags: Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint
+    flags: argCurrentIndex ? Qt.FramelessWindowHint | Qt.Window | Qt.WindowStaysOnTopHint : Qt.FramelessWindowHint | Qt.Window
 
     FontLoader {
         id: bold
@@ -37,12 +37,5 @@ Window {
         anchors.rightMargin: mainScreen.width / 5
 
         Component.onCompleted: VirtualKeyboardSettings.activeLocales  = "en_US"
-
-        Behavior on y  {
-            NumberAnimation {
-                duration: 200
-                easing.type: Easing.InOutQuad
-            }
-        }
     }
 }

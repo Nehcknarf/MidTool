@@ -2,6 +2,7 @@ import os
 import sys
 
 from PySide6.QtGui import QGuiApplication, QIcon
+from PySide6.QtNetwork import QLocalSocket, QLocalServer
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtCore import QUrl, QLocale, QCommandLineParser, QCommandLineOption
 # 为了打包 FFmpeg 而导入
@@ -63,35 +64,46 @@ def main():
     app = QGuiApplication(sys.argv)
     app.setWindowIcon(QIcon(":/content/images/icon.png"))
 
-    translator = JsonTranslator(app)
-    locale = QLocale.system().name()
-    if locale == "zh_CN":
-        translator.load(f"{root_path}/i18n/zh_CN.json")
-    elif locale in ["zh_TW", "zh_HK", "zh_MO"]:
-        translator.load(f"{root_path}/i18n/zh_TW.json")
-    app.installTranslator(translator)
+    # 防止多开
+    server_name = "MidTool"
+    socket = QLocalSocket()
+    socket.connectToServer(server_name)
 
-    idx = parse_args(app)
-
-    engine = QQmlApplicationEngine()
-
-    url = QUrl("qrc:/content/App.qml")
-
-    engine.addImportPath("qrc:/imports")
-    # print(engine.importPathList())
-
-    engine.rootContext().setContextProperty("productType", product_type)
-    engine.rootContext().setContextProperty("argCurrentIndex", idx)
-    engine.rootContext().setContextProperty("midToolVersion", midtool_version)
-    engine.rootContext().setContextProperty("pythonVersion", python_version)
-    engine.rootContext().setContextProperty("qtVersion", qt_version)
-
-    engine.load(url)
-
-    if not engine.rootObjects():
+    if socket.waitForConnected(500):
         sys.exit(-1)
+    else:
+        local_server = QLocalServer()
+        local_server.listen(server_name)
 
-    sys.exit(app.exec())
+        translator = JsonTranslator(app)
+        locale = QLocale.system().name()
+        if locale == "zh_CN":
+            translator.load(f"{root_path}/i18n/zh_CN.json")
+        elif locale in ["zh_TW", "zh_HK", "zh_MO"]:
+            translator.load(f"{root_path}/i18n/zh_TW.json")
+        app.installTranslator(translator)
+
+        idx = parse_args(app)
+
+        engine = QQmlApplicationEngine()
+
+        url = QUrl("qrc:/content/App.qml")
+
+        engine.addImportPath("qrc:/imports")
+        # print(engine.importPathList())
+
+        engine.rootContext().setContextProperty("productType", product_type)
+        engine.rootContext().setContextProperty("argCurrentIndex", idx)
+        engine.rootContext().setContextProperty("midToolVersion", midtool_version)
+        engine.rootContext().setContextProperty("pythonVersion", python_version)
+        engine.rootContext().setContextProperty("qtVersion", qt_version)
+
+        engine.load(url)
+
+        if not engine.rootObjects():
+            sys.exit(-1)
+
+        sys.exit(app.exec())
 
 
 if __name__ == "__main__":
