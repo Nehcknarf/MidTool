@@ -1,18 +1,20 @@
 # MidTool 2
-MidTool 中台工具 Qt6 + QML 重构版本
+### MidTool 中台工具箱 重构版本 
+### 基于 Qt6.5 LTS，前端由 QML 编写，后端为 PySide6
 
 ## 开发环境
-```
-Python 3.11
-PySide6 6.5
-```
+| Pack    | Version |
+|---------|---------|
+| Python  | 3.11    |
+| PySide6 | 6.5     |
 
-## 开发IDE
-```
-PyCharm 2023.2 Pro 用于主力开发，从该版本开始支持QML语法检查
-Qt Design Studio 4.2 该IDE只能生成C++项目，Python无法直接套用。此IDE仅用于QML控件可视化调试，后将代码复制到QML文件中进行后续开发。
-Qt Creator 11 可用于QML调试
-```
+## 可用的IDE
+- PyCharm 2023.2 (Professional Edition)
+  - 用于主力开发，从该版本开始支持QML语法检查
+- Qt Design Studio 4.2 
+  - 该IDE只能生成C++项目，Python无法直接套用。此IDE仅用于QML控件可视化调试，后将代码复制到QML文件中进行后续开发。
+- Qt Creator 11 
+  - 可用于QML调试
 
 ## 创建并激活虚拟环境，安装依赖
 ```

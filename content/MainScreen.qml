@@ -236,29 +236,34 @@ Rectangle {
         }
 
         MyControls.TabButton {
-            text: qsTr("Face Recognition")
+            text: qsTr("RFID Reader")
             visible: argCurrentIndex === 5 || argCurrentIndex == null
+        }
+
+        MyControls.TabButton {
+            text: qsTr("Face Recognition")
+            visible: argCurrentIndex === 6 || argCurrentIndex == null
             onClicked: faceRecognitionTip()
         }
 
         MyControls.TabButton {
             text: qsTr("Camera")
-            visible: argCurrentIndex === 6 || argCurrentIndex == null
-        }
-
-        MyControls.TabButton {
-            text: qsTr("Network")
             visible: argCurrentIndex === 7 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
-            text: qsTr("Time")
+            text: qsTr("Network")
             visible: argCurrentIndex === 8 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
-            text: qsTr("Log Downloader")
+            text: qsTr("Time")
             visible: argCurrentIndex === 9 || argCurrentIndex == null
+        }
+
+        MyControls.TabButton {
+            text: qsTr("Log Downloader")
+            visible: argCurrentIndex === 10 || argCurrentIndex == null
         }
     }
 
@@ -323,6 +328,11 @@ Rectangle {
 
         Loader {
             source: "qrc:/content/Fingerprint.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+        }
+
+        Loader {
+            source: "qrc:/content/Reader.qml"
             // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
 

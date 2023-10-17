@@ -26,14 +26,7 @@ MyControls.GroupBox {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 50
-
-        ScrollBar.horizontal.interactive: true
-        ScrollBar.vertical.interactive: true
-
-        background: Rectangle {
-            border.color: "#CAD0E0"
-            radius: 8
-        }
+        clip: true
 
         TextArea {
             id: textArea
@@ -41,6 +34,11 @@ MyControls.GroupBox {
             font.family: medium.font.family
             font.pixelSize: 16
             readOnly: true
+
+            background: Rectangle {
+                border.color: "#CAD0E0"
+                radius: 8
+            }
         }
     }
 }

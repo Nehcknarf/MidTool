@@ -19,4 +19,4 @@ class Activation(Process):
         sdk_key = "8bLYHqy1QaCzqbQ5PrDuQFGfmk1QJneYV216uSjDBq7v"
         key_string = "-".join([key_part_1, key_part_2, key_part_3, key_part_4]).upper()
         logger.info(f"Try to activate ArcSoft using KEY: {key_string}")
-        self.start(f"bash arsoftActive.sh {app_id} {sdk_key} {key_string}", f"{root_path}/script/")
+        self.start(f"bash arsoftActive.sh {app_id} {sdk_key} {key_string}", f"{root_path}/script/Activate")
