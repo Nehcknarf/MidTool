@@ -23,6 +23,7 @@ from activation import Activation
 from network import Network
 from timezone import TimeEditor
 from downloader import LogDownloader
+from reader import Reader
 
 
 def set_qt_environment():
@@ -41,11 +42,12 @@ def parse_args(app):
         "Editor": 2,
         "Serial": 3,
         "Fingerprint": 4,
-        "Face": 5,
-        "Camera": 6,
-        "Network": 7,
-        "Time": 8,
-        "LogDownload": 9
+        "Reader": 5,
+        "Face": 6,
+        "Camera": 7,
+        "Network": 8,
+        "Time": 9,
+        "LogDownload": 10
     }
 
     parser = QCommandLineParser()

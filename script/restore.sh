@@ -11,7 +11,7 @@ if [ -d /nubomed/midpkg/drug-middleware/ ]; then
    rm -rf /nubomed/midpkg/drug-middleware
    cp -r /nubomed/mid_bakup/$option/db /nubomed/midpkg/
    cp -r /nubomed/mid_bakup/$option/drug-middleware /nubomed/midpkg/
-elif [ -d /nubomed/consumable-service/ ]; then
+elif [ -d /nubomed/consumable-cabinet-service/ ]; then
    project_name=$(ls /nubomed/mid_bakup/$option/)
    rm -rf /nubomed/$project_name
    cp -r /nubomed/mid_bakup/$option/$project_name /nubomed/

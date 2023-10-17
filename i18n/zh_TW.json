@@ -171,5 +171,10 @@
   "Middleware logs saved in {}": "中台日誌已保存到 {}",
   "Add real-time {} to the zip": "添加實時日誌 {} 到壓縮包",
   "System logs saved in {}": "系統日誌已保存到 {}",
-  "Start Date must be earlier than or equal to End Date": "開始日期必須早於或者等於結束日期"
+  "Start Date must be earlier than or equal to End Date": "開始日期必須早於或者等於結束日期",
+  "RFID Reader": "RFID讀寫器",
+  "Terminal Input": "終端輸入",
+  "Start configuration": "啟動配置腳本",
+  "Send": "發送指令",
+  "Error occurred": "輸入出錯"
 }

@@ -44,6 +44,7 @@ class Maintenance(Process):
         logger.info(f"Try to update middleware using {update_pkg_path}...")
         self.start(f"bash update.sh {update_pkg_path}", f"{root_path}/script/")
 
+    @Slot()
     def get_middleware_backup(self):
         p = Path("/nubomed/mid_bakup")
         if p.exists():
@@ -57,4 +58,4 @@ class Maintenance(Process):
     @Slot(str)
     def restore_middleware(self, backup):
         logger.info(f"Try to restore middleware using {backup} backup...")
-        self.start(f"bash restore.sh {backup}", f"{root_path}/script/")
+        self.start(f"bash restore.sh '{backup}'", f"{root_path}/script/")

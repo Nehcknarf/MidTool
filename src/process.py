@@ -27,6 +27,13 @@ class Process(QObject):
             process_echo.waitForFinished()
         self.process_command.startCommand(shell.format(command))
 
+    @Slot(str)
+    def write(self, data):
+        data += sep
+        ret = self.process_command.write(data.encode(coding))
+        if ret == -1:
+            self.Stdout.emit(self.tr("Error occurred"))
+
     @Slot()
     def kill(self):
         self.process_command.kill()
