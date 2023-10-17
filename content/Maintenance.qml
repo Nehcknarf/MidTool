@@ -114,7 +114,7 @@ Item {
 
                     onAccepted: {
                         terminalOutputMt.textArea.append(selectedFile)
-                        // maintenance.update_middleware(selectedFile)
+                        maintenance.update_middleware(selectedFile)
                     }
                 }
 
@@ -123,13 +123,13 @@ Item {
                     onClicked: fileDialogUpdate.open()
                 }
 
-                MyControls.Button {
-                    text: qsTr("Execute update")
-                    onClicked: {
-                        maintenance.update_middleware(fileDialogUpdate.selectedFile)
-                        // console.log(comboBoxCabinet.currentValue)
-                    }
-                }
+                // MyControls.Button {
+                //     text: qsTr("Execute update")
+                //     onClicked: {
+                //         maintenance.update_middleware(fileDialogUpdate.selectedFile)
+                //         // console.log(comboBoxCabinet.currentValue)
+                //     }
+                // }
             }
         }
 
@@ -158,6 +158,7 @@ Item {
                     id: comboBoxBackUp
                     model: maintenance.backups
                     // currentIndex: -1
+                    popup.onOpened: maintenance.get_middleware_backup()
                 }
 
                 MyControls.Button {

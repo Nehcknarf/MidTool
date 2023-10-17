@@ -235,6 +235,10 @@ Item {
                 anchors.top: parent.top
                 text: qsTr("Save")
                 onClicked: {
+                    let readers = []
+                    for (let i = 0; i < columnLayoutReader.children.length; ++i) {
+                        readers.push([columnLayoutReader.children[i].cabinetId, columnLayoutReader.children[i].host, columnLayoutReader.children[i].antennaNo])
+                    }
                     configEditor.save_consumable_extern_cfg(switchReaderEnabled.checked, readers)
                 }
             }

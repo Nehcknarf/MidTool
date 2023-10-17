@@ -1,0 +1,72 @@
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+
+import Controls as MyControls
+import Components as MyComponents
+
+import src.reader
+
+
+Item {
+    Reader {
+        id: reader
+        Component.onCompleted: reader.Stdout.connect(terminalOutputRd.textArea.append)
+    }
+
+    MyControls.GroupBox {
+        anchors.left: parent.left
+        anchors.leftMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.top: parent.top
+        anchors.topMargin: 16
+        height: 110
+
+        Label {
+            font.family: bold.font.family
+            font.pixelSize: 16
+            text: qsTr("Terminal Input")
+        }
+
+        RowLayout {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.verticalCenter: parent.verticalCenter
+
+            MyControls.Button {
+                text: qsTr("Start configuration")
+                onClicked: reader.start_config()
+            }
+
+            ToolSeparator {
+                rightPadding: 3
+                leftPadding: 3
+                bottomPadding: 0
+                topPadding: 0
+                Layout.fillHeight: true
+            }
+
+            MyControls.TextField {
+                id: textFieldKeyData
+                implicitWidth: 300
+            }
+
+            MyControls.Button {
+                text: qsTr("Send")
+                onClicked: reader.write(textFieldKeyData.text)
+            }
+        }
+    }
+
+    MyComponents.TerminalOutput {
+        id: terminalOutputRd
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 16
+        anchors.left: parent.left
+        anchors.leftMargin: 16
+        anchors.right: parent.right
+        anchors.rightMargin: 16
+        anchors.top: parent.top
+        anchors.topMargin: 142
+    }
+}
