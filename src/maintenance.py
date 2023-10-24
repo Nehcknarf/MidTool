@@ -28,11 +28,11 @@ class Maintenance(Process):
 
     cabinets = Property(list, get_cabinets, notify=cabinetsChanged)
 
-    @Slot(int)
+    @Slot(str)
     def install_middleware(self, type):
         if wd := glob.glob("/nubomed/consumable-cabinet-service_V*/"):
             logger.info(f"Try to install middleware in {type}...")
-            self.start(f"bash install.sh {type}", wd[0])
+            self.start(f"bash install.sh '{type}'", wd[0])
         else:
             logger.error(f"Middleware install package not found, install failed.")
             self.Stdout.emit(self.tr("Please confirm middleware install package has already unzip under "
@@ -44,7 +44,6 @@ class Maintenance(Process):
         logger.info(f"Try to update middleware using {update_pkg_path}...")
         self.start(f"bash update.sh {update_pkg_path}", f"{root_path}/script/")
 
-    @Slot()
     def get_middleware_backup(self):
         p = Path("/nubomed/mid_bakup")
         if p.exists():

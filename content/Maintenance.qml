@@ -158,7 +158,6 @@ Item {
                     id: comboBoxBackUp
                     model: maintenance.backups
                     // currentIndex: -1
-                    popup.onOpened: maintenance.get_middleware_backup()
                 }
 
                 MyControls.Button {

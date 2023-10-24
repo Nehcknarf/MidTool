@@ -285,7 +285,7 @@ Rectangle {
                 case 4:
                     fingerprintTip()
                     break
-                case 5:
+                case 6:
                     faceRecognitionTip()
                     break
             }
