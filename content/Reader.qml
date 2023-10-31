@@ -38,6 +38,11 @@ Item {
                 onClicked: reader.start_config()
             }
 
+            MyControls.Button {
+                text: qsTr("Kill process")
+                onClicked: reader.kill()
+            }
+
             ToolSeparator {
                 rightPadding: 3
                 leftPadding: 3
@@ -53,7 +58,10 @@ Item {
 
             MyControls.Button {
                 text: qsTr("Send")
-                onClicked: reader.write(textFieldKeyData.text)
+                onClicked: {
+                    reader.write(textFieldKeyData.text)
+                    textFieldKeyData.clear()
+                }
             }
         }
     }

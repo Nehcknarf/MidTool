@@ -5,6 +5,8 @@ import QtMultimedia
 
 import Controls as MyControls
 
+import src.camera
+
 
 MyControls.GroupBox {
     anchors.fill: parent
@@ -14,6 +16,10 @@ MyControls.GroupBox {
         font.family: bold.font.family
         font.pixelSize: 16
         text: qsTr("Camera Preview")
+    }
+
+    CameraModel {
+        id: cameraModel
     }
 
     MediaDevices {
@@ -26,6 +32,7 @@ MyControls.GroupBox {
         camera: Camera {
             active: switchCamera.checked ? 1 : 0
             focusMode: Camera.FocusModeAutoNear
+            cameraDevice: comboBoxCamera.currentValue === undefined ? mediaDevices.defaultVideoInput : comboBoxCamera.currentValue
             onErrorOccurred: function (error, errorString) {
                 console.log(errorString)
             }
@@ -44,10 +51,11 @@ MyControls.GroupBox {
 
         MyControls.ComboBox {
             id: comboBoxCamera
-            model: mediaDevices.videoInputs
-            textRole: "description"
-            displayText: captureSession.camera.cameraDevice.description
-            onActivated: captureSession.camera.cameraDevice = comboBoxCamera.currentValue
+            model: cameraModel.cameras
+            enabled: ! switchCamera.checked
+            // currentIndex: -1
+            textRole: "text"
+            valueRole: "value"
         }
 
         Label {

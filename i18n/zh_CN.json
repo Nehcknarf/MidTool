@@ -175,6 +175,7 @@
   "RFID Reader": "RFID读写器",
   "Terminal Input": "终端输入",
   "Start configuration": "启动配置脚本",
+  "Kill process": "结束进程",
   "Send": "发送指令",
   "Error occurred": "输入出错"
 }
