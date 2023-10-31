@@ -26,7 +26,6 @@ MyControls.GroupBox {
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 50
-        clip: true
 
         TextArea {
             id: textArea
