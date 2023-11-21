@@ -177,5 +177,12 @@
   "Start configuration": "啟動配置腳本",
   "Kill process": "結束進程",
   "Send": "發送指令",
-  "Error occurred": "輸入出錯"
+  "Error occurred": "輸入出錯",
+  "Please select a folder to save records": "請選擇記錄將要保存到的文件夾",
+  "Language": "語言",
+  "Language (System needs to reboot for a language change to take effect.)": "語言（修改語言後系統可能需要重啟才能生效）",
+  "Backend Language": "後端語言",
+  "Frontend Language": "前端語言",
+  "Simplified Chinese": "簡體中文",
+  "English": "英文"
 }

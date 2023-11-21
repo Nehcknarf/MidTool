@@ -15,7 +15,7 @@
   - 该IDE只能生成C++项目，Python无法直接套用。此IDE仅用于QML控件可视化调试，后将代码复制到QML文件中进行后续开发。
 - Qt Creator 11 
   - 可用于QML调试
-  - 
+
 ## 创建并激活虚拟环境，安装依赖包
 ```
 conda create -n midtool python=3.11

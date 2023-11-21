@@ -1,4 +1,4 @@
-from PySide6.QtCore import Slot
+from PySide6.QtCore import Slot, QUrl
 from PySide6.QtQml import QmlElement
 
 from process import Process
@@ -17,3 +17,9 @@ class Reader(Process):
     def start_config(self):
         logger.info(f"Try to config RFID reader...")
         self.start(f"bash start.sh", f"{root_path}/script/RFIDReader/")
+
+    @Slot(QUrl, str)
+    def record(self, qurl, text):
+        save_dir = qurl.toLocalFile()
+        with open(f"{save_dir}/reader_records.txt", "w") as f:
+            f.write(text)

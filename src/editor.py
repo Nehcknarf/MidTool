@@ -1,11 +1,13 @@
+import json
+
 from ruamel.yaml import YAML
 
 from PySide6.QtCore import QObject, Signal, Slot, Property
 from PySide6.QtQml import QmlElement
 
 from utils.log import logger
-from utils.adapter import product_type, nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, mcc_cfg_path, ws_cfg_path
-
+from utils.adapter import product_type, nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, \
+    mcc_cfg_path, ws_cfg_path, finger_cfg_path, lang_cfg_path
 
 QML_IMPORT_NAME = "src.editor"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -29,6 +31,9 @@ class ConfigEditor(QObject):
         self.sync_cfg_dict = {}
         self.mcc_cfg_dict = {}
         self.ws_cfg_dict = {}
+        self.finger_cfg_dict = {}
+        self.lang_cfg_dict = {}
+        self.front_lang_cfg_dict = {}
 
     def read_nvr_cfg(self):
         try:
@@ -111,6 +116,19 @@ class ConfigEditor(QObject):
                         "match_threshold": match_threshold
                     }
 
+                elif product_type == 2:
+                    if self.extern_cfg_dict.get("honglu").get("serial") is not None:
+                        enabled = self.extern_cfg_dict.get("honglu").get("serial").get("enabled")
+                        port = self.extern_cfg_dict.get("honglu").get("serial").get("port")
+                        baud_rate = self.extern_cfg_dict.get("honglu").get("serial").get("baud")
+                        antenna_nos = self.extern_cfg_dict.get("honglu").get("serial").get("antenna-nos")
+                        return {
+                            "enabled": enabled,
+                            "port": port,
+                            "baud_rate": baud_rate,
+                            "antenna_nos": str(antenna_nos)
+                        }
+
         except Exception as err:
             logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
 
@@ -158,6 +176,20 @@ class ConfigEditor(QObject):
                         else:
                             readers_list.append({"cabinet-id": cabinet_id, "host": host, "port": 4001})
                     self.extern_cfg_dict["rodin"]["server"]["readers"] = readers_list
+                self.yaml.dump(self.extern_cfg_dict, f)
+
+        except Exception as err:
+            logger.error(err, exc_info=True)
+
+    @Slot(bool, str, int, str)
+    def save_ecart_extern_cfg(self, enable, port, baud_rate, antenna_nos):
+        try:
+            logger.info(f"Try to save configs to yaml")
+            with open(extern_cfg_path, mode='w', encoding="UTF-8") as f:
+                self.extern_cfg_dict["honglu"]["serial"]["enabled"] = enable
+                self.extern_cfg_dict["honglu"]["serial"]["port"] = port
+                self.extern_cfg_dict["honglu"]["serial"]["baud"] = baud_rate
+                self.extern_cfg_dict["honglu"]["serial"]["antenna-nos"] = eval(antenna_nos)
                 self.yaml.dump(self.extern_cfg_dict, f)
 
         except Exception as err:
@@ -269,6 +301,72 @@ class ConfigEditor(QObject):
             with open(ws_cfg_path, mode='w', encoding="UTF-8") as f:
                 self.ws_cfg_dict["protocol"]["restructure"] = restructure
                 self.yaml.dump(self.ws_cfg_dict, f)
+
+        except Exception as err:
+            logger.error(err, exc_info=True)
+
+    def read_finger_cfg(self):
+        try:
+            with open(finger_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.finger_cfg_dict = self.yaml.load(f)
+                port = self.finger_cfg_dict.get("serial").get("finger").get("zaz0a0").get("port").split("/")[-1]
+                baud_rate = self.finger_cfg_dict.get("serial").get("finger").get("zaz0a0").get("baut")
+
+        except Exception as err:
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
+
+        else:
+            return {
+                "port": port,
+                "baud_rate": baud_rate
+            }
+
+    finger_config = Property(dict, read_finger_cfg, notify=cfgChanged)
+
+    @Slot(str, int)
+    def save_finger_cfg(self, port, baud_rate):
+        try:
+            logger.info(f"Try to save configs to yaml")
+            with open(finger_cfg_path, mode='w', encoding="UTF-8") as f:
+                self.finger_cfg_dict["serial"]["finger"]["zaz0a0"]["port"] = "/dev/" + port
+                self.finger_cfg_dict["serial"]["finger"]["zaz0a0"]["baut"] = baud_rate
+                self.yaml.dump(self.finger_cfg_dict, f)
+
+        except Exception as err:
+            logger.error(err, exc_info=True)
+
+    def read_lang_cfg(self):
+        try:
+            with open(lang_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.lang_cfg_dict = self.yaml.load(f)
+                lang = self.lang_cfg_dict.get("i18n").get("language")
+
+            with open("/nubomed/NbClient-linux-x64/resources/static/config.json", mode="r", encoding="UTF-8") as f:
+                self.front_lang_cfg_dict = json.load(f)
+                front_lang = self.front_lang_cfg_dict.get("language")
+
+        except Exception as err:
+            logger.info(f"Yaml doesn't exist or structure is not standard. {err}")
+
+        else:
+            return {
+                "lang": lang,
+                "front_lang": front_lang
+            }
+
+    lang_config = Property(dict, read_lang_cfg, notify=cfgChanged)
+
+    @Slot(str, str)
+    def save_lang_cfg(self, lang, front_lang):
+        try:
+            logger.info(f"Try to save configs to yaml")
+            with open(lang_cfg_path, mode='w', encoding="UTF-8") as f:
+                self.lang_cfg_dict["i18n"]["language"] = lang
+                self.yaml.dump(self.lang_cfg_dict, f)
+
+            with open("/nubomed/NbClient-linux-x64/resources/static/config.json", mode='w', encoding="UTF-8") as f:
+                self.front_lang_cfg_dict["language"] = front_lang
+                json.dump(self.front_lang_cfg_dict, f)
 
         except Exception as err:
             logger.error(err, exc_info=True)

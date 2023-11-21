@@ -27,6 +27,9 @@ MyControls.GroupBox {
         anchors.top: parent.top
         anchors.topMargin: 50
 
+        ScrollBar.vertical.position: 1.0 - ScrollBar.vertical.size
+        ScrollBar.horizontal.position: 0.0 - ScrollBar.horizontal.size
+
         TextArea {
             id: textArea
             anchors.fill: parent

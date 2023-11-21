@@ -19,4 +19,6 @@ path = "/nubomed/midpkg/drug-middleware/"
 [ecart]
 path = "/nubomed/ecart-service/"
 mid_cfg = "ecart_service.json"
+finger_cfg = "application-finger.yml"
+lang_cfg = "application-language.yml"
 service = "NuboMedEmergencyService"

@@ -146,5 +146,6 @@ PySide6/Qt/plugins/qmltooling
 
 cd ../..
 echo "Compress the folder to *.tar.bz2 pkg"
+midtool_ver=$(python3 ../src/utils/version.py)
 lsb=$(lsb_release -r -s)
-tar -zvcf midtool2_"$lsb".tar.gz midtool2
+tar -zvcf midtool_"$midtool_ver"_"$lsb".tar.gz midtool2

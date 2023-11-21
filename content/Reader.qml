@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Dialogs
 
 import Controls as MyControls
 import Components as MyComponents
@@ -54,14 +55,39 @@ Item {
             MyControls.TextField {
                 id: textFieldKeyData
                 implicitWidth: 300
+                Keys.onReturnPressed: btnSend.clicked()
             }
 
             MyControls.Button {
+                id: btnSend
                 text: qsTr("Send")
                 onClicked: {
                     reader.write(textFieldKeyData.text)
                     textFieldKeyData.clear()
                 }
+            }
+
+            ToolSeparator {
+                rightPadding: 3
+                leftPadding: 3
+                bottomPadding: 0
+                topPadding: 0
+                Layout.fillHeight: true
+            }
+
+            FolderDialog {
+                id: folderDialogRd
+                title: qsTr("Please select a folder to save records")
+                currentFolder: "/media"
+                acceptLabel: qsTr("Save")
+                onAccepted: {
+                    reader.record(selectedFolder, terminalOutputRd.textArea.text)
+                }
+            }
+
+            MyControls.Button {
+                text: qsTr("Save to...")
+                onClicked: folderDialogRd.open()
             }
         }
     }
