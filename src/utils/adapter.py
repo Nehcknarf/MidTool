@@ -53,6 +53,8 @@ extern_cfg_path = middleware_cfg_path / cfg["common"]["extern_cfg"]
 ws_cfg_path = middleware_cfg_path / cfg["common"]["ws_cfg"]
 mcc_cfg_path = middleware_cfg_path / cfg["common"]["mcc_cfg"]
 action_delay_cfg_path = middleware_cfg_path / cfg["common"]["action_delay_cfg"]
+finger_cfg_path = middleware_cfg_path / cfg["ecart"]["finger_cfg"]
+lang_cfg_path = middleware_cfg_path / cfg["ecart"]["lang_cfg"]
 
 # System
 system = platform.system()

@@ -78,6 +78,7 @@
   "Batch unlock delay (ms)": "批量解鎖延遲 (ms)",
   "Unclosed drawer check interval (ms)": "未關閉抽屜檢查間隔 (ms)",
   "Synchronization/Middleware Control Center/WebSocket": "同步服務/中台控制中心(MCC)/WebSocket",
+  "Middleware Control Center": "中台控制中心(MCC)",
   "Synchronization": "同步服務",
   "Synchronized Host IP": "同步服務器IP",
   "Connect to MCC at starting": "開機連接MCC開關",
@@ -175,7 +176,17 @@
   "RFID Reader": "RFID讀寫器",
   "Terminal Input": "終端輸入",
   "Start configuration": "啟動配置腳本",
-  "Kill process": "結束進程",
+  "Quit": "退出",
   "Send": "發送指令",
-  "Error occurred": "輸入出錯"
+  "Error occurred. Please start script first.": "出錯了，請首先啟動腳本",
+  "Please select a folder to save records": "請選擇記錄將要保存到的文件夾",
+  "Language": "語言",
+  "Language (System needs to reboot for a language change to take effect.)": "語言（修改語言後系統需要重啟才能生效）",
+  "Backend Language": "後端語言",
+  "Frontend Language": "前端語言",
+  "Simplified Chinese": "簡體中文",
+  "English": "英文",
+  "Adjust Ethernet Priority": "調整網卡優先級",
+  "Ethernet Priority": "網卡優先級",
+  "One Key Adjust": "一鍵調整"
 }

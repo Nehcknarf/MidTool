@@ -27,7 +27,7 @@ if [  -d "/nubomed/ecart-service/" ]; then
 	cabinettype="ecart"	
 fi
 
-if [ "$(echo $LANG | grep zh)" != "" ]; then
+if [ "$(echo $LANG | grep zh_CN)" != "" ]; then
 	case $cabinettype in
 		drug)
 			echo "识别系统类型为：药柜4.1"
@@ -128,7 +128,7 @@ if [ "$(echo $LANG | grep zh)" != "" ]; then
 fi
 
 
-if [ "$(echo $LANG | grep zh)" = "" ]; then
+if [ "$(echo $LANG | grep zh_CN)" = "" ]; then
 	case $cabinettype in
 		drug)
 			echo "The current project type：drug"

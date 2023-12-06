@@ -32,7 +32,7 @@ class Process(QObject):
         data += sep
         ret = self.process_command.write(data.encode(coding))
         if ret == -1:
-            self.Stdout.emit(self.tr("Error occurred"))
+            self.Stdout.emit(self.tr("Error occurred. Please start script first."))
 
     @Slot()
     def kill(self):

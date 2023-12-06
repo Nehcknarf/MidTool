@@ -2,6 +2,7 @@ from PySide6.QtCore import Slot
 from PySide6.QtQml import QmlElement
 
 from process import Process
+from utils.adapter import root_path
 from utils.log import logger
 
 
@@ -32,3 +33,8 @@ class Network(Process):
         logger.info(f"Try to del ip route {destination}/{mask}")
         self.start(f"sudo ip route del {destination}/{mask}", password=password)
         self.Stdout.emit(self.tr("Del ip route {}/{}").format(destination, mask))
+
+    @Slot()
+    def adj_priority(self):
+        logger.info(f"Try to adjust ethernet priority")
+        self.start(f"bash priority.sh", f"{root_path}/script/")

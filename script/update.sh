@@ -1,9 +1,8 @@
 #!/bin/bash
 
 soft_pkg=$1
-
-echo 获取文件路径: $soft_pkg 开始升级...
-if [ "$(echo $LANG | grep zh)" != "" ]; then
+if [ "$(echo $LANG | grep zh_CN)" != "" ]; then
+    echo 获取文件路径: $soft_pkg 开始升级...
     if [ "$(echo $soft_pkg | grep ".tar.gz")" != "" ]; then
         mkdir -p /nubomed/tmp
         rm -rf /nubomed/tmp/*
