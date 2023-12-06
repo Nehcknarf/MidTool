@@ -27,6 +27,12 @@ Item {
             anchors.right: parent.right
             text: qsTr("Route")
         }
+
+        MyControls.TabButton {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            text: qsTr("Ethernet Priority")
+        }
     }
 
     StackLayout {
@@ -198,6 +204,29 @@ Item {
                          onClicked: dialogDelRoute.open()
                      }
                  }
+             }
+         }
+
+         MyControls.GroupBox {
+             Layout.fillWidth: true
+             height: 110
+
+             Label {
+                 font.family: bold.font.family
+                 font.pixelSize: 16
+                 text: qsTr("Adjust Ethernet Priority")
+             }
+
+             RowLayout {
+                 anchors.horizontalCenter: parent.horizontalCenter
+                 anchors.verticalCenter: parent.verticalCenter
+
+                MyControls.Button {
+                    text: qsTr("One Key Adjust")
+                    onClicked: {
+                        network.adj_priority()
+                    }
+                }
              }
          }
     }

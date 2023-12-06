@@ -40,8 +40,8 @@ Item {
             }
 
             MyControls.Button {
-                text: qsTr("Kill process")
-                onClicked: reader.kill()
+                text: qsTr("Quit")
+                onClicked: reader.write("q")
             }
 
             ToolSeparator {

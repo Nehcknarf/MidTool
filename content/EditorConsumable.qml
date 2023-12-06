@@ -32,6 +32,12 @@ Item {
             anchors.right: parent.right
             text: qsTr("Sync")
         }
+
+        MyControls.TabButton {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            text: qsTr("MCC")
+        }
     }
 
     ConfigEditor {
@@ -39,6 +45,7 @@ Item {
         property var nvr_cfg: configEditor.nvr_config
         property var extern_cfg: configEditor.extern_config
         property var sync_cfg: configEditor.sync_config
+        property var mcc_cfg: configEditor.mcc_config
     }
 
     StackLayout {
@@ -344,6 +351,63 @@ Item {
                     id: textFieldSyncHost
                     implicitWidth: 150
                     text: configEditor.sync_cfg["host"] === undefined ? null : configEditor.sync_cfg["host"]
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    validator: RegularExpressionValidator {
+                        regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/
+                    }
+                }
+            }
+        }
+
+        MyControls.GroupBox {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+
+            Label {
+                font.family: bold.font.family
+                font.pixelSize: 16
+                text: qsTr("Middleware Control Center")
+            }
+
+            MyControls.Button {
+                anchors.right: parent.right
+                anchors.top: parent.top
+                text: qsTr("Save")
+                onClicked: {
+                    configEditor.save_mcc_cfg(textFieldMccEnable.checked, textFieldMccHost.text)
+                }
+            }
+
+            GridLayout {
+                anchors.left: parent.left
+                anchors.leftMargin: 50
+                anchors.top: parent.top
+                anchors.topMargin: 54
+                columns: 2
+                rowSpacing: 20
+                rows: 10
+
+                Label {
+                    font.family: bold.font.family
+                    font.pixelSize: 16
+                    text: qsTr("Connect to MCC at starting")
+                }
+
+                MyControls.Switch {
+                    id: textFieldMccEnable
+                    checked: configEditor.mcc_cfg["enable"] === undefined ? 0 : configEditor.mcc_cfg["enable"]
+                }
+
+                Label {
+                    font.family: bold.font.family
+                    font.pixelSize: 16
+                    text: qsTr("MCC Host IP")
+                }
+
+                MyControls.TextField {
+                    id: textFieldMccHost
+                    implicitWidth: 150
+                    text: configEditor.mcc_cfg["host"] === undefined ? null : configEditor.mcc_cfg["host"]
                     inputMethodHints: Qt.ImhDigitsOnly
                     validator: RegularExpressionValidator {
                         regularExpression: /((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})(\.((2(5[0-5]|[0-4]\d))|[0-1]?\d{1,2})){3}/

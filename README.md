@@ -57,3 +57,6 @@ pip install -r requirements.txt
 关联BUG：https://bugreports.qt.io/browse/QTBUG-117735
 线索：Qt 6.5 小版本更新引入的 BUG，Qt 官方宣称会在 6.5.4 版本中修复，但是从 6.5.4 开始仅面向商业客户提供，所以可能不会放出 PySide6 6.5.4 安装包
 ```
+
+## 编译打包
+```先切换至 midtool 虚拟环境，打开项目目录，执行 ./build.sh，编译前如需更新版本号，请编辑 src/utils/version.py 中 midtool_version 变量```
