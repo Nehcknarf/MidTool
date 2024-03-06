@@ -6,7 +6,7 @@ Button {
 
     contentItem: Text {
         text: control.text
-        font.family: medium.font.family
+        font.family: medium.name
         font.pixelSize: 16
         color: "#FFFFFF"
         horizontalAlignment: Text.AlignHCenter

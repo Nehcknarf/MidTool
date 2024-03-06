@@ -175,7 +175,7 @@
   "Start Date must be earlier than or equal to End Date": "开始日期必须早于或者等于结束日期",
   "RFID Reader": "RFID读写器",
   "Terminal Input": "终端输入",
-  "Start configuration": "启动配置脚本",
+  "Start configuration": "启动配置软件",
   "Quit": "退出",
   "Send": "发送指令",
   "Error occurred. Please start script first.": "出错了，请首先启动脚本",

@@ -4,7 +4,7 @@ import QtQuick.Controls
 TextField {
     id: control
     placeholderText: qsTr("Enter")
-    font.family: medium.font.family
+    font.family: medium.name
     font.pixelSize: 16
     horizontalAlignment: Text.AlignHCenter
     verticalAlignment: Text.AlignVCenter

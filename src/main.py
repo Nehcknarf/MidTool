@@ -8,7 +8,7 @@ from PySide6.QtCore import QUrl, QLocale, QCommandLineParser, QCommandLineOption
 
 import utils.resource
 from utils.translator import JsonTranslator
-from utils.adapter import root_path, product_type
+from utils.adapter import root_path, product_type, build_date
 from utils.version import midtool_version, python_version, qt_version
 
 # 导入需要在QML中实例化的类
@@ -93,11 +93,13 @@ def main():
         engine.addImportPath("qrc:/imports")
         # print(engine.importPathList())
 
-        engine.rootContext().setContextProperty("productType", product_type)
-        engine.rootContext().setContextProperty("argCurrentIndex", idx)
-        engine.rootContext().setContextProperty("midToolVersion", midtool_version)
-        engine.rootContext().setContextProperty("pythonVersion", python_version)
-        engine.rootContext().setContextProperty("qtVersion", qt_version)
+        context = engine.rootContext()
+        context.setContextProperty("productType", product_type)
+        context.setContextProperty("argCurrentIndex", idx)
+        context.setContextProperty("midToolVersion", midtool_version)
+        context.setContextProperty("buildDate", build_date)
+        context.setContextProperty("pythonVersion", python_version)
+        context.setContextProperty("qtVersion", qt_version)
 
         engine.load(url)
 

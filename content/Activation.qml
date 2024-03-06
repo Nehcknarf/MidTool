@@ -24,7 +24,7 @@ Item {
         height: 110
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("Online Activation")
         }
@@ -34,7 +34,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Key")
             }
@@ -49,7 +49,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("-")
             }
@@ -63,7 +63,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("-")
             }
@@ -77,7 +77,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("-")
             }

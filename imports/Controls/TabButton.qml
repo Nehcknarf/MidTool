@@ -6,7 +6,7 @@ TabButton {
 
     contentItem: Text {
         text: control.text
-        font.family: bold.font.family
+        font.family: bold.name
         font.pixelSize: 16
         color: control.checked ? "#FFFFFF" : "#181D41"
         horizontalAlignment: Text.AlignHCenter
