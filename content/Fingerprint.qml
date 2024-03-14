@@ -58,7 +58,7 @@ Item {
                 width: 500
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Config")
                 }
@@ -70,7 +70,7 @@ Item {
                     rows: 2
 
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Serial Port")
                     }
@@ -84,7 +84,7 @@ Item {
                     }
 
                      Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Connect")
                     }
@@ -104,7 +104,7 @@ Item {
                     }
 
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Baud Rate")
                     }
@@ -127,7 +127,7 @@ Item {
                 height: 160
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Func.")
                 }
@@ -210,7 +210,7 @@ Item {
                 width: 500
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Config")
                 }
@@ -222,7 +222,7 @@ Item {
                     rows: 2
 
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Serial Port")
                     }
@@ -238,7 +238,7 @@ Item {
                     }
 
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Connect")
                     }
@@ -258,7 +258,7 @@ Item {
                     }
 
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Baud Rate")
                     }
@@ -281,7 +281,7 @@ Item {
                 height: 160
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Func.")
                 }

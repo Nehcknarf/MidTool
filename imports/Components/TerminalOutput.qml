@@ -8,7 +8,7 @@ MyControls.GroupBox {
     property alias textArea: textArea
 
     Label {
-        font.family: bold.font.family
+        font.family: bold.name
         font.pixelSize: 16
         text: qsTr("Terminal Output")
     }
@@ -33,7 +33,7 @@ MyControls.GroupBox {
         TextArea {
             id: textArea
             anchors.fill: parent
-            font.family: medium.font.family
+            font.family: medium.name
             font.pixelSize: 16
             readOnly: true
 

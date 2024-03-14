@@ -54,7 +54,7 @@ Rectangle {
 
         Label {
             id: labelDrawer
-            font.family: medium.font.family
+            font.family: medium.name
             font.pixelSize: 16
             anchors.centerIn: parent
         }
@@ -120,7 +120,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     Label {
                         text: qsTr("About")
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 20
                     }
                 }
@@ -136,7 +136,16 @@ Rectangle {
 
                     Label {
                         text: "MidTool " + midToolVersion
-                        font.family: medium.font.family
+                        font.family: medium.name
+                        font.pixelSize: 16
+                    }
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    Label {
+                        text: qsTr("Build on ") + buildDate
+                        font.family: medium.name
                         font.pixelSize: 16
                     }
                 }
@@ -145,7 +154,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     Label {
                         text: qsTr("Powered by") + " Python " + pythonVersion + " & Qt " + qtVersion
-                        font.family: medium.font.family
+                        font.family: medium.name
                         font.pixelSize: 16
                     }
                 }
@@ -154,7 +163,7 @@ Rectangle {
                     Layout.alignment: Qt.AlignHCenter
                     Label {
                         text: qsTr("Copyright @ 2022-2023 NuboMed. All Rights Reserved.")
-                        font.family: medium.font.family
+                        font.family: medium.name
                         font.pixelSize: 16
                     }
                 }

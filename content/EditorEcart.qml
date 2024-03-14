@@ -65,7 +65,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Reader")
             }
@@ -94,7 +94,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Enabled Reader")
                 }
@@ -105,7 +105,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Serial Port")
                 }
@@ -118,7 +118,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Baud Rate")
                 }
@@ -130,7 +130,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Antenna No. List")
                 }
@@ -149,7 +149,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Fingerprint")
             }
@@ -176,7 +176,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Serial Port")
                 }
@@ -189,7 +189,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Baud Rate")
                 }
@@ -207,7 +207,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Language (System needs to reboot for a language change to take effect.)")
             }
@@ -234,7 +234,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Backend Language")
                 }
@@ -251,7 +251,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Frontend Language")
                 }

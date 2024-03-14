@@ -67,7 +67,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Network Video Recorder")
             }
@@ -102,7 +102,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Enabled NVR")
                 }
@@ -113,7 +113,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Host")
                 }
@@ -129,7 +129,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Username")
                 }
@@ -142,7 +142,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Password")
                 }
@@ -155,7 +155,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Enabled Video Upload")
                 }
@@ -166,7 +166,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Sever video storage path")
                 }
@@ -189,7 +189,7 @@ Item {
 
                 RowLayout {
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Product Channel Configuration")
                     }
@@ -235,7 +235,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Fingerprint")
             }
@@ -259,7 +259,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Device Type")
                 }
@@ -272,7 +272,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Square Fingerprint baud rate")
                 }
@@ -285,7 +285,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Fingerprint matching threshold")
                 }
@@ -311,7 +311,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Action Delay")
             }
@@ -335,7 +335,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Interval between command (ms)")
                 }
@@ -348,7 +348,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Batch unlock delay (ms)")
                 }
@@ -361,7 +361,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Unclosed drawer check interval (ms)")
                 }
@@ -380,7 +380,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Synchronization/Middleware Control Center/WebSocket")
             }
@@ -406,7 +406,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Synchronized Host IP")
                 }
@@ -422,7 +422,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Connect to MCC at starting")
                 }
@@ -433,7 +433,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("MCC Host IP")
                 }
@@ -449,7 +449,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("WebSocket protocol restructure")
                 }

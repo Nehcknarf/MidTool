@@ -27,7 +27,7 @@ Item {
         height: 110
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("Settings")
         }
@@ -62,7 +62,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Start Date")
             }
@@ -78,7 +78,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("End Date")
             }

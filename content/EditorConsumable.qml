@@ -65,7 +65,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Network Video Recorder")
             }
@@ -100,7 +100,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Enabled NVR")
                 }
@@ -111,7 +111,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Host")
                 }
@@ -127,7 +127,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Username")
                 }
@@ -140,7 +140,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Password")
                 }
@@ -153,7 +153,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Enabled Video Upload")
                 }
@@ -164,7 +164,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Sever video storage path")
                 }
@@ -187,7 +187,7 @@ Item {
 
                 RowLayout {
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Product Channel Configuration")
                     }
@@ -232,7 +232,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Reader")
             }
@@ -260,7 +260,7 @@ Item {
 
                 RowLayout {
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Enabled Reader")
                     }
@@ -273,7 +273,7 @@ Item {
 
                 RowLayout {
                     Label {
-                        font.family: bold.font.family
+                        font.family: bold.name
                         font.pixelSize: 16
                         text: qsTr("Multi-Reader Configuration")
                     }
@@ -318,7 +318,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Synchronization")
             }
@@ -342,7 +342,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Synchronized Host IP")
                 }
@@ -364,7 +364,7 @@ Item {
             Layout.fillWidth: true
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Middleware Control Center")
             }
@@ -388,7 +388,7 @@ Item {
                 rows: 10
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Connect to MCC at starting")
                 }
@@ -399,7 +399,7 @@ Item {
                 }
 
                 Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("MCC Host IP")
                 }

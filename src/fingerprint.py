@@ -55,8 +55,9 @@ class GetFingerprint(QRunnable):
         ret = self.libc.ZAZRegModule(self.handle, nAddr)
         self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Merge features"))
 
-        ret = self.libc.ZAZStoreChar(self.handle, nAddr, 1, int(self.storage_id))
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Save the fingerprint (flash slot: {})").format(self.storage_id))
+        if ret == 0:
+            ret = self.libc.ZAZStoreChar(self.handle, nAddr, 1, int(self.storage_id))
+            self.emit_state(ret, QCoreApplication.translate("GetFingerprint", "Save the fingerprint (flash slot: {})").format(self.storage_id))
 
 
 class SearchFingerprint(QRunnable):
@@ -137,7 +138,7 @@ class SquareFingerPrint(QObject):
         iCom = int(port_name[-1])  # 串口号 1-16
         iBaud = int(baud_rate / 9600)  # (9600*N)bps,其中N=1—12(默认出厂N=6，即57600bps)
         ret = self.libc.ZAZOpenDeviceEx(byref(self.handle), nDeviceType, iCom, iBaud)
-        logger.info(f"(Square Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}")
+        logger.info(f"(Square Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}, return {ret}")
         self.output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
@@ -214,10 +215,12 @@ class GetFingerprint2(QRunnable):
 
         ret = self.libc.MergeChar(0, 3)
         self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Merge features"))
-        ret = self.libc.GetEmptyID(1, 500, byref(storage_id))
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Get the first available solt in the flash"))
-        ret = self.libc.StoreChar(storage_id, 0, 0)
-        self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Save the fingerprint (flash slot: {})").format(storage_id.value))
+        if ret == 0:
+            ret = self.libc.GetEmptyID(1, 500, byref(storage_id))
+            self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Get the first available solt in the flash"))
+        if ret == 0:
+            ret = self.libc.StoreChar(storage_id, 0, 0)
+            self.emit_state(ret, QCoreApplication.translate("GetFingerprint2", "Save the fingerprint (flash slot: {})").format(storage_id.value))
 
 
 class SearchFingerprint2(QRunnable):
@@ -290,7 +293,7 @@ class RoundFingerPrint(QObject):
     def open_device(self, port_name, baud_rate):
         self.libc.OpenDevice(bytes(port_name, 'utf-8'), baud_rate)
         ret = self.libc.TestConection()
-        logger.info(f"(Round Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}")
+        logger.info(f"(Round Fingerprint) Try to connect fingerprint device through {port_name}@{baud_rate}, return {ret}")
         self.output.emit(self.tr("The fingerprint sensor has opened!") if ret == 0 else self.tr("The fingerprint sensor open failed!"))
         return ret
 
