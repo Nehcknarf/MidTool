@@ -1,0 +1,24 @@
+[common]
+conf_dir = "conf"
+log_dir = "logs"
+sync_cfg = "application-sync.yml"
+nvr_cfg = "application-nvr.yml"
+extern_cfg = "application-extern.yml"
+ws_cfg = "application-ws.yml"
+mcc_cfg = "application-mcc.yml"
+action_delay_cfg = "application-action-delay.yml"
+
+[consumable_cabinet]
+path = "/nubomed/consumable-cabinet-service/"
+mid_cfg = "consumable_cabinet_service.json"
+service = "NuboMedCabinetService"
+
+[drug_cabinet]
+path = "/nubomed/midpkg/drug-middleware/"
+
+[ecart]
+path = "/nubomed/ecart-service/"
+mid_cfg = "ecart_service.json"
+finger_cfg = "application-finger.yml"
+lang_cfg = "application-language.yml"
+service = "NuboMedEmergencyService"

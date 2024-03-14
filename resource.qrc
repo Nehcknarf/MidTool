@@ -1,0 +1,41 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qtquickcontrols2.conf</file>
+        <file>content/App.qml</file>
+        <file>content/Activation.qml</file>
+        <file>content/Camera.qml</file>
+        <file>content/EditorConsumable.qml</file>
+        <file>content/EditorDrug.qml</file>
+        <file>content/EditorEcart.qml</file>
+        <file>content/ObjectReader.qml</file>
+        <file>content/ObjectProductChannel.qml</file>
+        <file>content/Fingerprint.qml</file>
+        <file>content/LogDownloader.qml</file>
+        <file>content/MainScreen.qml</file>
+        <file>content/Maintenance.qml</file>
+        <file>content/Monitoring.qml</file>
+        <file>content/Network.qml</file>
+        <file>content/Reader.qml</file>
+        <file>content/Serial.qml</file>
+        <file>content/Timezone.qml</file>
+        <file>imports/Controls/qmldir</file>
+        <file>imports/Controls/Button.qml</file>
+        <file>imports/Controls/ComboBox.qml</file>
+        <file>imports/Controls/GroupBox.qml</file>
+        <file>imports/Controls/ProgressBar.qml</file>
+        <file>imports/Controls/RadioButton.qml</file>
+        <file>imports/Controls/Switch.qml</file>
+        <file>imports/Controls/TabButton.qml</file>
+        <file>imports/Controls/TextField.qml</file>
+        <file>imports/Controls/VertTabBar.qml</file>
+        <file>imports/Components/qmldir</file>
+        <file>imports/Components/Dialog.qml</file>
+        <file>imports/Components/TerminalOutput.qml</file>
+        <file>content/fonts/OPlusSans3-Bold.ttf</file>
+        <file>content/fonts/OPlusSans3-Medium.ttf</file>
+        <file>content/images/close.svg</file>
+        <file>content/images/about.svg</file>
+        <file>content/images/icon.png</file>
+        <file>content/images/logo.png</file>
+    </qresource>
+</RCC>
