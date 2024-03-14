@@ -20,7 +20,7 @@ Item {
         width: 400
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("Middleware Service Management")
         }
@@ -112,7 +112,7 @@ Item {
         height: 160
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("Service Running Status")
         }
@@ -138,13 +138,13 @@ Item {
 
                 Column {
                     Text {
-                        font.family: medium.font.family
+                        font.family: medium.name
                         font.pixelSize: 16
                         text: name
                     }
 
                     Text {
-                        font.family: medium.font.family
+                        font.family: medium.name
                         font.pixelSize: 16
                         text: status.includes(".") ? status + "%" : status
                     }

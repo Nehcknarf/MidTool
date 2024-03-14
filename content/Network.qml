@@ -56,7 +56,7 @@ Item {
              height: 110
 
              Label {
-                 font.family: bold.font.family
+                 font.family: bold.name
                  font.pixelSize: 16
                  text: qsTr("Telnet")
              }
@@ -66,7 +66,7 @@ Item {
                  anchors.verticalCenter: parent.verticalCenter
 
                  Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("IP address")
                 }
@@ -79,7 +79,7 @@ Item {
                 }
 
                  Label {
-                    font.family: bold.font.family
+                    font.family: bold.name
                     font.pixelSize: 16
                     text: qsTr("Port")
                 }
@@ -111,7 +111,7 @@ Item {
              height: 110
 
              Label {
-                 font.family: bold.font.family
+                 font.family: bold.name
                  font.pixelSize: 16
                  text: qsTr("Route")
              }
@@ -155,7 +155,7 @@ Item {
 
                  RowLayout {
                      Label {
-                         font.family: bold.font.family
+                         font.family: bold.name
                          font.pixelSize: 16
                          text: qsTr("Destination")
                      }
@@ -168,7 +168,7 @@ Item {
                      }
 
                      Label {
-                         font.family: bold.font.family
+                         font.family: bold.name
                          font.pixelSize: 16
                          text: qsTr("Genmask")
                      }
@@ -180,7 +180,7 @@ Item {
                      }
 
                      Label {
-                         font.family: bold.font.family
+                         font.family: bold.name
                          font.pixelSize: 16
                          text: qsTr("Gateway")
                      }
@@ -212,7 +212,7 @@ Item {
              height: 110
 
              Label {
-                 font.family: bold.font.family
+                 font.family: bold.name
                  font.pixelSize: 16
                  text: qsTr("Adjust Ethernet Priority")
              }

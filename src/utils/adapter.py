@@ -3,13 +3,16 @@ import sys
 import platform
 import tomllib
 from pathlib import Path
+from datetime import datetime
 
 
 # MidTool running path
 if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
     root_path = sys._MEIPASS
+    build_date = datetime.fromtimestamp(os.path.getmtime(sys.executable)).strftime('%Y-%m-%d')
 else:
     root_path = Path(__file__).parents[2]
+    build_date = datetime.now().strftime("%Y-%m-%d")
 
 # Middleware path
 with open(f"{root_path}/config/config.toml", "rb") as f:

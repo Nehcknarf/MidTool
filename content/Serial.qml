@@ -20,7 +20,7 @@ Item {
         height: 110
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("Config")
         }
@@ -35,7 +35,7 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Serial Port")
             }
@@ -49,7 +49,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Baud Rate")
             }
@@ -62,7 +62,7 @@ Item {
             }
 
             Label {
-                font.family: bold.font.family
+                font.family: bold.name
                 font.pixelSize: 16
                 text: qsTr("Connect")
             }

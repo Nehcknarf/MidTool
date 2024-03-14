@@ -11,7 +11,7 @@ ComboBox {
                 ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole])
                 : modelData
             color: "#181D41"
-            font.family: medium.font.family
+            font.family: medium.name
             font.pixelSize: 16
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
@@ -48,7 +48,7 @@ ComboBox {
         rightPadding: control.indicator.width + control.spacing
 
         text: control.displayText
-        font.family: medium.font.family
+        font.family: medium.name
         font.pixelSize: 16
         color: "#181D41"
         verticalAlignment: Text.AlignVCenter

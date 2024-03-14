@@ -27,7 +27,7 @@ RadioButton {
 
     contentItem: Text {
         text: control.text
-        font.family: medium.font.family
+        font.family: medium.name
         font.pixelSize: 16
         opacity: 0.5
         color: "#181D41"

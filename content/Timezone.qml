@@ -13,7 +13,7 @@ MyControls.GroupBox {
     anchors.margins: 16
 
     Label {
-        font.family: bold.font.family
+        font.family: bold.name
         font.pixelSize: 16
         text: qsTr("Settings")
     }
@@ -51,7 +51,7 @@ MyControls.GroupBox {
         rows: 3
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("Timezone")
         }
@@ -71,7 +71,7 @@ MyControls.GroupBox {
         }
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("DateTime")
         }
@@ -95,7 +95,7 @@ MyControls.GroupBox {
         }
 
         Label {
-            font.family: bold.font.family
+            font.family: bold.name
             font.pixelSize: 16
             text: qsTr("NTP Servers")
         }
