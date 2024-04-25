@@ -109,7 +109,7 @@ Item {
                 FileDialog {
                     id: fileDialogUpdate
                     currentFolder: "/media"
-                    nameFilters: [qsTr("Update package (*.tar.gz)")]
+                    nameFilters: [qsTr("Update package (*.tar.gz *.zip)")]
                     title: qsTr("Please select middleware update package")
 
                     onAccepted: {

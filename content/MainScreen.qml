@@ -162,7 +162,7 @@ Rectangle {
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     Label {
-                        text: qsTr("Copyright @ 2022-2023 NuboMed. All Rights Reserved.")
+                        text: qsTr("Copyright @ 2022-2024 NuboMed. All Rights Reserved.")
                         font.family: medium.name
                         font.pixelSize: 16
                     }

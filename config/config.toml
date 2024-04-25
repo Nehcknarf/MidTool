@@ -12,6 +12,9 @@ action_delay_cfg = "application-action-delay.yml"
 path = "/nubomed/consumable-cabinet-service/"
 mid_cfg = "consumable_cabinet_service.json"
 service = "NuboMedCabinetService"
+offline_path = "/nubomed/backend_offline/"
+offline_cfg = "offline_backend_service.json"
+offline_service = "BackendOfflineService"
 
 [drug_cabinet]
 path = "/nubomed/midpkg/drug-middleware/"

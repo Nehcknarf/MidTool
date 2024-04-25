@@ -23,7 +23,7 @@ if [ "$(echo $LANG | grep zh_CN)" != "" ]; then
         rm -rf /nubomed/tmp/*
         echo "开始解压升级包..."
         unzip $soft_pkg -d /nubomed/tmp/ >>/dev/null
-        sh=$(find /nubomed/tmp/ -name "*.sh")
+        sh=$(find /nubomed/tmp/ -maxdepth 2 -name "*.sh")
         echo $sh
         echo "开始升级..."
         bash $sh
@@ -56,7 +56,7 @@ else
         rm -rf /nubomed/tmp/*
         echo "Start decompressing the upgrade package..."
         unzip $soft_pkg -d /nubomed/tmp/ >>/dev/null
-        sh=$(find /nubomed/tmp/ -name "*.sh")
+        sh=$(find /nubomed/tmp/ -maxdepth 2 -name "*.sh")
         echo $sh
         echo "Start Upgrade..."
         bash $sh

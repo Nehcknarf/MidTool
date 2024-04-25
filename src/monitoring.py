@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import psutil
 
 from PySide6.QtCore import QAbstractListModel, QByteArray, Qt, QModelIndex, Slot, QUrl
@@ -5,7 +7,8 @@ from PySide6.QtQml import QmlElement
 
 from process import Process
 from utils.adapter import product_type, consumable_cabinet_path, consumable_cabinet_cfg, ecart_cfg, ecart_path, \
-    consumable_cabinet_service, ecart_service
+    consumable_cabinet_service, ecart_service, consumable_cabinet_offline_path, consumable_cabinet_offline_cfg, \
+    consumable_cabinet_offline_service
 from utils.log import logger
 
 
@@ -20,7 +23,9 @@ class MiddlewareManager(Process):
     def start_middleware(self, password):
         logger.info("Start middleware...")
         if product_type == 0:
-            self.start(f"pm2 start {consumable_cabinet_path + consumable_cabinet_cfg} -m && pm2 save -m")
+            self.start(f"pm2 start {consumable_cabinet_cfg} -m && pm2 save -m", workdir=consumable_cabinet_path)
+            if Path(consumable_cabinet_offline_path).exists():
+                self.start(f"pm2 start {consumable_cabinet_offline_cfg} -m && pm2 save -m", workdir=consumable_cabinet_offline_path)
         elif product_type == 2:
             self.start(f"pm2 start {ecart_path + ecart_cfg} -m && pm2 save -m")
         elif product_type == 1:
@@ -31,6 +36,8 @@ class MiddlewareManager(Process):
         logger.info("Restart middleware...")
         if product_type == 0:
             self.start(f"pm2 restart {consumable_cabinet_service} -m")
+            if Path(consumable_cabinet_offline_path).exists():
+                self.start(f"pm2 restart {consumable_cabinet_offline_service} -m")
         elif product_type == 2:
             self.start(f"pm2 restart {ecart_service} -m")
         elif product_type == 1:
@@ -41,6 +48,8 @@ class MiddlewareManager(Process):
         logger.info("Stop middleware...")
         if product_type == 0:
             self.start(f"pm2 stop {consumable_cabinet_service} -m")
+            if Path(consumable_cabinet_offline_path).exists():
+                self.start(f"pm2 restart {consumable_cabinet_offline_service} -m")
         elif product_type == 2:
             self.start(f"pm2 stop {ecart_service} -m")
         elif product_type == 1:
