@@ -19,13 +19,16 @@ with open(f"{root_path}/config/config.toml", "rb") as f:
     cfg = tomllib.load(f)
 
     consumable_cabinet_path = cfg["consumable_cabinet"]["path"]
+    consumable_cabinet_offline_path = cfg["consumable_cabinet"]["offline_path"]
     drug_cabinet_path = cfg["drug_cabinet"]["path"]
     ecart_path = cfg["ecart"]["path"]
 
     consumable_cabinet_cfg = cfg["consumable_cabinet"]["mid_cfg"]
+    consumable_cabinet_offline_cfg = cfg["consumable_cabinet"]["offline_cfg"]
     ecart_cfg = cfg["ecart"]["mid_cfg"]
 
     consumable_cabinet_service = cfg["consumable_cabinet"]["service"]
+    consumable_cabinet_offline_service = cfg["consumable_cabinet"]["offline_service"]
     ecart_service = cfg["ecart"]["service"]
 
 # Product

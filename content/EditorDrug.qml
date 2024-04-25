@@ -88,6 +88,7 @@ Item {
                         textFieldNvrPassword.text,
                         switchNvrEnabledUpload.checked,
                         textFieldNvrUploadSaveDir.text,
+                        textFieldNvrTerminalID.text,
                         productChannels)
                 }
             }
@@ -176,6 +177,18 @@ Item {
                     implicitWidth: 250
                     text: configEditor.nvr_cfg["upload_save_dir"] === undefined ? null : configEditor.nvr_cfg["upload_save_dir"]
                     inputMethodHints: Qt.ImhUrlCharactersOnly
+                }
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("Terminal ID")
+                }
+
+                MyControls.TextField {
+                    id: textFieldNvrTerminalID
+                    implicitWidth: 250
+                    text: configEditor.nvr_cfg["terminal_id"] === undefined ? null : configEditor.nvr_cfg["terminal_id"]
                 }
             }
 

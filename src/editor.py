@@ -45,6 +45,7 @@ class ConfigEditor(QObject):
                 password = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("password")
                 enabled_upload = self.nvr_cfg_dict.get("nvr").get("video").get("enabled-upload")
                 upload_save_dir = self.nvr_cfg_dict.get("nvr").get("video").get("upload-save-dir")
+                terminal_id = self.nvr_cfg_dict.get("nvr").get("video").get("terminal-id")
                 product_channels = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("productChannels")
                 # [{}] 形式嵌套传递到 QML 解析存在问题，换用 [[]] 形式嵌套
                 product_channels_list = []
@@ -62,13 +63,14 @@ class ConfigEditor(QObject):
                 "password": password,
                 "enabled_upload": enabled_upload,
                 "upload_save_dir": upload_save_dir,
+                "terminal_id": terminal_id,
                 "product_channels": product_channels_list
             }
 
     nvr_config = Property(dict, read_nvr_cfg, notify=cfgChanged)
 
-    @Slot(bool, str, str, str, bool, str, list)
-    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, channels):
+    @Slot(bool, str, str, str, bool, str, str, list)
+    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, terminal_id, channels):
         try:
             logger.info(f"Try to save configs to yaml")
             with open(nvr_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -78,6 +80,7 @@ class ConfigEditor(QObject):
                 self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["password"] = password
                 self.nvr_cfg_dict["nvr"]["video"]["enabled-upload"] = enabled_upload
                 self.nvr_cfg_dict["nvr"]["video"]["upload-save-dir"] = upload_save_dir
+                self.nvr_cfg_dict["nvr"]["video"]["terminal-id"] = terminal_id
                 product_channels = []
                 for i in channels:
                     product_channels.append({"productNo": i[0], "channel": i[1]})
