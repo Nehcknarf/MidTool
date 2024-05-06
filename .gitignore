@@ -18,3 +18,5 @@ dist/
 
 # Log
 *.log
+
+/src/utils/resource.py
