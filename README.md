@@ -1,4 +1,4 @@
-# MidTool 2
+# MidTool - R2000可视化运维工具
 ### MidTool 中台工具箱 重构版本 
 ### 基于 Qt6.5 LTS，前端由 QML 编写，后端为 PySide6
 
