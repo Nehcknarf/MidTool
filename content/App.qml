@@ -6,8 +6,8 @@ import QtQuick.VirtualKeyboard.Settings
 Window {
     id: window
     title: "MidTool"
-    x: Screen.width / 2 - width / 2
-    y: Screen.height / 2 - height / 2
+    x: (Screen.width - width) / 2
+    y: (Screen.height - height) / 2
     width: mainScreen.width
     height: mainScreen.height
     visible: true
@@ -36,6 +36,10 @@ Window {
         anchors.right: parent.right
         anchors.rightMargin: mainScreen.width / 5
 
-        Component.onCompleted: VirtualKeyboardSettings.activeLocales  = "en_US"
+        Component.onCompleted: {
+            keyboard.style.keyboardBackground = null;
+            keyboard.style.selectionListBackground = null;
+            VirtualKeyboardSettings.activeLocales = "en_US";
+        }
     }
 }

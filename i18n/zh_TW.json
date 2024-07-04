@@ -189,5 +189,7 @@
   "English": "英文",
   "Adjust Ethernet Priority": "調整網卡優先級",
   "Ethernet Priority": "網卡優先級",
-  "One Key Adjust": "一鍵調整"
+  "One Key Adjust": "一鍵調整",
+  "Cancel": "取消",
+  "Ok": "確認"
 }

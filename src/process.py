@@ -1,10 +1,11 @@
 from PySide6.QtCore import QObject, QProcess, Signal, Slot
 
 from utils.adapter import work_path, shell, coding, sep
+from utils.log import logger
 
 
 class Process(QObject):
-    Stdout = Signal(str, arguments='output')
+    Stdout = Signal(str, arguments=['output'])
 
     def __init__(self):
         super().__init__()
@@ -41,11 +42,13 @@ class Process(QObject):
     def handle_stdout(self):
         data = self.process_command.readAllStandardOutput()
         stdout = bytes(data).decode(coding).rstrip(sep)
+        logger.info(f"STDOUT - {stdout}")
         self.Stdout.emit(stdout)
 
     def handle_stderr(self):
         data = self.process_command.readAllStandardError()
         stderr = bytes(data).decode(coding).rstrip(sep)
+        logger.info(f"STDERR - {stderr}")
         self.Stdout.emit(stderr)
 
     def handle_state(self, state):

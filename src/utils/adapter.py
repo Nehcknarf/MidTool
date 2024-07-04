@@ -22,14 +22,17 @@ with open(f"{root_path}/config/config.toml", "rb") as f:
     consumable_cabinet_offline_path = cfg["consumable_cabinet"]["offline_path"]
     drug_cabinet_path = cfg["drug_cabinet"]["path"]
     ecart_path = cfg["ecart"]["path"]
+    autolabel_path = cfg["autolabel"]["path"]
 
     consumable_cabinet_cfg = cfg["consumable_cabinet"]["mid_cfg"]
     consumable_cabinet_offline_cfg = cfg["consumable_cabinet"]["offline_cfg"]
     ecart_cfg = cfg["ecart"]["mid_cfg"]
+    autolabel_cfg = cfg["autolabel"]["mid_cfg"]
 
     consumable_cabinet_service = cfg["consumable_cabinet"]["service"]
     consumable_cabinet_offline_service = cfg["consumable_cabinet"]["offline_service"]
     ecart_service = cfg["ecart"]["service"]
+    autolabel_service = cfg["autolabel"]["service"]
 
 # Product
 if Path(consumable_cabinet_path).exists():
@@ -44,6 +47,10 @@ elif Path(ecart_path).exists():
     # 抢救车
     product_type = 2
     middleware_root_path = Path(ecart_path)
+elif Path(autolabel_path).exists():
+    # 采血车
+    product_type = 3
+    middleware_root_path = Path(autolabel_path)
 else:
     # 未知设备
     product_type = -1
@@ -81,6 +88,15 @@ if system == "Linux":
         os.environ["QT_QPA_PLATFORM"] = "xcb"
     elif ubuntu_version == "20.04":
         os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+    # For create desktop shortcut
+    shortcut_content = f"[Desktop Entry]\nType=Application\nName=MidTool\nExec={Path(root_path).parent}/midtool\nIcon={root_path}/icon.png\nComment=Ops tool for terminal.\nTerminal=false\nCategories=Application;"
+    p_desk = Path("~/Desktop").expanduser()
+    p_shortcut = p_desk.joinpath("MidTool.desktop")
+    if p_desk.exists() and not p_shortcut.exists():
+        with open(p_shortcut, "w") as file:
+            file.write(shortcut_content)
+        p_shortcut.chmod(0o755)
 
 elif system == "Windows":
     # For Shell

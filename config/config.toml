@@ -25,3 +25,8 @@ mid_cfg = "ecart_service.json"
 finger_cfg = "application-finger.yml"
 lang_cfg = "application-language.yml"
 service = "NuboMedEmergencyService"
+
+[autolabel]
+path = "/nubomed/autolabel-engine/"
+mid_cfg = "autolabel-engine.json"
+service = "NuboMedAutoLabelService"

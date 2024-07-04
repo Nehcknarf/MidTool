@@ -17,7 +17,7 @@ QML_IMPORT_MINOR_VERSION = 0
 
 @QmlElement
 class Serial(QObject):
-    pinout = Signal(str, arguments="output")
+    pinout = Signal(str, arguments=["output"])
     getPort = Signal()
     getBaudRate = Signal()
 
@@ -59,7 +59,7 @@ class Serial(QObject):
         if self.ser.open(QIODevice.ReadOnly):
             self.pinout.emit(self.tr("Serial port is opening"))
         else:
-            self.pinout.emit(self.tr("Serial port open failed"))
+            self.pinout.emit(f'<font color="red">{self.tr("Serial port open failed")}</font>')
 
     @Slot()
     def close_device(self):
@@ -78,14 +78,14 @@ class Serial(QObject):
                 try:
                     length = struct.unpack("h", length_domain[0])[0] + 4  # 版本号到数据域的长度 + 长度域 + 校验域 = 总长度
                 except struct.error as err:
-                    self.pinout.emit(self.tr("Length field parse failed, {}").format(err))
+                    self.pinout.emit(f'<font color="red">{self.tr("Length field parse failed, {}").format(err)}</font>')
                 else:
                     if pack_data := re.findall(b'~.{' + f'{length}'.encode() + b'}\xe7', self.recorder, re.DOTALL):
                         pack_data = pack_data[0]
                         try:
                             header_tuple = struct.unpack("<chc4s4s2h2scB2s2ch", pack_data[:26])  # 起始域到参数长度域
                         except struct.error as err:
-                            self.pinout.emit(self.tr("Header parse failed, {}").format(err))
+                            self.pinout.emit(f'<font color="red">{self.tr("Header parse failed, {}").format(err)}</font>')
                         else:
                             header_list = [i.hex() if isinstance(i, bytes) else i for i in header_tuple]
                             device_type = header_list[10]  # 单元类型
@@ -97,18 +97,18 @@ class Serial(QObject):
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                 except struct.error as err:
-                                    sig_data = self.tr("Data load parse failed, {}").format(err)
+                                    sig_data = f'<font color="red">{self.tr("Data load parse failed, {}").format(err)}</font>'
                                 else:
                                     # 自动上报RFID号
                                     card_type = payload_tuple[0]
                                     card_uid = "-".join(map(str, payload_tuple[1:]))
-                                    sig_data = self.tr("Device type: {}, Card type: {}, Card number: {}").format(device_dict.get(device_type), card_type, card_uid)
+                                    sig_data = f'<font color="red">{self.tr("Device type: {}, Card type: {}, Card number: {}").format(device_dict.get(device_type), card_type, card_uid)}</font>'
                             elif device_type == "0107":
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                     # ending_tuple = struct.unpack("2sc", pack_data[26 + payload_length:29 + payload_length])
                                 except struct.error as err:
-                                    sig_data = self.tr("Data load parse failed, {}").format(err)
+                                    sig_data = f'<font color="red">{self.tr("Data load parse failed, {}").format(err)}</font>'
                                 else:
                                     # ending_list = [i.hex() for i in ending_tuple]
                                     # unpack_data = tuple(header_list) + payload_tuple + tuple(ending_list)
@@ -120,7 +120,7 @@ class Serial(QObject):
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])
                                 except struct.error as err:
-                                    sig_data = self.tr("Data load parse failed, {}").format(err)
+                                    sig_data = f'<font color="red">{self.tr("Data load parse failed, {}").format(err)}</font>'
                                 else:
                                     # 自动上报人位置状态变化
                                     state_dict = {
