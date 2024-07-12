@@ -16,7 +16,7 @@ class Process(QObject):
         self.process_command.finished.connect(self.finished)
 
     @Slot(str)
-    def start(self, command, workdir=work_path, password=None):
+    def start(self, command, workdir=work_path, password=None, wait=False):
         self.process_command.setWorkingDirectory(workdir)
         # self.process_command.setProcessChannelMode(QProcess.MergedChannels)
         if "sudo" in command:
@@ -27,6 +27,8 @@ class Process(QObject):
             process_echo.startCommand(f"echo {password}")
             process_echo.waitForFinished()
         self.process_command.startCommand(shell.format(command))
+        if wait:
+            self.process_command.waitForFinished()
 
     @Slot(str)
     def write(self, data):

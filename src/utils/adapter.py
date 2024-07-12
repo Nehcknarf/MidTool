@@ -60,6 +60,7 @@ else:
 middleware_cfg_path = middleware_root_path / cfg["common"]["conf_dir"]
 middleware_log_path = middleware_root_path / cfg["common"]["log_dir"]
 # Config file
+browser_cfg_path = cfg["common"]["browser_cfg_path"]
 sync_cfg_path = middleware_cfg_path / cfg["common"]["sync_cfg"]
 nvr_cfg_path = middleware_cfg_path / cfg["common"]["nvr_cfg"]
 extern_cfg_path = middleware_cfg_path / cfg["common"]["extern_cfg"]

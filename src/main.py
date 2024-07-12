@@ -12,7 +12,7 @@ from utils.adapter import root_path, product_type, build_date
 from utils.version import midtool_version, python_version, qt_version
 
 # 导入需要在QML中实例化的类
-from monitoring import SystemInfoModel
+from monitoring import MiddlewareManager, SystemInfoModel
 from maintenance import Maintenance
 from editor import ConfigEditor
 from serial import Serial

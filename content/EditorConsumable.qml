@@ -18,6 +18,12 @@ Item {
         MyControls.TabButton {
             anchors.left: parent.left
             anchors.right: parent.right
+            text: qsTr("NBrowser")
+        }
+
+        MyControls.TabButton {
+            anchors.left: parent.left
+            anchors.right: parent.right
             text: qsTr("NVR")
         }
 
@@ -42,6 +48,7 @@ Item {
 
     ConfigEditor {
         id: configEditor
+        property var nbrowser_cfg: configEditor.nbrowser_config
         property var nvr_cfg: configEditor.nvr_config
         property var extern_cfg: configEditor.extern_config
         property var sync_cfg: configEditor.sync_config
@@ -58,6 +65,84 @@ Item {
         anchors.top: parent.top
         anchors.topMargin: 16
         currentIndex: vertTabBarConfig.currentIndex
+
+        MyControls.GroupBox {
+            Layout.fillHeight: true
+            Layout.fillWidth: true
+
+            Label {
+                font.family: bold.name
+                font.pixelSize: 16
+                text: qsTr("NBrowser")
+            }
+
+            MyControls.Button {
+                anchors.right: parent.right
+                anchors.top: parent.top
+                text: qsTr("Save")
+                onClicked: {
+                    configEditor.save_browser_cfg(textFieldUrl.text, textFieldTerId.text, textFieldTerCode.text, textFieldTerAddress.text, null)
+                }
+            }
+
+            GridLayout {
+                anchors.left: parent.left
+                anchors.leftMargin: 50
+                anchors.top: parent.top
+                anchors.topMargin: 54
+                columns: 2
+                rowSpacing: 20
+                rows: 10
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("Terminal ID")
+                }
+
+                MyControls.TextField {
+                    id: textFieldTerId
+                    implicitWidth: 150
+                    text: configEditor.nbrowser_cfg["ter_id"] === undefined ? null : configEditor.nbrowser_cfg["ter_id"]
+                }
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("Terminal Code")
+                }
+
+                MyControls.TextField {
+                    id: textFieldTerCode
+                    implicitWidth: 150
+                    text: configEditor.nbrowser_cfg["ter_code"] === undefined ? null : configEditor.nbrowser_cfg["ter_code"]
+                }
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("sTerAddress")
+                }
+
+                MyControls.TextField {
+                    id: textFieldTerAddress
+                    implicitWidth: 150
+                    text: configEditor.nbrowser_cfg["ter_address"] === undefined ? null : configEditor.nbrowser_cfg["ter_address"]
+                }
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("Default URL")
+                }
+
+                MyControls.TextField {
+                    id: textFieldUrl
+                    implicitWidth: 400
+                    text: configEditor.nbrowser_cfg["url"] === undefined ? null : configEditor.nbrowser_cfg["url"]
+                }
+            }
+        }
 
         MyControls.GroupBox {
             id: groupBoxNvr
@@ -175,18 +260,6 @@ Item {
                     implicitWidth: 250
                     text: configEditor.nvr_cfg["upload_save_dir"] === undefined ? null : configEditor.nvr_cfg["upload_save_dir"]
                     inputMethodHints: Qt.ImhUrlCharactersOnly
-                }
-
-                Label {
-                    font.family: bold.name
-                    font.pixelSize: 16
-                    text: qsTr("Terminal ID")
-                }
-
-                MyControls.TextField {
-                    id: textFieldNvrTerminalID
-                    implicitWidth: 250
-                    text: configEditor.nvr_cfg["terminal_id"] === undefined ? null : configEditor.nvr_cfg["terminal_id"]
                 }
             }
 

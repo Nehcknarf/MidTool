@@ -126,33 +126,33 @@ Item {
 
         ListView {
             id: listView
-            anchors.fill: parent
-            anchors.leftMargin: 50
-            anchors.rightMargin: 50
-            anchors.topMargin: 40
-            anchors.bottomMargin: 40
+            width: 400
+            height: 60
+            anchors.centerIn: parent
             orientation: ListView.Horizontal
 
             delegate: Item {
-                width: 85
+                width: 100
 
                 Column {
                     Text {
                         font.family: medium.name
                         font.pixelSize: 16
                         text: name
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
 
                     Text {
                         font.family: medium.name
                         font.pixelSize: 16
                         text: status.includes(".") ? status + "%" : status
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
 
                     MyControls.ProgressBar {
-                        value: status / 100
-                        width: 75
-                        visible: status.includes(".")
+                        value: progress / 100
+                        width: name === qsTr("Middleware") ? 12 : 75
+                        anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
             }

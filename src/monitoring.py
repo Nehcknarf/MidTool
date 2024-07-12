@@ -23,9 +23,9 @@ class MiddlewareManager(Process):
     def start_middleware(self, password):
         logger.info("Start middleware...")
         if product_type == 0:
-            self.start(f"pm2 start {consumable_cabinet_cfg} -m && pm2 save -m", workdir=consumable_cabinet_path)
             if Path(consumable_cabinet_offline_path).exists():
-                self.start(f"pm2 start {consumable_cabinet_offline_cfg} -m && pm2 save -m", workdir=consumable_cabinet_offline_path)
+                self.start(f"pm2 start {consumable_cabinet_offline_cfg} -m && pm2 save -m", workdir=consumable_cabinet_offline_path, wait=True)
+            self.start(f"pm2 start {consumable_cabinet_cfg} -m && pm2 save -m", workdir=consumable_cabinet_path)
         elif product_type == 1:
             self.start(f"sudo supervisorctl start all", password=password)
         elif product_type == 2:
@@ -37,9 +37,9 @@ class MiddlewareManager(Process):
     def restart_middleware(self, password):
         logger.info("Restart middleware...")
         if product_type == 0:
-            self.start(f"pm2 restart {consumable_cabinet_service} -m")
             if Path(consumable_cabinet_offline_path).exists():
-                self.start(f"pm2 restart {consumable_cabinet_offline_service} -m")
+                self.start(f"pm2 restart {consumable_cabinet_offline_service} -m", wait=True)
+            self.start(f"pm2 restart {consumable_cabinet_service} -m")
         elif product_type == 1:
             self.start(f"sudo supervisorctl restart all", password=password)
         elif product_type == 2:
@@ -51,9 +51,9 @@ class MiddlewareManager(Process):
     def stop_middleware(self, password):
         logger.info("Stop middleware...")
         if product_type == 0:
-            self.start(f"pm2 stop {consumable_cabinet_service} -m")
             if Path(consumable_cabinet_offline_path).exists():
-                self.start(f"pm2 stop {consumable_cabinet_offline_service} -m")
+                self.start(f"pm2 stop {consumable_cabinet_offline_service} -m", wait=True)
+            self.start(f"pm2 stop {consumable_cabinet_service} -m")
         elif product_type == 1:
             self.start(f"sudo supervisorctl stop all", password=password)
         elif product_type == 2:
@@ -66,6 +66,7 @@ class MiddlewareManager(Process):
 class SystemInfoModel(QAbstractListModel):
     NameRole = Qt.UserRole + 1
     StatusRole = Qt.UserRole + 2
+    ProgressRole = Qt.UserRole + 3
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
@@ -83,6 +84,8 @@ class SystemInfoModel(QAbstractListModel):
             ret = self.system_info_model[index.row()]["name"]
         elif role == self.StatusRole:
             ret = self.system_info_model[index.row()]["status"]
+        elif role == self.ProgressRole:
+            ret = self.system_info_model[index.row()]["progress"]
         else:
             ret = None
         return ret
@@ -91,6 +94,7 @@ class SystemInfoModel(QAbstractListModel):
         default = super().roleNames()
         default[self.NameRole] = QByteArray(b"name")
         default[self.StatusRole] = QByteArray(b"status")
+        default[self.ProgressRole] = QByteArray(b"progress")
         return default
 
     @Slot()
@@ -100,25 +104,24 @@ class SystemInfoModel(QAbstractListModel):
         self.endResetModel()
 
     def get_system_info_model(self):
-        cpu_percent = psutil.cpu_percent()
-        memory_percent = psutil.virtual_memory().percent
-        disk_percent = psutil.disk_usage("/").percent
-
-        status = self.tr("stopped")
+        cpu_percent = f"{psutil.cpu_percent():.1f}"
+        memory_percent = f"{psutil.virtual_memory().percent:.1f}"
+        disk_percent = f"{psutil.disk_usage('/').percent:.1f}"
+        # 中台状态
+        status, progress = self.tr("stopped"), 0
         for p in psutil.process_iter(['name', "cmdline"]):
             # 中台主入口
-            if p.info['name'] == "java":
-                if p.info['cmdline'][-1] in ["com.nubomed.mid.drug.DrugMiddlewareServer",
-                                             "com.nubomed.mid.ecart.ECartServiceApp",
-                                             "com.nubomed.mid.consumable.cabinet.ConsumableCabinetApp",
-                                             "com.nubomed.autolabel.AutoLabelApp"]:
-                    # psutil返回被进程管理应用守护的中台状态不准确，running时始终为sleeping
-                    # status = p.status()
-                    status = self.tr("running")
+            if p.info['name'] == "java" and p.info['cmdline'][-1] in [
+                "com.nubomed.mid.drug.DrugMiddlewareServer",
+                "com.nubomed.mid.ecart.ECartServiceApp",
+                "com.nubomed.mid.consumable.cabinet.ConsumableCabinetApp",
+                "com.nubomed.autolabel.AutoLabelApp"
+            ]:
+                status, progress = self.tr("running"), 100
 
         self.system_info_model = [
-            {"name": self.tr("CPU"), "status": format(cpu_percent, ".1f")},
-            {"name": self.tr("Memory"), "status": format(memory_percent, ".1f")},
-            {"name": self.tr("Disk"), "status": format(disk_percent, ".1f")},
-            {"name": self.tr("Middleware"), "status": status}
+            {"name": self.tr("Middleware"), "status": status, "progress": progress},
+            {"name": self.tr("CPU"), "status": cpu_percent, "progress": cpu_percent},
+            {"name": self.tr("Memory"), "status": memory_percent, "progress": memory_percent},
+            {"name": self.tr("Disk"), "status": disk_percent, "progress": disk_percent}
         ]

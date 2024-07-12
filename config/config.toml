@@ -7,6 +7,7 @@ extern_cfg = "application-extern.yml"
 ws_cfg = "application-ws.yml"
 mcc_cfg = "application-mcc.yml"
 action_delay_cfg = "application-action-delay.yml"
+browser_cfg_path = "/nubomed/nbrowser/static/localize.json"
 
 [consumable_cabinet]
 path = "/nubomed/consumable-cabinet-service/"

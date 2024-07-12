@@ -41,9 +41,9 @@ class Serial(QObject):
 
     @Slot()
     def update_ports(self):
-        self.set_ports([com.portName() for com in QSerialPortInfo.availablePorts()])
+        return [com.portName() for com in QSerialPortInfo.availablePorts()]
 
-    availablePorts = Property(list, get_ports, notify=getPort)
+    availablePorts = Property(list, get_ports, set_ports, notify=getPort)
 
     def get_baud_rates(self):
         return self.baud_rates
