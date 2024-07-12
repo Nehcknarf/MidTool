@@ -18,7 +18,7 @@ RowLayout {
     }
 
     MyControls.TextField {
-        implicitWidth: 100
+        implicitWidth: 150
         text: root.productNo
         onTextChanged: {
             root.productNo = this.text

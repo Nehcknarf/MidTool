@@ -12,6 +12,7 @@ TabButton {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
+        wrapMode: Text.Wrap
     }
 
     background: Rectangle {

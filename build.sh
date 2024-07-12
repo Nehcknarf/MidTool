@@ -7,7 +7,7 @@ echo "Start building..."
 pyinstaller src/main.py \
 --clean \
 --noconfirm \
---name midtool2 \
+--name midtool \
 --add-data 'config:config' \
 --add-data 'lib/fingerprint/*.so:lib/fingerprint/' \
 --add-data 'script:script' \
@@ -15,7 +15,7 @@ pyinstaller src/main.py \
 --add-data 'content/images/icon.png:.' \
 --collect-all tzdata
 
-cd dist/midtool2/_internal || exit
+cd dist/midtool/_internal || exit
 echo "Delete useless lib and symlink"
 rm -f \
 libQt6Charts.so.6 \
@@ -147,5 +147,4 @@ PySide6/Qt/plugins/qmltooling
 cd ../..
 echo "Compress the folder to *.tar.bz2 pkg"
 midtool_ver=$(python3 ../src/utils/version.py)
-lsb=$(lsb_release -r -s)
-tar -zvcf midtool_"$midtool_ver"_"$lsb".tar.gz midtool2
+tar -zvcf midtool_"$midtool_ver"_linux.tar.gz midtool

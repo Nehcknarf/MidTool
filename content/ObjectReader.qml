@@ -19,7 +19,7 @@ RowLayout {
     }
 
     MyControls.TextField {
-        implicitWidth: 100
+        implicitWidth: 150
         text: root.cabinetId
         onTextChanged: {
             root.cabinetId = this.text
@@ -29,7 +29,7 @@ RowLayout {
     Label {
         font.family: bold.name
         font.pixelSize: 16
-        text: qsTr("Host")
+        text: qsTr("Reader IP")
     }
 
     MyControls.TextField {

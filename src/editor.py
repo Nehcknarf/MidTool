@@ -7,7 +7,7 @@ from PySide6.QtQml import QmlElement
 
 from utils.log import logger
 from utils.adapter import product_type, nvr_cfg_path, extern_cfg_path, action_delay_cfg_path, sync_cfg_path, \
-    mcc_cfg_path, ws_cfg_path, finger_cfg_path, lang_cfg_path
+    mcc_cfg_path, ws_cfg_path, finger_cfg_path, lang_cfg_path, browser_cfg_path
 
 QML_IMPORT_NAME = "src.editor"
 QML_IMPORT_MAJOR_VERSION = 1
@@ -25,6 +25,7 @@ class ConfigEditor(QObject):
         self.yaml.default_flow_style = False
         self.yaml.indent(mapping=2, sequence=4, offset=2)
 
+        self.browser_cfg_dict = {}
         self.nvr_cfg_dict = {}
         self.extern_cfg_dict = {}
         self.action_delay_cfg_dict = {}
@@ -34,6 +35,49 @@ class ConfigEditor(QObject):
         self.finger_cfg_dict = {}
         self.lang_cfg_dict = {}
         self.front_lang_cfg_dict = {}
+
+    def read_browser_cfg(self):
+        try:
+            with open(browser_cfg_path, mode='r', encoding="UTF-8") as f:
+                self.browser_cfg_dict = json.load(f)
+                main_ter_id = self.browser_cfg_dict.get("MAIN_TER_ID")
+                main_ter_code = self.browser_cfg_dict.get("MAIN_TER_CODE")
+                default_url = self.browser_cfg_dict.get("DefaultURL")
+                s_ter_address = self.browser_cfg_dict.get("sTerAddress")
+                s_zdid = self.browser_cfg_dict.get("sZDID")
+
+        except Exception as err:
+                logger.info(f"Json doesn't exist or structure is not standard. {err}")
+
+        else:
+            return {
+                "ter_id": main_ter_id,
+                "ter_code": main_ter_code,
+                "url": default_url,
+                "ter_address": s_ter_address,
+                "zdid": s_zdid
+            }
+
+    nbrowser_config = Property(dict, read_browser_cfg, notify=cfgChanged)
+
+    @Slot(str, str, str, str, str)
+    def save_browser_cfg(self, default_url, main_ter_id, main_ter_code, s_ter_address, s_zdid):
+        try:
+            logger.info(f"Try to save configs to yaml")
+            with open(browser_cfg_path, mode='w', encoding="UTF-8") as f:
+                self.browser_cfg_dict["DefaultURL"] = default_url
+                if main_ter_id:
+                    self.browser_cfg_dict["MAIN_TER_ID"] = main_ter_id
+                if main_ter_code:
+                    self.browser_cfg_dict["MAIN_TER_CODE"] = main_ter_code
+                if s_ter_address:
+                    self.browser_cfg_dict["sTerAddress"] = s_ter_address
+                if s_zdid:
+                    self.browser_cfg_dict["sZDID"] = s_zdid
+                json.dump(self.browser_cfg_dict, f, ensure_ascii=False, indent=4)
+
+        except Exception as err:
+            logger.error(err, exc_info=True)
 
     def read_nvr_cfg(self):
         try:
@@ -45,7 +89,6 @@ class ConfigEditor(QObject):
                 password = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("password")
                 enabled_upload = self.nvr_cfg_dict.get("nvr").get("video").get("enabled-upload")
                 upload_save_dir = self.nvr_cfg_dict.get("nvr").get("video").get("upload-save-dir")
-                terminal_id = self.nvr_cfg_dict.get("nvr").get("video").get("terminal-id")
                 product_channels = self.nvr_cfg_dict.get("nvr").get("device").get("hc-net").get("productChannels")
                 # [{}] 形式嵌套传递到 QML 解析存在问题，换用 [[]] 形式嵌套
                 product_channels_list = []
@@ -63,14 +106,13 @@ class ConfigEditor(QObject):
                 "password": password,
                 "enabled_upload": enabled_upload,
                 "upload_save_dir": upload_save_dir,
-                "terminal_id": terminal_id,
                 "product_channels": product_channels_list
             }
 
     nvr_config = Property(dict, read_nvr_cfg, notify=cfgChanged)
 
-    @Slot(bool, str, str, str, bool, str, str, list)
-    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, terminal_id, channels):
+    @Slot(bool, str, str, str, bool, str, list)
+    def save_nvr_cfg(self, enabled, server_ip, username, password, enabled_upload, upload_save_dir, channels):
         try:
             logger.info(f"Try to save configs to yaml")
             with open(nvr_cfg_path, mode='w', encoding="UTF-8") as f:
@@ -80,7 +122,6 @@ class ConfigEditor(QObject):
                 self.nvr_cfg_dict["nvr"]["device"]["hc-net"]["password"] = password
                 self.nvr_cfg_dict["nvr"]["video"]["enabled-upload"] = enabled_upload
                 self.nvr_cfg_dict["nvr"]["video"]["upload-save-dir"] = upload_save_dir
-                self.nvr_cfg_dict["nvr"]["video"]["terminal-id"] = terminal_id
                 product_channels = []
                 for i in channels:
                     product_channels.append({"productNo": i[0], "channel": i[1]})

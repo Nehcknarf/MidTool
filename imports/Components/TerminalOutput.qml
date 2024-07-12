@@ -30,6 +30,7 @@ MyControls.GroupBox {
 
         TextArea {
             id: textArea
+            textFormat: TextEdit.RichText
             anchors.fill: parent
             font.family: medium.name
             font.pixelSize: 16

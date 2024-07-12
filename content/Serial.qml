@@ -45,7 +45,7 @@ Item {
                 model: serial.availablePorts
                 enabled: ! switchSer.checked
                 // currentIndex: -1
-                popup.onOpened: serial.update_ports()
+                popup.onOpened: serial.availablePorts = serial.update_ports()
             }
 
             Label {

@@ -7,6 +7,7 @@
         <file>content/EditorConsumable.qml</file>
         <file>content/EditorDrug.qml</file>
         <file>content/EditorEcart.qml</file>
+        <file>content/EditorAutolabel.qml</file>
         <file>content/ObjectReader.qml</file>
         <file>content/ObjectProductChannel.qml</file>
         <file>content/Fingerprint.qml</file>
@@ -35,6 +36,7 @@
         <file>content/fonts/OPlusSans3-Medium.ttf</file>
         <file>content/images/close.svg</file>
         <file>content/images/about.svg</file>
+        <file>content/images/warn.svg</file>
         <file>content/images/icon.png</file>
         <file>content/images/logo.png</file>
     </qresource>

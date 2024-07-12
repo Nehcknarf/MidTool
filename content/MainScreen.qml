@@ -52,6 +52,15 @@ Rectangle {
             width: parent.width
         }
 
+        Image {
+            height: 23
+            width: 23
+            anchors.right: labelDrawer.left
+            anchors.verticalCenter: parent.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            source: "qrc:/content/images/warn.svg"
+        }
+
         Label {
             id: labelDrawer
             font.family: medium.name
@@ -319,9 +328,11 @@ Rectangle {
                     // 药品柜
                     case 1:
                         return "qrc:/content/EditorDrug.qml"
-                    // 抢救车 抢救车还未规划配置项，展示空页
+                    // 抢救车
                     case 2:
                         return "qrc:/content/EditorEcart.qml"
+                    case 3:
+                        return "qrc:/content/EditorAutolabel.qml"
                     // 未知设备 默认展示耗材柜设置页
                     case -1:
                         return "qrc:/content/EditorConsumable.qml"
