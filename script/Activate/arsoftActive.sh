@@ -6,13 +6,11 @@ activeKey=$3
 
 cur_dir=$(cd $(dirname "${BASH_SOURCE[0]}") && pwd )
 
-
 clear   
 
 echo APP_ID:$1
 echo SDK_KEY:$2
 echo activeKey:$3
-
 
 if [  -d "/nubomed/midpkg/drug-middleware/" ]; then
 	export LD_LIBRARY_PATH=.:/nubomed/midpkg/opencv-lib
@@ -26,17 +24,28 @@ if [  -d "/nubomed/ecart-service/" ]; then
 	export LD_LIBRARY_PATH=.:/nubomed/libs
 	cabinettype="ecart"	
 fi
+if [  -d "/nubomed/midpkg/drug-collate-middleware/" ]; then
+	export LD_LIBRARY_PATH=.:/nubomed/midpkg/opencv-lib
+	cabinettype="drug"
+fi
+if [  -d "/nubomed/y7000" ]; then
+	export LD_LIBRARY_PATH=.:/nubomed/libs
+	cabinettype="y7000"
+fi
 
 if [ "$(echo $LANG | grep zh_CN)" != "" ]; then
 	case $cabinettype in
 		drug)
-			echo "识别系统类型为：药柜4.1"
+			echo "识别系统类型为：药柜"
 			;;
 		consumable)
-			echo "识别系统类型为：耗材4.1"
+			echo "识别系统类型为：耗材"
 			;;
 		ecart)
 			echo "识别系统类型为：Y6000抢救车"
+			;;
+		y7000)
+			echo "识别系统类型为：采血车"
 			;;
 		*)
 			echo "终端系统类型检测异常,请检查终端环境！！！"
@@ -240,6 +249,9 @@ if [ "$flag" = "0" ]; then
 			;;
 		ecart)
 			mv $cur_dir/ArcFacePro64.dat /nubomed/ecart-service/
+			;;
+		y7000)
+			mv $cur_dir/ArcFacePro64.dat /nubomed/y7000/
 			;;
 	esac
 fi

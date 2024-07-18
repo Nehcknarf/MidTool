@@ -151,7 +151,7 @@ Item {
 
                     MyControls.ProgressBar {
                         value: progress / 100
-                        width: name === qsTr("Middleware") ? 12 : 75
+                        width: name === qsTr("Middleware") ? 16 : 75
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }

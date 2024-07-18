@@ -1,5 +1,7 @@
 import QtQuick
 
+import Controls as MyControls
+
 
 Item {
     MyControls.VertTabBar {

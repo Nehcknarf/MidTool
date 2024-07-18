@@ -27,7 +27,7 @@ pip install -r requirements.txt
 ### 构建 Qt 应用依赖
 `sudo apt install build-essential libgl1-mesa-dev`
 ### X11 依赖
-`sudo apt install libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev`
+`sudo apt install libfontconfig1-dev libfreetype-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev`
 ### Qt6 Multimedia 后端依赖
 `sudo apt install ffmpeg`
 
@@ -55,7 +55,7 @@ pip install -r requirements.txt
 ### Linux 下 QML Camera 开启后关闭，无法再次打开相机，提示 Camera is in use
 ```
 关联BUG：https://bugreports.qt.io/browse/QTBUG-117735
-线索：Qt 6.5 小版本更新引入的 BUG，Qt 官方宣称会在 6.5.4 版本中修复，但是从 6.5.4 开始仅面向商业客户提供，所以可能不会放出 PySide6 6.5.4 安装包
+线索：Qt BUG，官方已在 6.5.4 中修复，但是从 6.5.4 开始仅面向商业客户提供 wheel，免费用户无法获得更新，除非升级非 LTS 版本，可能会引入不稳定因素，暂不考虑。
 ```
 
 ## 编译打包

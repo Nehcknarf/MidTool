@@ -102,7 +102,7 @@ class Serial(QObject):
                                     # 自动上报RFID号
                                     card_type = payload_tuple[0]
                                     card_uid = "-".join(map(str, payload_tuple[1:]))
-                                    sig_data = f'<font color="red">{self.tr("Device type: {}, Card type: {}, Card number: {}").format(device_dict.get(device_type), card_type, card_uid)}</font>'
+                                    sig_data = f'{self.tr("Device type: {}, Card type: {}, Card number: {}").format(device_dict.get(device_type), card_type, card_uid)}'
                             elif device_type == "0107":
                                 try:
                                     payload_tuple = struct.unpack(f"{payload_length}B", pack_data[26:26 + payload_length])

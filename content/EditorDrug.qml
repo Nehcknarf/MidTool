@@ -177,7 +177,7 @@ Item {
                 Label {
                     font.family: bold.name
                     font.pixelSize: 16
-                    text: qsTr("Host")
+                    text: qsTr("NVR IP")
                 }
 
                 MyControls.TextField {

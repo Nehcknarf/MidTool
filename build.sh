@@ -27,15 +27,7 @@ libQt6Pdf.so.6 \
 libQt6PdfQuick.so.6 \
 libQt6Positioning.so.6 \
 libQt6PositioningQuick.so.6 \
-libQt6Quick3D.so.6 \
-libQt6Quick3DAssetImport.so.6 \
-libQt6Quick3DAssetUtils.so.6 \
-libQt6Quick3DEffects.so.6 \
-libQt6Quick3DHelpers.so.6 \
-libQt6Quick3DParticleEffects.so.6 \
-libQt6Quick3DParticles.so.6 \
-libQt6Quick3DRuntimeRender.so.6 \
-libQt6Quick3DUtils.so.6 \
+libQt6Quick3D*.so.6 \
 libQt6QuickTest.so.6 \
 libQt6QuickTimeline.so.6 \
 libQt6RemoteObjects.so.6 \
@@ -51,22 +43,8 @@ libQt6StateMachine.so.6 \
 libQt6StateMachineQml.so.6 \
 libQt6Test.so.6 \
 libQt6TextToSpeech.so.6 \
-libQt6WebChannel.so.6 \
-libQt6WebEngineCore.so.6 \
-libQt6WebEngineQuick.so.6 \
-libQt6WebEngineQuickDelegatesQml.so.6 \
-libQt63DAnimation.so.6 \
-libQt63DCore.so.6 \
-libQt63DExtras.so.6 \
-libQt63DInput.so.6 \
-libQt63DLogic.so.6 \
-libQt63DQuick.so.6 \
-libQt63DQuickAnimation.so.6 \
-libQt63DQuickExtras.so.6 \
-libQt63DQuickInput.so.6 \
-libQt63DQuickRender.so.6 \
-libQt63DQuickScene2D.so.6 \
-libQt63DRender.so.6 \
+libQt6Web*.so.6 \
+libQt63D*.so.6 \
 libFLAC.so.8 \
 libgstreamer-1.0.so.0 \
 libpulse.so.0 \
@@ -83,15 +61,7 @@ PySide6/Qt/lib/libQt6Pdf.so.6 \
 PySide6/Qt/lib/libQt6PdfQuick.so.6 \
 PySide6/Qt/lib/libQt6Positioning.so.6 \
 PySide6/Qt/lib/libQt6PositioningQuick.so.6 \
-PySide6/Qt/lib/libQt6Quick3D.so.6 \
-PySide6/Qt/lib/libQt6Quick3DAssetImport.so.6 \
-PySide6/Qt/lib/libQt6Quick3DAssetUtils.so.6 \
-PySide6/Qt/lib/libQt6Quick3DEffects.so.6 \
-PySide6/Qt/lib/libQt6Quick3DHelpers.so.6 \
-PySide6/Qt/lib/libQt6Quick3DParticleEffects.so.6 \
-PySide6/Qt/lib/libQt6Quick3DParticles.so.6 \
-PySide6/Qt/lib/libQt6Quick3DRuntimeRender.so.6 \
-PySide6/Qt/lib/libQt6Quick3DUtils.so.6 \
+PySide6/Qt/lib/libQt6Quick3D*.so.6 \
 PySide6/Qt/lib/libQt6QuickTest.so.6 \
 PySide6/Qt/lib/libQt6QuickTimeline.so.6 \
 PySide6/Qt/lib/libQt6RemoteObjects.so.6 \
@@ -107,22 +77,8 @@ PySide6/Qt/lib/libQt6StateMachine.so.6 \
 PySide6/Qt/lib/libQt6StateMachineQml.so.6 \
 PySide6/Qt/lib/libQt6Test.so.6 \
 PySide6/Qt/lib/libQt6TextToSpeech.so.6 \
-PySide6/Qt/lib/libQt6WebChannel.so.6 \
-PySide6/Qt/lib/libQt6WebEngineCore.so.6 \
-PySide6/Qt/lib/libQt6WebEngineQuick.so.6 \
-PySide6/Qt/lib/libQt6WebEngineQuickDelegatesQml.so.6 \
-PySide6/Qt/lib/libQt63DAnimation.so.6 \
-PySide6/Qt/lib/libQt63DCore.so.6 \
-PySide6/Qt/lib/libQt63DExtras.so.6 \
-PySide6/Qt/lib/libQt63DInput.so.6 \
-PySide6/Qt/lib/libQt63DLogic.so.6 \
-PySide6/Qt/lib/libQt63DQuick.so.6 \
-PySide6/Qt/lib/libQt63DQuickAnimation.so.6 \
-PySide6/Qt/lib/libQt63DQuickExtras.so.6 \
-PySide6/Qt/lib/libQt63DQuickInput.so.6 \
-PySide6/Qt/lib/libQt63DQuickRender.so.6 \
-PySide6/Qt/lib/libQt63DQuickScene2D.so.6 \
-PySide6/Qt/lib/libQt63DRender.so.6
+PySide6/Qt/lib/libQt6Web*.so.6 \
+PySide6/Qt/lib/libQt63D*.so.6
 
 echo "Delete useless folder"
 rm -rf \
@@ -140,11 +96,11 @@ PySide6/Qt/qml/QtScxml \
 PySide6/Qt/qml/QtSensors \
 PySide6/Qt/qml/QtTest \
 PySide6/Qt/qml/QtTextToSpeech \
-PySide6/Qt/qml/QtWebChannel \
-PySide6/Qt/qml/QtWebEngine \
+PySide6/Qt/qml/QtWeb* \
 PySide6/Qt/plugins/qmltooling
 
 cd ../..
 echo "Compress the folder to *.tar.bz2 pkg"
 midtool_ver=$(python3 ../src/utils/version.py)
-tar -zvcf midtool_"$midtool_ver"_linux.tar.gz midtool
+lsb=$(lsb_release -r -s)
+tar -zcf midtool_"$midtool_ver"_"$lsb".tar.gz midtool
