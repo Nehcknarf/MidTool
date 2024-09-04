@@ -24,15 +24,15 @@ with open(f"{root_path}/config/config.toml", "rb") as f:
     ecart_path = cfg["ecart"]["path"]
     autolabel_path = cfg["autolabel"]["path"]
 
-    consumable_cabinet_cfg = cfg["consumable_cabinet"]["mid_cfg"]
-    consumable_cabinet_offline_cfg = cfg["consumable_cabinet"]["offline_cfg"]
-    ecart_cfg = cfg["ecart"]["mid_cfg"]
-    autolabel_cfg = cfg["autolabel"]["mid_cfg"]
-
-    consumable_cabinet_service = cfg["consumable_cabinet"]["service"]
-    consumable_cabinet_offline_service = cfg["consumable_cabinet"]["offline_service"]
-    ecart_service = cfg["ecart"]["service"]
-    autolabel_service = cfg["autolabel"]["service"]
+    # consumable_cabinet_cfg = cfg["consumable_cabinet"]["mid_cfg"]
+    # consumable_cabinet_offline_cfg = cfg["consumable_cabinet"]["offline_cfg"]
+    # ecart_cfg = cfg["ecart"]["mid_cfg"]
+    # autolabel_cfg = cfg["autolabel"]["mid_cfg"]
+    #
+    # consumable_cabinet_service = cfg["consumable_cabinet"]["service"]
+    # consumable_cabinet_offline_service = cfg["consumable_cabinet"]["offline_service"]
+    # ecart_service = cfg["ecart"]["service"]
+    # autolabel_service = cfg["autolabel"]["service"]
 
 # Product
 if Path(consumable_cabinet_path).exists():
@@ -92,12 +92,15 @@ if system == "Linux":
 
     # For create desktop shortcut
     shortcut_content = f"[Desktop Entry]\nType=Application\nName=MidTool\nExec={Path(root_path).parent}/midtool\nIcon={root_path}/icon.png\nComment=Ops tool for terminal.\nTerminal=false\nCategories=Application;"
-    p_desk = Path("~/Desktop").expanduser()
-    p_shortcut = p_desk.joinpath("MidTool.desktop")
-    if p_desk.exists() and not p_shortcut.exists():
-        with open(p_shortcut, "w") as file:
-            file.write(shortcut_content)
-        p_shortcut.chmod(0o755)
+    # TODO 确定繁体中文桌面文件夹名称，向paths中添加
+    paths = [Path("~/Desktop").expanduser(), Path("~/桌面").expanduser()]
+    p_desk = next((path for path in paths if path.exists()), None)
+    if p_desk:
+        p_shortcut = p_desk.joinpath("MidTool.desktop")
+        if not p_shortcut.exists():
+            with open(p_shortcut, "w") as file:
+                file.write(shortcut_content)
+            p_shortcut.chmod(0o755)
 
 elif system == "Windows":
     # For Shell

@@ -23,6 +23,7 @@ from network import Network
 from timezone import TimeEditor
 from downloader import LogDownloader
 from reader import Reader
+from reader_rongrui import ReaderRongRui
 
 
 def set_qt_environment():

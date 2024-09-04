@@ -251,7 +251,7 @@ if [ "$flag" = "0" ]; then
 			mv $cur_dir/ArcFacePro64.dat /nubomed/ecart-service/
 			;;
 		y7000)
-			mv $cur_dir/ArcFacePro64.dat /nubomed/y7000/
+			mv $cur_dir/ArcFacePro64.dat /nubomed/autolabel-engine/
 			;;
 	esac
 fi

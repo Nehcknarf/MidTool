@@ -7,10 +7,10 @@ ProgressBar {
     padding: 2
 
     background: Rectangle {
-        implicitWidth: 52
+        implicitWidth: 50
         implicitHeight: 14
         color: "#e6e6e6"
-        radius: 8
+        radius: 14
     }
 
     contentItem: Item {

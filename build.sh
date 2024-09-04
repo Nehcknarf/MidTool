@@ -100,7 +100,7 @@ PySide6/Qt/qml/QtWeb* \
 PySide6/Qt/plugins/qmltooling
 
 cd ../..
-echo "Compress the folder to *.tar.bz2 pkg"
+echo "Compress the folder to *.tar.gz pkg"
 midtool_ver=$(python3 ../src/utils/version.py)
 lsb=$(lsb_release -r -s)
 tar -zcf midtool_"$midtool_ver"_"$lsb".tar.gz midtool
