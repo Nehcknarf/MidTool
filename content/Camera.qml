@@ -70,8 +70,8 @@ MyControls.GroupBox {
 
         Rectangle {
             color: "#ECF0F5"
-            height: 384
-            width: 664
+            height: 504
+            width: 878
             radius: 8
 
             VideoOutput {

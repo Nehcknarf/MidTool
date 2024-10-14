@@ -171,7 +171,6 @@ Item {
                         textFieldNvrPassword.text,
                         switchNvrEnabledUpload.checked,
                         textFieldNvrUploadSaveDir.text,
-                        textFieldNvrTerminalID.text,
                         productChannels)
                 }
             }
