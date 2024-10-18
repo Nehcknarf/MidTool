@@ -27,6 +27,12 @@ Item {
             anchors.right: parent.right
             text: qsTr("Round Fingerprint")
         }
+
+        MyControls.TabButton {
+            anchors.left: parent.left
+            anchors.right: parent.right
+            text: qsTr("ZA300 Fingerprint")
+        }
     }
 
     StackLayout {
@@ -325,6 +331,143 @@ Item {
                         text: qsTr("Delete All Fingerprints")
                         enabled: switchRoundFingerPrint.checked
                         onClicked: roundFingerPrint.clean_flash()
+                    }
+                }
+            }
+        }
+
+        Rectangle {
+            color: "transparent"
+
+            Za300FingerPrint {
+                id: za300FingerPrint
+                Component.onCompleted: za300FingerPrint.output.connect(terminalOutputFp.textArea.append)
+            }
+
+            MyControls.GroupBox {
+                id: groupBoxConfigZ
+                anchors.bottom: parent.bottom
+                anchors.left: parent.left
+                anchors.top: parent.top
+                height: 160
+                width: 500
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("Config")
+                }
+
+                GridLayout {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    columns: 4
+                    rows: 2
+
+                    Label {
+                        font.family: bold.name
+                        font.pixelSize: 16
+                        text: qsTr("Serial Port")
+                    }
+
+                    MyControls.ComboBox {
+                        id: comboBoxComZ
+                        model: za300FingerPrint.availablePorts
+                        enabled: ! switchZa300FingerPrint.checked
+                        // currentIndex: -1
+                        textRole: "text"
+                        valueRole: "value"
+                        popup.onOpened: za300FingerPrint.availablePorts = za300FingerPrint.update_ports()
+                    }
+
+                    Label {
+                        font.family: bold.name
+                        font.pixelSize: 16
+                        text: qsTr("Connect")
+                    }
+
+                    MyControls.Switch {
+                        id: switchZa300FingerPrint
+                        onCheckedChanged: {
+                            if (checked) {
+                                let ret = za300FingerPrint.open_device(comboBoxComZ.currentValue, comboBoxBaudRateZ.currentValue)
+                                if (ret !== 0) {
+                                    switchZa300FingerPrint.checked = false
+                                }
+                            } else {
+                                let ret = za300FingerPrint.close_device()
+                            }
+                        }
+                    }
+
+                    Label {
+                        font.family: bold.name
+                        font.pixelSize: 16
+                        text: qsTr("Baud Rate")
+                    }
+
+                    MyControls.ComboBox {
+                        id: comboBoxBaudRateZ
+                        model: za300FingerPrint.baudRates
+                        enabled: ! switchZa300FingerPrint.checked
+                        Component.onCompleted: currentIndex = indexOfValue(57600)
+                    }
+                }
+            }
+
+            MyControls.GroupBox {
+                anchors.bottom: parent.bottom
+                anchors.left: groupBoxConfigZ.right
+                anchors.leftMargin: 16
+                anchors.right: parent.right
+                anchors.top: parent.top
+                height: 160
+
+                Label {
+                    font.family: bold.name
+                    font.pixelSize: 16
+                    text: qsTr("Func.")
+                }
+
+                MyComponents.Dialog {
+                    id: dialogDelZ
+                    title: qsTr("Please input an integer from 1 to 500.")
+                    placeholder: qsTr("Input an integer")
+                    echoMode: TextInput.Normal
+                    inputMethodHints: Qt.ImhDigitsOnly
+                    onAction: {
+                        za300FingerPrint.del_flash(input)
+                    }
+                }
+
+                GridLayout {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    columns: 2
+                    rows: 2
+
+                    MyControls.Button {
+                        text: qsTr("Collect Fingerprint")
+                        enabled: switchZa300FingerPrint.checked
+                        onClicked: za300FingerPrint.get_fingerprint()
+                    }
+
+                    MyControls.Button {
+                        text: qsTr("Delete Specific Fingerprint")
+                        enabled: switchZa300FingerPrint.checked
+                        onClicked: dialogDelZ.open()
+                    }
+
+                    MyControls.Button {
+                        text: qsTr("Search Fingerprint")
+                        enabled: switchZa300FingerPrint.checked
+                        onClicked: za300FingerPrint.search_fingerprint()
+                    }
+
+                    MyControls.Button {
+                        text: qsTr("Delete All Fingerprints")
+                        enabled: switchZa300FingerPrint.checked
+                        onClicked: za300FingerPrint.clean_flash()
                     }
                 }
             }
