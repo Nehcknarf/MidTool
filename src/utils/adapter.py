@@ -92,7 +92,6 @@ if system == "Linux":
 
     # For create desktop shortcut
     shortcut_content = f"[Desktop Entry]\nType=Application\nName=MidTool\nExec={Path(root_path).parent}/midtool\nIcon={root_path}/icon.png\nComment=Ops tool for terminal.\nTerminal=false\nCategories=Application;"
-    # TODO 确定繁体中文桌面文件夹名称，向paths中添加
     paths = [Path("~/Desktop").expanduser(), Path("~/桌面").expanduser()]
     p_desk = next((path for path in paths if path.exists()), None)
     if p_desk:

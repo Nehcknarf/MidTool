@@ -46,7 +46,6 @@ pip install -r requirements.txt
 ```
 问题：libGL error: MESA-LOADER: failed to open swrast: /usr/lib/dri/swrast_dri.so: cannot open shared object file: No such file or directory (search paths /usr/lib/x86_64-linux-gnu/dri:\$${ORIGIN}/dri:/usr/lib/dri, suffix _dri)
 解决方式：添加环境变量，在 Pycharm 的 Run/Debug Configurations 设置中，向 Environment variables 添加 LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libffi.so.7
-Ubuntu 22.04 没有该问题，无需执行上述配置。
 ```
 
 ## 已知问题

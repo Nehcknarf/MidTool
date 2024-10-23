@@ -105,9 +105,9 @@ class SquareFingerPrint(QObject):
         super().__init__()
         self.handle = c_int64(0)
 
-        if system == "Windows":
-            self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.dll')
-        elif system == "Linux":
+        # if system == "Windows":
+        #     self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.dll')
+        if system == "Linux":
             self.libc = cdll.LoadLibrary(f'{root_path}/lib/fingerprint/libapit.so')
 
         self.ports = [port.portName() for port in QSerialPortInfo.availablePorts()]
