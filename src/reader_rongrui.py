@@ -1,4 +1,6 @@
 import json
+import time
+from datetime import datetime
 
 from PySide6.QtCore import Slot, QObject, Signal, Property
 from PySide6.QtNetwork import QNetworkRequest, QNetworkAccessManager, QNetworkReply
@@ -36,7 +38,7 @@ class ReaderRongRui(QObject):
 
     @Slot()
     def update_ports(self):
-        return [com.portName() for com in QSerialPortInfo.availablePorts()]
+        self.ports = [com.portName() for com in QSerialPortInfo.availablePorts()]
 
     availablePorts = Property(list, get_ports, set_ports, notify=getPort)
 
@@ -45,59 +47,42 @@ class ReaderRongRui(QObject):
 
     baudRates = Property(list, get_baud_rates, notify=getBaudRate)
 
-    @Slot()
-    def open(self):
-        ip = "192.168.0.11"
-        port = 6000
-        request = QNetworkRequest(f"{self.base_url}/device/openNetPort?ipAddr={ip}&portNo={port}")
+    @Slot(str, int)
+    def open(self, port, baudrate):
+        request = QNetworkRequest(f"{self.base_url}/device/openByCom?serialPoint=/dev/{port}&speed={baudrate}")
         self.manager.get(request)
 
     @Slot()
     def close(self):
         if self.handle is not None:
-            request = QNetworkRequest(f"{self.base_url}/device/closeNetPort?frmHandle={self.handle}")
-            self.manager.get(request)
-
-    @Slot()
-    def openRF(self):
-        if self.handle is not None:
-            request = QNetworkRequest(f"{self.base_url}/device/openRf?frmHandle={self.handle}")
-            self.manager.get(request)
-
-    @Slot()
-    def closeRF(self):
-        if self.handle is not None:
             request = QNetworkRequest(f"{self.base_url}/device/closeRf?frmHandle={self.handle}")
             self.manager.get(request)
-
-    @Slot(str, int)
-    def openSerialPort(self, port, baudrate):
-        if self.handle is not None:
-            request = QNetworkRequest(f"{self.base_url}/device/openByCom?serialPoint=/dev/{port}&speed={baudrate}")
-            self.manager.get(request)
-
-    @Slot()
-    def closeSerialPort(self):
-        if self.handle is not None:
-            request = QNetworkRequest(f"{self.base_url}/device/closeByCom?frmHandle={self.handle}")
-            self.manager.get(request)
+            self.handle = None
 
     @Slot()
     def checkInventory(self):
         if self.handle is not None:
             request = QNetworkRequest(f"{self.base_url}/device/inventory?frmHandle={self.handle}")
             self.manager.get(request)
+            self.Response.emit("请等待接口返回盘点结果... 过程耗时约2~3s，按钮有3s冷却时间，期间重复点击无效")
 
     @Slot(QNetworkReply)
     def handle_response(self, reply: QNetworkReply):
         if reply.error() == QNetworkReply.NoError:
             raw = reply.readAll().data().decode()
             response = json.loads(raw)
-            print(response)
+            # print(response)
+            # 收到包含句柄的响应则发送打开天线请求
             if response.get("frmHandle"):
                 self.handle = response.get("frmHandle")
-            elif response.get("result"):
-                self.Response.emit(response.get("result"))
-            elif response.get("allTagNum"):
-                self.Response.emit(self.tr(f'There are {response.get("allTagNum")} tags in inventory.'))
+                request = QNetworkRequest(f"{self.base_url}/device/openRf?frmHandle={self.handle}")
+                self.manager.get(request)
+            elif result := response.get("result"):
+                self.Response.emit(result)
+                # 收到关闭天线成功的响应则发送关闭读写器请求
+                if result == "关闭感应射频场成功":
+                    request = QNetworkRequest(f"{self.base_url}/device/closeByCom?frmHandle={self.handle}")
+                    self.manager.get(request)
+            elif count := response.get("allTagNum"):
+                self.Response.emit(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')}，共计有 {count} 个标签")
         reply.deleteLater()

@@ -77,7 +77,7 @@ Item {
                     model: readerRongRui.availablePorts
                     enabled: ! switchRfid.checked
                     // currentIndex: -1
-                    popup.onOpened: readerRongRui.availablePorts = readerRongRui.update_ports()
+                    popup.onOpened: readerRongRui.update_ports()
                 }
 
                 Label {
@@ -90,69 +90,44 @@ Item {
                     id: comboBoxRfidBaudRate
                     model: readerRongRui.baudRates
                     enabled: ! switchRfid.checked
-                    Component.onCompleted: currentIndex = indexOfValue(19200)
+                    Component.onCompleted: currentIndex = indexOfValue(57600)
                 }
 
                 Label {
                     font.family: bold.name
                     font.pixelSize: 16
-                    text: qsTr("Open Serial Port")
+                    text: qsTr("Connect")
                 }
 
                 MyControls.Switch {
                     id: switchRfid
                     onCheckedChanged: {
-                        checked ? readerRongRui.openSerialPort(comboBoxRfidPort.currentValue, comboBoxRfidBaudRate.currentValue) : readerRongRui.closeSerialPort()
-                    }
-                }
-
-                ToolSeparator {
-                    rightPadding: 3
-                    leftPadding: 3
-                    bottomPadding: 0
-                    topPadding: 0
-                    Layout.fillHeight: true
-                }
-
-                Label {
-                    font.family: bold.name
-                    font.pixelSize: 16
-                    text: qsTr("Open TCP")
-                }
-
-                MyControls.Switch {
-                    id: switchReaderRongRui
-                    onCheckedChanged: {
-                        checked ? readerRongRui.open() : readerRongRui.close()
-                    }
-                }
-
-                ToolSeparator {
-                    rightPadding: 3
-                    leftPadding: 3
-                    bottomPadding: 0
-                    topPadding: 0
-                    Layout.fillHeight: true
-                }
-
-                Label {
-                    font.family: bold.name
-                    font.pixelSize: 16
-                    text: qsTr("Open RF")
-                }
-
-                MyControls.Switch {
-                    id: switchReaderRongRui1
-                    onCheckedChanged: {
-                        checked ? readerRongRui.openRF() : readerRongRui.closeRF()
+                        if (checked) {
+                            readerRongRui.open(comboBoxRfidPort.currentValue, comboBoxRfidBaudRate.currentValue)
+                        } else {
+                            readerRongRui.close()
+                            cooldownTimer.stop()
+                        }
                     }
                 }
 
                 MyControls.Button {
+                    id: checkInventoryButton
                     text: qsTr("Check Inventory")
+                    enabled: switchRfid.checked
                     onClicked: {
                         readerRongRui.checkInventory()
+                        checkInventoryButton.enabled = false
+                        cooldownTimer.start()
                     }
+                }
+
+                Timer {
+                    id: cooldownTimer
+                    interval: 3000
+                    repeat: false
+                    running: false
+                    onTriggered: checkInventoryButton.enabled = true
                 }
             }
         }
