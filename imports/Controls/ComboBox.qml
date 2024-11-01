@@ -1,20 +1,23 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Basic
 
 ComboBox {
     id: control
 
     delegate: ItemDelegate {
+        id: delegate
+
+        required property var model
+        required property int index
+
         width: control.width
         contentItem: Text {
-            text: control.textRole
-                ? (Array.isArray(control.model) ? modelData[control.textRole] : model[control.textRole])
-                : modelData
+            text: delegate.model[control.textRole]
             color: "#181D41"
             font.family: medium.name
             font.pixelSize: 16
-            verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
+            verticalAlignment: Text.AlignVCenter
         }
         highlighted: control.highlightedIndex === index
     }

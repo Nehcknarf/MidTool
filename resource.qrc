@@ -19,6 +19,7 @@
         <file>content/Reader.qml</file>
         <file>content/Serial.qml</file>
         <file>content/Timezone.qml</file>
+        <file>content/Board.qml</file>
         <file>imports/Controls/qmldir</file>
         <file>imports/Controls/Button.qml</file>
         <file>imports/Controls/ComboBox.qml</file>

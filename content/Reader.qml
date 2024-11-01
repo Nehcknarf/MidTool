@@ -7,7 +7,6 @@ import Controls as MyControls
 import Components as MyComponents
 
 import src.reader
-import src.reader.rongrui
 
 
 Item {

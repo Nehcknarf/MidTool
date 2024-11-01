@@ -283,6 +283,11 @@ Rectangle {
             text: qsTr("Log Downloader")
             visible: argCurrentIndex === 10 || argCurrentIndex == null
         }
+
+         MyControls.TabButton {
+            text: qsTr("Board")
+            visible: argCurrentIndex === 11 || argCurrentIndex == null
+        }
     }
 
     SwipeView {
@@ -379,6 +384,11 @@ Rectangle {
 
         Loader {
             source: "qrc:/content/LogDownloader.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+        }
+
+        Loader {
+            source: "qrc:/content/Board.qml"
             // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
     }

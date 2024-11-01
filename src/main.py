@@ -22,8 +22,8 @@ from camera import CameraModel
 from network import Network
 from timezone import TimeEditor
 from downloader import LogDownloader
-from reader import Reader
-from reader_rongrui import ReaderRongRui
+from reader import Reader, ReaderRongRui
+from board import TableModel
 
 
 def set_qt_environment():
@@ -47,7 +47,8 @@ def parse_args(app):
         "Camera": 7,
         "Network": 8,
         "Time": 9,
-        "LogDownload": 10
+        "LogDownload": 10,
+        "Board": 11
     }
 
     parser = QCommandLineParser()

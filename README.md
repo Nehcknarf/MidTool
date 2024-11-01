@@ -10,10 +10,10 @@
 ## 开发环境
 ### Windows 11 下推荐使用 WSL Ubuntu 20.04 和 Ubuntu 22.04 开发
 ### 基于 Qt6.8 LTS，前端由 QML 语言编写，后端为 PySide6
-| Pack    | Version |
-|---------|---------|
-| Python  | 3.12    |
-| PySide6 | 6.8.0   |
+| Pack    | Version   |
+|---------|-----------|
+| Python  | 3.13      |
+| PySide6 | ~=6.8.0.2 |
 
 ## 快速开始
 ### 安装运行&编译依赖包（包含构建 Qt 应用基础依赖、X11 依赖、Qt6 Multimedia 后端依赖 FFmpeg）
@@ -23,7 +23,7 @@ sudo apt install -y build-essential libgl1-mesa-dev \
 ```
 ### 创建&激活虚拟环境，安装项目依赖
 ```bash
-conda create -n midtool python=3.12
+conda create -n midtool python=3.13
 conda activate midtool
 pip install -r requirements.txt
 ```
