@@ -105,7 +105,7 @@ Item {
 
                     delegate: Rectangle {
                         implicitHeight: 50
-                        implicitWidth: 120
+                        implicitWidth: 130
 
                         Text {
                             anchors.centerIn: parent
@@ -193,17 +193,23 @@ Item {
 
                     delegate: Rectangle {
                         implicitHeight: 50
-                        implicitWidth: 100
+                        implicitWidth: 130
 
-                        MyControls.Button {
+                        Text {
                             anchors.centerIn: parent
-                            implicitHeight: 40
-                            implicitWidth: 90
-                            text: qsTr("Detail")
-
-                            onClicked: {
-                                tableModel.detail(embbutton);
-                            }
+                            font.family: medium.name
+                            font.pixelSize: 16
+                            text: display === undefined ? "NA" : display
+                        }
+                        TableView.editDelegate: TextField {
+                            anchors.fill: parent
+                            font.family: medium.name
+                            font.pixelSize: 16
+                            text: display
+                            horizontalAlignment: TextInput.AlignHCenter
+                            verticalAlignment: TextInput.AlignVCenter
+                            TableView.onCommit: display = text
+                            inputMethodHints: Qt.ImhDigitsOnly
                         }
                     }
                 }
@@ -212,7 +218,7 @@ Item {
 
                     delegate: Rectangle {
                         implicitHeight: 50
-                        implicitWidth: 120
+                        implicitWidth: 130
 
                         Text {
                             anchors.centerIn: parent
@@ -239,21 +245,18 @@ Item {
                         implicitHeight: 50
                         implicitWidth: 120
 
-                        Text {
+                        MyControls.ComboBox {
                             anchors.centerIn: parent
-                            font.family: medium.name
-                            font.pixelSize: 16
-                            text: display === undefined ? "NA" : display
-                        }
-                        TableView.editDelegate: TextField {
-                            anchors.fill: parent
-                            font.family: medium.name
-                            font.pixelSize: 16
-                            text: display
-                            horizontalAlignment: TextInput.AlignHCenter
-                            verticalAlignment: TextInput.AlignVCenter
-                            TableView.onCommit: display = text
-                            inputMethodHints: Qt.ImhDigitsOnly
+                            implicitHeight: 40
+                            implicitWidth: 110
+                            model: [
+                                {"value": 0, "text": qsTr("DHCP")},
+                                {"value": 128, "text": qsTr("Static")}
+                            ]
+                            textRole: "text"
+                            valueRole: "value"
+                            Component.onCompleted: currentIndex = indexOfValue(display[6])
+                            onActivated: tableModel.setDhcp(display, currentValue)
                         }
                     }
                 }
@@ -262,29 +265,7 @@ Item {
 
                     delegate: Rectangle {
                         implicitHeight: 50
-                        implicitWidth: 120
-
-                        MyControls.ComboBox {
-                            anchors.centerIn: parent
-                            implicitHeight: 40
-                            implicitWidth: 110
-                            model: [
-                                {"value": "0", "text": qsTr("DHCP")},
-                                {"value": "128", "text": qsTr("Static")},
-                                {"value": undefined, "text": qsTr("NA")}
-                            ]
-                            textRole: "text"
-                            valueRole: "value"
-                            Component.onCompleted: currentIndex = indexOfValue(display)
-                        }
-                    }
-                }
-                DelegateChoice {
-                    column: 9
-
-                    delegate: Rectangle {
-                        implicitHeight: 50
-                        implicitWidth: 120
+                        implicitWidth: 130
 
                         Text {
                             anchors.centerIn: parent
@@ -305,7 +286,7 @@ Item {
                     }
                 }
                 DelegateChoice {
-                    column: 10
+                    column: 9
 
                     delegate: Rectangle {
                         implicitHeight: 50
@@ -330,7 +311,7 @@ Item {
                     }
                 }
                 DelegateChoice {
-                    column: 11
+                    column: 10
 
                     delegate: Rectangle {
                         implicitHeight: 50
@@ -343,7 +324,7 @@ Item {
                             text: qsTr("Reboot")
 
                             onClicked: {
-                                tableModel.reset(embbutton);
+                                tableModel.reboot(embbutton);
                             }
                         }
                     }

@@ -5,6 +5,8 @@ from PySide6.QtCore import Qt, QObject, Signal, Slot, QAbstractTableModel
 from PySide6.QtNetwork import QUdpSocket, QHostAddress
 from PySide6.QtQml import QmlElement
 
+from utils.log import logger
+
 QML_IMPORT_NAME = "src.board"
 QML_IMPORT_MAJOR_VERSION = 1
 QML_IMPORT_MINOR_VERSION = 0
@@ -30,8 +32,9 @@ class UdpHandler(QObject):
                 device_name = pack_data[19:35].rstrip(b'\x00').decode('ascii')
                 UdpHandler.board_dict.update(
                     {ip: [ip, device_name, mac, firmware_ver, None, None, None, None, None, None, None]})
+                self.read_cfg(mac)
             elif len(pack_data) == 130:
-                dhcp = pack_data[3]
+                dhcp = pack_data[3] & 0x80
                 ip = socket.inet_ntoa(pack_data[9:13][::-1])
                 gateway = socket.inet_ntoa(pack_data[13:17][::-1])
                 mask = socket.inet_ntoa(pack_data[17:21][::-1])
@@ -41,7 +44,7 @@ class UdpHandler(QObject):
                 UdpHandler.board_dict[ip][9] = pack_data[:67]  # 基础参数
                 UdpHandler.board_dict[ip][10] = pack_data[67:]  # 串口0参数
             else:
-                print("Result:", pack_data)
+                print("Return:", pack_data)
             self.dataChanged.emit()
 
     @staticmethod
@@ -56,45 +59,47 @@ class UdpHandler(QObject):
         return hex(checksum)[2:].upper()
 
     def discover(self):
-        print("Discovering Boards...")
+        logger.info("Discovering Boards...")
         message = bytes.fromhex("FF010102")
         self.socket.writeDatagram(message, QHostAddress.Broadcast, 1901)
 
-    def command(self, mac, cmd, arg=""):
-        string = f"FF19{cmd}{mac}61646D696E0061646D696E00{arg}"
+    def command(self, mac, length, cmd, arg=""):
+        string = f"FF{length}{cmd}{mac}61646D696E0061646D696E00{arg}"
         string += self.calc_checksum(string)
-        print(string)
+        # print(string)
         message = bytes.fromhex(string)
         self.socket.writeDatagram(message, QHostAddress.Broadcast, 1901)
 
-    def reset(self, mac):
-        print("Reset device...")
-        self.command(mac, cmd="02")
+    def reboot(self, mac):
+        print("Reboot device...")
+        self.command(mac, length=13, cmd="02")
 
     def read_cfg(self, mac):
         print("Retrieving device info...")
-        self.command(mac, cmd="03")
+        self.command(mac, length=13, cmd="03")
 
     def save_cfg(self, mac):
         print("Saving...")
-        self.command(mac, cmd="04")
+        self.command(mac, length=13, cmd="04")
 
-    def cfg_basic(self, board_info, is_dhcp=False):
+    def cfg_basic(self, board_info, dhcp=128):
         ip = board_info[0]
         mac = board_info[2]
         gateway = board_info[4]
         mask = board_info[5]
         raw_basic = bytearray(board_info[9])
-        if is_dhcp: # 0: DHCP, 128: Static
+        if dhcp == 0:  # DHCP
+            board_info[6] = 0
             raw_basic[3] = 0
-        else:
+        elif dhcp == 128:  # 静态
+            board_info[6] = 128
             raw_basic[3] = 128
         raw_basic[9:13] = socket.inet_aton(ip)[::-1]
         raw_basic[13:17] = socket.inet_aton(gateway)[::-1]
         raw_basic[17:21] = socket.inet_aton(mask)[::-1]
         board_info[9] = bytes(raw_basic)
         arg = board_info[9].hex().upper()
-        self.command(mac, cmd="05", arg=arg)
+        self.command(mac, length=56, cmd="05", arg=arg)
         self.save_cfg(mac)
 
     def cfg_serial(self, board_info):
@@ -106,7 +111,7 @@ class UdpHandler(QObject):
         raw_serial[16:46] = target_ip.encode('ascii').ljust(30, b'\x00')
         board_info[10] = bytes(raw_serial)
         arg = board_info[10].hex().upper()
-        self.command(mac, cmd="06", arg=arg)
+        self.command(mac, length=52, cmd="06", arg=arg)
         self.save_cfg(mac)
 
 
@@ -133,18 +138,12 @@ class TableModel(QAbstractTableModel):
         self.endResetModel()
 
     @Slot(str)
-    def detail(self, mac):
-        self.beginResetModel()
-        self.udp_handler.read_cfg(mac)
-        self.endResetModel()
+    def reboot(self, mac):
+        self.udp_handler.reboot(mac)
 
-    @Slot(str)
-    def reset(self, mac):
-        self.udp_handler.reset(mac)
-
-    # @Slot(str)
-    # def set_dhcp(self):
-    #     self.udp_handler.cfg_basic()
+    @Slot(list, int)
+    def setDhcp(self, board_info, dhcp):
+        self.udp_handler.cfg_basic(board_info, dhcp)
 
     def roleNames(self):
         roles = super().roleNames()
@@ -156,13 +155,12 @@ class TableModel(QAbstractTableModel):
         return len(UdpHandler.board_dict)
 
     def columnCount(self, parent=None):
-        return 12
+        return 11
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if orientation == Qt.Horizontal:
             return \
                 [self.tr("IP"), self.tr("Home Page"), self.tr("Name"), self.tr("MAC"), self.tr("Version"),
-                 self.tr("Detail"),
                  self.tr("Gateway"), self.tr("Mask"), self.tr("IP Type"), self.tr("Target IP"), self.tr("Target Port"),
                  self.tr("Reboot")][section]
 
@@ -178,7 +176,7 @@ class TableModel(QAbstractTableModel):
             firmware_ver = board_info[3]
             gateway = board_info[4]
             mask = board_info[5]
-            dhcp = board_info[6]
+            # dhcp = board_info[6]
             target_ip = board_info[7]
             target_port = board_info[8]
 
@@ -192,19 +190,19 @@ class TableModel(QAbstractTableModel):
                         return mac
                     case 4:
                         return firmware_ver
-                    case 6:
+                    case 5:
                         return gateway
-                    case 7:
+                    case 6:
                         return mask
+                    case 7:  # DHCP
+                        return board_info
                     case 8:
-                        return dhcp
-                    case 9:
                         return target_ip
-                    case 10:
+                    case 9:
                         return target_port
             elif role == TableModel.EmbButtonRole:
                 match column:
-                    case 5 | 11:
+                    case 10:
                         return mac
             elif role == TableModel.HyperLinkRole:
                 match column:
@@ -220,19 +218,18 @@ class TableModel(QAbstractTableModel):
                 case 0:
                     board_info[0] = value
                     self.udp_handler.cfg_basic(board_info)
-                case 6:
+                case 5:
                     board_info[4] = value
                     self.udp_handler.cfg_basic(board_info)
-                case 7:
+                case 6:
                     board_info[5] = value
                     self.udp_handler.cfg_basic(board_info)
-                case 8:  # DHCP/Static # FIXME TableView.editDelegate对于ComboBox不生效，无法触发TableView.onCommit信号
-                    # board_info[6] = value
+                case 7:  # DHCP
                     pass
-                case 9:
+                case 8:
                     board_info[7] = value
                     self.udp_handler.cfg_serial(board_info)
-                case 10:
+                case 9:
                     board_info[8] = value
                     self.udp_handler.cfg_serial(board_info)
             self.dataChanged.emit(index, index)
