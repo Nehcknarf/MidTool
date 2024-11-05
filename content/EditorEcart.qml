@@ -113,7 +113,7 @@ Item {
                 MyControls.ComboBox {
                     id: comboBoxReaderPort
                     model: serial.ports
-                    popup.onOpened: serial.ports = serial.update_ports()
+                    popup.onOpened: serial.update_ports()
                     Component.onCompleted: currentIndex = indexOfValue(configEditor.extern_cfg["port"] === undefined ? null : configEditor.extern_cfg["port"])
                 }
 
@@ -184,7 +184,7 @@ Item {
                 MyControls.ComboBox {
                     id: comboBoxFPPort
                     model: serial.ports
-                    popup.onOpened: serial.ports = serial.update_ports()
+                    popup.onOpened: serial.update_ports()
                     Component.onCompleted: currentIndex = indexOfValue(configEditor.finger_cfg["port"] === undefined ? null : configEditor.finger_cfg["port"])
                 }
 

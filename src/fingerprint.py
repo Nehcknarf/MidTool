@@ -123,7 +123,7 @@ class SquareFingerPrint(QObject):
 
     @Slot()
     def update_ports(self):
-        return [com.portName() for com in QSerialPortInfo.availablePorts()]
+        self.ports = [com.portName() for com in QSerialPortInfo.availablePorts()]
 
     availablePorts = Property(list, get_ports, set_ports, notify=getPort)
 
@@ -285,7 +285,7 @@ class RoundFingerPrint(QObject):
 
     @Slot()
     def update_ports(self):
-        return [{"value": port.systemLocation(), "text": port.portName()} for port in QSerialPortInfo.availablePorts()]
+        self.ports = [{"value": port.systemLocation(), "text": port.portName()} for port in QSerialPortInfo.availablePorts()]
 
     availablePorts = Property(list, get_ports, set_ports, notify=getPort)
 
@@ -436,7 +436,7 @@ class Za300FingerPrint(QObject):
 
     @Slot()
     def update_ports(self):
-        return [{"value": port.systemLocation(), "text": port.portName()} for port in QSerialPortInfo.availablePorts()]
+        self.ports = [{"value": port.systemLocation(), "text": port.portName()} for port in QSerialPortInfo.availablePorts()]
 
     availablePorts = Property(list, get_ports, set_ports, notify=getPort)
 

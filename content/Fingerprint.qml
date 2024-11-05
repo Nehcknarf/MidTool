@@ -86,7 +86,7 @@ Item {
                         model: squareFingerPrint.availablePorts
                         enabled: ! switchSquareFingerPrint.checked
                         // currentIndex: -1
-                        popup.onOpened: squareFingerPrint.availablePorts = squareFingerPrint.update_ports()
+                        popup.onOpened: squareFingerPrint.update_ports()
                     }
 
                      Label {
@@ -240,7 +240,7 @@ Item {
                         // currentIndex: -1
                         textRole: "text"
                         valueRole: "value"
-                        popup.onOpened: roundFingerPrint.availablePorts = roundFingerPrint.update_ports()
+                        popup.onOpened: roundFingerPrint.update_ports()
                     }
 
                     Label {
@@ -377,7 +377,7 @@ Item {
                         // currentIndex: -1
                         textRole: "text"
                         valueRole: "value"
-                        popup.onOpened: za300FingerPrint.availablePorts = za300FingerPrint.update_ports()
+                        popup.onOpened: za300FingerPrint.update_ports()
                     }
 
                     Label {
