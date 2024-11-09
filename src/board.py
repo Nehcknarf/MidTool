@@ -56,7 +56,7 @@ class UdpHandler(QObject):
             checksum += int(byte, 16)
         # 只保留低字节 (0xFF)
         checksum &= 0xFF
-        return hex(checksum)[2:].upper()
+        return hex(checksum).replace("0x", "").zfill(2).upper()
 
     def discover(self):
         logger.info("Discovering Boards...")
