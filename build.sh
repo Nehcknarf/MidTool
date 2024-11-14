@@ -9,7 +9,7 @@ pyinstaller src/main.py \
 --noconfirm \
 --name midtool \
 --add-data 'config:config' \
---add-data 'lib/fingerprint/*.so:lib/fingerprint/' \
+--add-binary 'lib/fingerprint/*.so:lib/fingerprint/' \
 --add-data 'script:script' \
 --add-data 'i18n:i18n' \
 --add-data 'content/images/icon.png:.' \

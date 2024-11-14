@@ -32,6 +32,10 @@ if [  -d "/nubomed/y7000" ]; then
 	export LD_LIBRARY_PATH=.:/nubomed/libs
 	cabinettype="y7000"
 fi
+if [  -d "/nubomed/service/cabinet-edge-server" ]; then
+	export LD_LIBRARY_PATH=.:/nubomed/service/opencv-lib
+	cabinettype="M3100"
+fi
 
 if [ "$(echo $LANG | grep zh_CN)" != "" ]; then
 	case $cabinettype in
@@ -148,6 +152,12 @@ if [ "$(echo $LANG | grep zh_CN)" = "" ]; then
 		ecart)
 			echo "The current project type：ecart"
 			;;
+		y7000)
+			echo "The current project type：y7000"
+			;;
+		M3100)
+			echo "The current project type：M3100"
+			;;		
 		*)
 			echo "Abnormal terminal system type detection, please check the terminal environment!!!"
 			exit 1
@@ -251,7 +261,10 @@ if [ "$flag" = "0" ]; then
 			mv $cur_dir/ArcFacePro64.dat /nubomed/ecart-service/
 			;;
 		y7000)
-			mv $cur_dir/ArcFacePro64.dat /nubomed/autolabel-engine/
+			mv $cur_dir/ArcFacePro64.dat /nubomed/y7000/
+			;;
+		M3100)
+			mv $cur_dir/ArcFacePro64.dat /nubomed/service/
 			;;
 	esac
 fi
