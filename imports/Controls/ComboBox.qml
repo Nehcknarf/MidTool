@@ -69,7 +69,7 @@ ComboBox {
     popup: Popup {
         y: control.height - 1
         width: control.width
-        implicitHeight: contentItem.implicitHeight
+        implicitHeight: 400
         popupType: Popup.Window
         padding: 1
 

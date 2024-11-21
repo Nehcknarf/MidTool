@@ -215,6 +215,7 @@ Rectangle {
     TabBar {
         id: tabBar
         height: 60
+        width: parent.width
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
@@ -228,64 +229,76 @@ Rectangle {
 
         MyControls.TabButton {
             text: qsTr("Monitoring")
+            width: implicitWidth
             visible: argCurrentIndex === 0 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Maintenance")
+            width: implicitWidth
             visible: argCurrentIndex === 1 || argCurrentIndex == null
             onClicked: maintenanceTip()
         }
 
         MyControls.TabButton {
             text: qsTr("Config Editor")
+            width: implicitWidth
             visible: argCurrentIndex === 2 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Serial Port")
+            width: implicitWidth
             visible: argCurrentIndex === 3 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Fingerprint")
+            width: implicitWidth
             visible: argCurrentIndex === 4 || argCurrentIndex == null
             onClicked: fingerprintTip()
         }
 
         MyControls.TabButton {
             text: qsTr("RFID Reader")
+            width: implicitWidth
             visible: argCurrentIndex === 5 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Face Recognition")
+            width: implicitWidth
             visible: argCurrentIndex === 6 || argCurrentIndex == null
             onClicked: faceRecognitionTip()
         }
 
         MyControls.TabButton {
             text: qsTr("Camera")
+            width: implicitWidth
             visible: argCurrentIndex === 7 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Network")
+            width: implicitWidth
             visible: argCurrentIndex === 8 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Time")
+            width: implicitWidth
             visible: argCurrentIndex === 9 || argCurrentIndex == null
         }
 
         MyControls.TabButton {
             text: qsTr("Log Downloader")
+            width: implicitWidth
             visible: argCurrentIndex === 10 || argCurrentIndex == null
         }
 
-         MyControls.TabButton {
+        MyControls.TabButton {
             text: qsTr("Board")
+            width: implicitWidth
             visible: argCurrentIndex === 11 || argCurrentIndex == null
         }
     }

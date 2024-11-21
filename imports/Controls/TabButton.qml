@@ -12,11 +12,11 @@ TabButton {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         elide: Text.ElideRight
-        wrapMode: Text.Wrap
+        // wrapMode: Text.Wrap
     }
 
     background: Rectangle {
-        implicitWidth: 120
+        implicitWidth: 80
         implicitHeight: 60
         color: control.checked ? "#0066E0" : "#FFFFFF"
     }
