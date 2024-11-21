@@ -18,32 +18,31 @@ pyinstaller src/main.py \
 cd dist/midtool/_internal || exit
 echo "Delete useless lib and symlink"
 rm -f \
-libQt6Charts.so.6 \
-libQt6ChartsQml.so.6 \
-libQt6DataVisualization.so.6 \
-libQt6DataVisualizationQml.so.6 \
+libQt6Charts*.so.6 \
+libQt6DataVisualization*.so.6 \
+libQt6Egl*.so.6 \
 libQt6Location.so.6 \
-libQt6Pdf.so.6 \
-libQt6PdfQuick.so.6 \
-libQt6Positioning.so.6 \
-libQt6PositioningQuick.so.6 \
+libQt6Pdf*.so.6 \
+libQt6Positioning*.so.6 \
 libQt6Quick3D*.so.6 \
+libQt6QuickControls2Fusion*.so.6 \
+libQt6QuickControls2Imagine*.so.6 \
+libQt6QuickControls2Material*.so.6 \
+libQt6QuickControls2Universal*.so.6 \
 libQt6QuickTest.so.6 \
-libQt6QuickTimeline.so.6 \
-libQt6RemoteObjects.so.6 \
-libQt6RemoteObjectsQml.so.6 \
-libQt6Scxml.so.6 \
-libQt6ScxmlQml.so.6 \
-libQt6Sensors.so.6 \
-libQt6SensorsQuick.so.6 \
+libQt6QuickTimeline*.so.6 \
+libQt6QuickVectorImage*.so.6 \
+libQt6RemoteObjects*.so.6 \
+libQt6Scxml*.so.6 \
+libQt6Sensors*.so.6 \
 libQt6ShaderTools.so.6 \
 libQt6SpatialAudio.so.6 \
 libQt6Sql.so.6 \
-libQt6StateMachine.so.6 \
-libQt6StateMachineQml.so.6 \
+libQt6StateMachine*.so.6 \
 libQt6Test.so.6 \
 libQt6TextToSpeech.so.6 \
 libQt6Web*.so.6 \
+*Widgets.so.6 \
 libQt63D*.so.6 \
 libFLAC.so.8 \
 libgstreamer-1.0.so.0 \
@@ -52,32 +51,32 @@ libpulsecommon-*.so
 
 echo "Delete useless Qt lib"
 rm -f \
-PySide6/Qt/lib/libQt6Charts.so.6 \
-PySide6/Qt/lib/libQt6ChartsQml.so.6 \
-PySide6/Qt/lib/libQt6DataVisualization.so.6 \
-PySide6/Qt/lib/libQt6DataVisualizationQml.so.6 \
+PySide6/*Widgets.abi3.so \
+PySide6/Qt/lib/libQt6Charts*.so.6 \
+PySide6/Qt/lib/libQt6DataVisualization*.so.6 \
+PySide6/Qt/lib/libQt6Egl*.so.6 \
 PySide6/Qt/lib/libQt6Location.so.6 \
-PySide6/Qt/lib/libQt6Pdf.so.6 \
-PySide6/Qt/lib/libQt6PdfQuick.so.6 \
-PySide6/Qt/lib/libQt6Positioning.so.6 \
-PySide6/Qt/lib/libQt6PositioningQuick.so.6 \
+PySide6/Qt/lib/libQt6Pdf*.so.6 \
+PySide6/Qt/lib/libQt6Positioning*.so.6 \
 PySide6/Qt/lib/libQt6Quick3D*.so.6 \
+PySide6/Qt/lib/libQt6QuickControls2Fusion*.so.6 \
+PySide6/Qt/lib/libQt6QuickControls2Imagine*.so.6 \
+PySide6/Qt/lib/libQt6QuickControls2Material*.so.6 \
+PySide6/Qt/lib/libQt6QuickControls2Universal*.so.6 \
 PySide6/Qt/lib/libQt6QuickTest.so.6 \
-PySide6/Qt/lib/libQt6QuickTimeline.so.6 \
-PySide6/Qt/lib/libQt6RemoteObjects.so.6 \
-PySide6/Qt/lib/libQt6RemoteObjectsQml.so.6 \
-PySide6/Qt/lib/libQt6Scxml.so.6 \
-PySide6/Qt/lib/libQt6ScxmlQml.so.6 \
-PySide6/Qt/lib/libQt6Sensors.so.6 \
-PySide6/Qt/lib/libQt6SensorsQuick.so.6 \
+PySide6/Qt/lib/libQt6QuickTimeline*.so.6 \
+PySide6/Qt/lib/libQt6QuickVectorImage*.so.6 \
+PySide6/Qt/lib/libQt6RemoteObjects*.so.6 \
+PySide6/Qt/lib/libQt6Scxml*.so.6 \
+PySide6/Qt/lib/libQt6Sensors*.so.6 \
 PySide6/Qt/lib/libQt6ShaderTools.so.6 \
 PySide6/Qt/lib/libQt6SpatialAudio.so.6 \
 PySide6/Qt/lib/libQt6Sql.so.6 \
-PySide6/Qt/lib/libQt6StateMachine.so.6 \
-PySide6/Qt/lib/libQt6StateMachineQml.so.6 \
+PySide6/Qt/lib/libQt6StateMachine*.so.6 \
 PySide6/Qt/lib/libQt6Test.so.6 \
 PySide6/Qt/lib/libQt6TextToSpeech.so.6 \
 PySide6/Qt/lib/libQt6Web*.so.6 \
+PySide6/Qt/lib/*Widgets.so.6 \
 PySide6/Qt/lib/libQt63D*.so.6
 
 echo "Delete useless folder"
