@@ -29,9 +29,11 @@ libQt6QuickControls2Fusion*.so.6 \
 libQt6QuickControls2Imagine*.so.6 \
 libQt6QuickControls2Material*.so.6 \
 libQt6QuickControls2Universal*.so.6 \
+libQt6QuickEffects.so.6 \
+libQt6QuickParticles.so.6 \
+libQt6QuickShapes.so.6 \
 libQt6QuickTest.so.6 \
 libQt6QuickTimeline*.so.6 \
-libQt6QuickVectorImage*.so.6 \
 libQt6RemoteObjects*.so.6 \
 libQt6Scxml*.so.6 \
 libQt6Sensors*.so.6 \
@@ -63,9 +65,11 @@ PySide6/Qt/lib/libQt6QuickControls2Fusion*.so.6 \
 PySide6/Qt/lib/libQt6QuickControls2Imagine*.so.6 \
 PySide6/Qt/lib/libQt6QuickControls2Material*.so.6 \
 PySide6/Qt/lib/libQt6QuickControls2Universal*.so.6 \
+PySide6/Qt/lib/libQt6QuickEffects.so.6 \
+PySide6/Qt/lib/libQt6QuickParticles.so.6 \
+PySide6/Qt/lib/libQt6QuickShapes.so.6 \
 PySide6/Qt/lib/libQt6QuickTest.so.6 \
 PySide6/Qt/lib/libQt6QuickTimeline*.so.6 \
-PySide6/Qt/lib/libQt6QuickVectorImage*.so.6 \
 PySide6/Qt/lib/libQt6RemoteObjects*.so.6 \
 PySide6/Qt/lib/libQt6Scxml*.so.6 \
 PySide6/Qt/lib/libQt6Sensors*.so.6 \
@@ -83,6 +87,8 @@ echo "Delete useless folder"
 rm -rf \
 *.dist-info \
 PySide6/Qt/translations \
+PySide6/Qt/plugins/egldeviceintegrations \
+PySide6/Qt/plugins/qmltooling \
 PySide6/Qt/qml/Qt3D \
 PySide6/Qt/qml/Qt5Compat \
 PySide6/Qt/qml/QtCharts \
@@ -95,8 +101,7 @@ PySide6/Qt/qml/QtScxml \
 PySide6/Qt/qml/QtSensors \
 PySide6/Qt/qml/QtTest \
 PySide6/Qt/qml/QtTextToSpeech \
-PySide6/Qt/qml/QtWeb* \
-PySide6/Qt/plugins/qmltooling
+PySide6/Qt/qml/QtWeb*
 
 cd ../..
 echo "Compress the folder to *.tar.gz pkg"
