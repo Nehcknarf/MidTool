@@ -1,4 +1,4 @@
-import QtQuick
+import QtQuick.Window
 import QtQuick.VirtualKeyboard
 import QtQuick.VirtualKeyboard.Settings
 

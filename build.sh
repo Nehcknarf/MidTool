@@ -6,6 +6,7 @@ pyside6-rcc resource.qrc -o src/utils/resource.py
 echo "Start building..."
 pyinstaller src/main.py \
 --clean \
+--strip \
 --noconfirm \
 --name midtool \
 --add-data 'config:config' \
