@@ -101,7 +101,8 @@ class Serial(QObject):
                                 else:
                                     # 自动上报RFID号
                                     card_type = payload_tuple[0]
-                                    card_uid = "-".join(map(str, payload_tuple[1:]))
+                                    # card_uid = "-".join(map(str, payload_tuple[1:]))
+                                    card_uid = "-".join(map(lambda x: hex(x)[2:].upper(), payload_tuple[1:]))
                                     sig_data = f'{self.tr("Device type: {}, Card type: {}, Card number: {}").format(device_dict.get(device_type), card_type, card_uid)}'
                             elif device_type == "0107":
                                 try:

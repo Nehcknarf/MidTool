@@ -105,7 +105,7 @@ PySide6/Qt/qml/QtTextToSpeech \
 PySide6/Qt/qml/QtWeb*
 
 cd ../..
-echo "Compress the folder to *.tar.gz pkg"
+echo "Compress the folder to *.tar.xz pkg"
 midtool_ver=$(python3 ../src/utils/version.py)
 lsb=$(lsb_release -r -s)
-tar -zcf midtool_"$midtool_ver"_"$lsb".tar.gz midtool
+tar -Jcf midtool_V"$midtool_ver"_"$lsb".tar.xz midtool

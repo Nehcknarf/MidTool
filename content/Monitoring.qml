@@ -30,27 +30,6 @@ Item {
             Component.onCompleted: middlewareManager.Stdout.connect(terminalOutput.textArea.append)
         }
 
-        MyComponents.Dialog {
-            id: dialogStart
-            onAction: {
-                middlewareManager.start_middleware(input)
-            }
-        }
-
-        MyComponents.Dialog {
-            id: dialogRestart
-            onAction: {
-                middlewareManager.restart_middleware(input)
-            }
-        }
-
-        MyComponents.Dialog {
-            id: dialogStop
-            onAction: {
-                middlewareManager.stop_middleware(input)
-            }
-        }
-
         // FileDialog {
         //     id: fileDialog
         //     currentFolder: "/nubomed"
@@ -67,11 +46,7 @@ Item {
                 id: buttonStart
                 text: qsTr("Start")
                 onClicked: {
-                    if (productType === 1) {
-                        dialogStart.open()
-                    } else {
-                        middlewareManager.start_middleware("")
-                    }
+                    middlewareManager.start_middleware()
                 }
             }
 
@@ -79,11 +54,7 @@ Item {
                 id: buttonRestart
                 text: qsTr("Restart")
                 onClicked: {
-                    if (productType === 1) {
-                        dialogRestart.open()
-                    } else {
-                        middlewareManager.restart_middleware("")
-                    }
+                    middlewareManager.restart_middleware()
                 }
             }
 
@@ -91,11 +62,7 @@ Item {
                 id: buttonStop
                 text: qsTr("Stop")
                 onClicked: {
-                    if (productType === 1) {
-                        dialogStop.open()
-                    } else {
-                        middlewareManager.stop_middleware("")
-                    }
+                    middlewareManager.stop_middleware()
                 }
             }
         }
@@ -126,7 +93,7 @@ Item {
 
         ListView {
             id: listView
-            width: 400
+            width: 600
             height: 60
             anchors.centerIn: parent
             orientation: ListView.Horizontal
@@ -151,7 +118,7 @@ Item {
 
                     MyControls.ProgressBar {
                         value: progress / 100
-                        width: name === qsTr("Middleware") ? 16 : 75
+                        width: [qsTr("Middleware"), qsTr("Smart Cart"), "MySQL", "NTP"].includes(name) ? 16 : 75
                         anchors.horizontalCenter: parent.horizontalCenter
                     }
                 }
