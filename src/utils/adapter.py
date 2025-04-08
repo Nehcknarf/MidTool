@@ -23,6 +23,10 @@ with open(f"{root_path}/config/config.toml", "rb") as f:
     drug_cabinet_path = cfg["drug_cabinet"]["path"]
     ecart_path = cfg["ecart"]["path"]
     autolabel_path = cfg["autolabel"]["path"]
+    nvr_username = cfg["nvr"]["username"]
+    nvr_password = cfg["nvr"]["password"]
+    nvr_ip = cfg["nvr"]["nvr_ip"]
+    ipc_ip = cfg["nvr"]["ipc_ip"]
 
     # consumable_cabinet_cfg = cfg["consumable_cabinet"]["mid_cfg"]
     # consumable_cabinet_offline_cfg = cfg["consumable_cabinet"]["offline_cfg"]

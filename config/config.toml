@@ -31,3 +31,9 @@ service = "NuboMedEmergencyService"
 path = "/nubomed/autolabel-engine/"
 mid_cfg = "autolabel-engine.json"
 service = "NuboMedAutoLabelService"
+
+[nvr]
+username = "admin"
+password = "nb112233"
+nvr_ip = "192.168.0.168"
+ipc_ip = "192.168.0.64"

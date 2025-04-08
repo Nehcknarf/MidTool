@@ -70,7 +70,7 @@ ComboBox {
         y: control.height - 1
         width: control.width
         implicitHeight: 400
-        popupType: Popup.Window
+        popupType: Popup.Item
         padding: 1
 
         contentItem: ListView {

@@ -24,6 +24,7 @@ from timezone import TimeEditor
 from downloader import LogDownloader
 from reader import Reader, ReaderRongRui
 from board import TableModel
+from nvr import HikTableModel, Inti
 
 
 def set_qt_environment():

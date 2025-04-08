@@ -51,6 +51,7 @@ MyControls.GroupBox {
 
         MyControls.ComboBox {
             id: comboBoxCamera
+            width: 150
             model: cameraModel.cameras
             enabled: ! switchCamera.checked
             // currentIndex: -1
@@ -70,8 +71,8 @@ MyControls.GroupBox {
 
         Rectangle {
             color: "#ECF0F5"
-            height: 504
-            width: 878
+            height: 384
+            width: 664
             radius: 8
 
             VideoOutput {

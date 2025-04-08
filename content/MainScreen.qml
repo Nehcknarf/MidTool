@@ -77,6 +77,29 @@ Rectangle {
         }
     }
 
+    Drawer {
+        id: drawerStatusBar
+        height: 60
+        width: mainScreen.width
+        closePolicy: Popup.CloseOnPressOutside
+        edge: Qt.BottomEdge
+        dragMargin: 0
+        modal: false
+
+        background: Rectangle {
+            color: "#FDF4F5"
+            height: parent.height
+            width: parent.width
+        }
+
+        Label {
+            id: labelStatusBar
+            font.family: medium.name
+            font.pixelSize: 16
+            anchors.centerIn: parent
+        }
+    }
+
     Rectangle {
         height: 60
         anchors.left: parent.left
@@ -171,7 +194,7 @@ Rectangle {
                 RowLayout {
                     Layout.alignment: Qt.AlignHCenter
                     Label {
-                        text: qsTr("Copyright @ 2022-2024 NuboMed. All Rights Reserved.")
+                        text: qsTr("Copyright @ 2022-2025 NuboMed. All Rights Reserved.")
                         font.family: medium.name
                         font.pixelSize: 16
                     }
@@ -301,6 +324,11 @@ Rectangle {
             width: implicitWidth
             visible: argCurrentIndex === 11 || argCurrentIndex == null
         }
+        MyControls.TabButton {
+            text: qsTr("NVR")
+            width: implicitWidth
+            visible: argCurrentIndex === 12 || argCurrentIndex == null
+        }
     }
 
     SwipeView {
@@ -402,6 +430,10 @@ Rectangle {
 
         Loader {
             source: "qrc:/content/Board.qml"
+            // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
+        }
+        Loader {
+            source: "qrc:/content/Nvr.qml"
             // active: SwipeView.isCurrentItem || SwipeView.isNextItem || SwipeView.isPreviousItem
         }
     }
