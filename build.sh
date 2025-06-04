@@ -47,7 +47,6 @@ libQt6TextToSpeech.so.6 \
 libQt6Web*.so.6 \
 *Widgets.so.6 \
 libQt63D*.so.6 \
-libFLAC.so.8 \
 libgstreamer-1.0.so.0 \
 libpulse.so.0 \
 libpulsecommon-*.so

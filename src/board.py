@@ -2,7 +2,7 @@ import socket
 import struct
 
 from PySide6.QtCore import Qt, QObject, Signal, Slot, QAbstractTableModel
-from PySide6.QtNetwork import QUdpSocket, QHostAddress
+from PySide6.QtNetwork import QUdpSocket, QHostAddress, QNetworkInterface, QAbstractSocket
 from PySide6.QtQml import QmlElement
 
 from utils.log import logger
@@ -19,6 +19,7 @@ class UdpHandler(QObject):
     def __init__(self):
         super().__init__()
         self.socket = QUdpSocket()
+        self.socket.bind(QHostAddress.AnyIPv4, 0)
         self.socket.readyRead.connect(self.read_datagrams)
 
     def read_datagrams(self):
@@ -61,7 +62,11 @@ class UdpHandler(QObject):
     def discover(self):
         logger.info("Discovering Boards...")
         message = bytes.fromhex("FF010102")
-        self.socket.writeDatagram(message, QHostAddress.Broadcast, 1901)
+        for interface in QNetworkInterface.allInterfaces():
+            for entry in interface.addressEntries():
+                if entry.ip().protocol() == QAbstractSocket.IPv4Protocol:
+                    self.socket.writeDatagram(message, entry.broadcast(), 1901)
+                    break
 
     def command(self, mac, length, cmd, arg=""):
         string = f"FF{length}{cmd}{mac}61646D696E0061646D696E00{arg}"
