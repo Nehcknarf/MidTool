@@ -59,21 +59,24 @@ class UdpHandler(QObject):
         checksum &= 0xFF
         return hex(checksum).replace("0x", "").zfill(2).upper()
 
-    def discover(self):
-        logger.info("Discovering Boards...")
-        message = bytes.fromhex("FF010102")
+    def broadcast(self, message):
         for interface in QNetworkInterface.allInterfaces():
             for entry in interface.addressEntries():
                 if entry.ip().protocol() == QAbstractSocket.IPv4Protocol:
                     self.socket.writeDatagram(message, entry.broadcast(), 1901)
                     break
 
+    def discover(self):
+        logger.info("Discovering Boards...")
+        message = bytes.fromhex("FF010102")
+        self.broadcast(message)
+
     def command(self, mac, length, cmd, arg=""):
         string = f"FF{length}{cmd}{mac}61646D696E0061646D696E00{arg}"
         string += self.calc_checksum(string)
         # print(string)
         message = bytes.fromhex(string)
-        self.socket.writeDatagram(message, QHostAddress.Broadcast, 1901)
+        self.broadcast(message)
 
     def reboot(self, mac):
         print("Reboot device...")

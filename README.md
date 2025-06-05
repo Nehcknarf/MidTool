@@ -21,7 +21,7 @@
 sudo apt install -y build-essential libgl1-mesa-dev \
   libfontconfig1-dev libfreetype-dev libx11-dev libx11-xcb-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libxrender-dev
 ```
-### 创建&激活虚拟环境，安装项目依赖
+### 创建&激活虚拟环境，安装项目依赖（Deepin 23 国产操作系统需要使用 Python 3.12）
 ```bash
 conda create -n midtool python=3.13
 conda activate midtool
