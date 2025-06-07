@@ -4,7 +4,7 @@ from PySide6.QtCore import Signal, Slot, Property
 from PySide6.QtQml import QmlElement
 
 from process import Process
-
+from utils.adapter import root_path
 from utils.log import logger
 
 
@@ -39,5 +39,5 @@ class TimeEditor(Process):
 
     @Slot(str, str)
     def add_ntp_servers(self, ntp_servers, password):
-        logger.info(f"Replace system NTP servers to {ntp_servers} (/etc/systemd/timesyncd.conf)")
-        self.start(f"sudo sed -i 's/^#*NTP=.*/NTP={ntp_servers}/' /etc/systemd/timesyncd.conf && systemctl restart systemd-timesyncd", password=password)
+        logger.info(f"Add {ntp_servers} as NTP servers")
+        self.start(f"sudo bash ntp.sh {ntp_servers}", workdir=f"{root_path}/script/", password=password)

@@ -165,7 +165,7 @@
   "DateTime": "日期-時間",
   "Set DateTime": "設定日期-時間",
   "NTP Servers": "NTP伺服器",
-  "Servers are separated by space": "填寫多個伺服器時請使用空格分隔",
+  "Enter IP or hostname": "填寫IP或網域名稱",
   "Set NTP Servers": "設定NTP伺服器",
   "System logs": "系統日誌",
   "Middleware logs": "中台日誌",

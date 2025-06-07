@@ -103,7 +103,7 @@ MyControls.GroupBox {
         MyControls.TextField {
             id: textFieldNTP
             implicitWidth: 300
-            placeholderText: qsTr("Servers are separated by space")
+            placeholderText: qsTr("Enter IP or hostname")
             inputMethodHints: Qt.ImhPreferNumbers
         }
 
