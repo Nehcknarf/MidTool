@@ -10,21 +10,21 @@
 ## 开发环境
 ### Windows 11 下推荐使用 WSL Ubuntu 20.04 开发 (理论上编译出的应用向后兼容)
 ### 基于 Qt6.8 LTS，前端由 QML 语言编写，后端为 PySide6
-| Pack    | Version   |
-|---------|-----------|
-| Python  | 3.13      |
-| PySide6 | ~=6.8.0.2 |
+| Pack    | Version |
+|---------|---------|
+| Python  | 3.13    |
+| PySide6 | 6.8.3   |
 
 ## 快速开始
 ### 安装运行&编译依赖包（包含构建 Qt 应用基础依赖、X11 依赖、Qt6 Multimedia 后端依赖 FFmpeg）
 ```bash
-sudo apt install -y build-essential libgl1-mesa-dev \
-  libfontconfig1-dev libfreetype-dev libx11-dev libx11-xcb-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libxrender-dev
+sudo apt install -y libgl1-mesa-dev libfontconfig1-dev libfreetype-dev libgtk-3-dev libx11-dev libx11-xcb-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libxrender-dev
 ```
 ### 创建&激活虚拟环境，安装项目依赖（Deepin 23 国产操作系统需要使用 Python 3.12）
 ```bash
 conda create -n midtool python=3.13
 conda activate midtool
+conda install c-compiler cxx-compiler ffmpeg
 pip install -r requirements.txt
 ```
 
