@@ -84,15 +84,6 @@ if system == "Linux":
     shell = "/bin/bash -c \"{}\""
     coding = "UTF-8"
     sep = "\n"
-    # For running
-    ubuntu_version = platform.freedesktop_os_release()["VERSION_ID"]
-
-    if ubuntu_version == "22.04":
-        # Ubuntu 22.04 下 Qt Wayland 程序无法拖拽窗口，属于系统bug，故先使用 X11
-        # os.environ["QT_QPA_PLATFORM"] = "wayland"
-        os.environ["QT_QPA_PLATFORM"] = "xcb"
-    elif ubuntu_version == "20.04":
-        os.environ["QT_QPA_PLATFORM"] = "xcb"
 
     # For create desktop shortcut
     shortcut_content = f"[Desktop Entry]\nType=Application\nName=MidTool\nExec={Path(root_path).parent}/midtool\nIcon={root_path}/icon.png\nComment=Ops tool for terminal.\nTerminal=false\nCategories=Application;"

@@ -28,10 +28,9 @@ from nvr import HikTableModel, Inti
 
 
 def set_qt_environment():
+    os.environ["QT_QPA_PLATFORM"] = "xcb"
     os.environ["QT_IM_MODULE"] = "qtvirtualkeyboard"
     os.environ["QT_VIRTUALKEYBOARD_DESKTOP_DISABLE"] = "1"
-    os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-    os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
     os.environ["QT_MEDIA_BACKEND"] = "ffmpeg"
     os.environ["QT_DEBUG_PLUGINS"] = "0"
 
