@@ -27,14 +27,14 @@ Dialog {
         radius: 8
     }
 
-    header: Text {
-        lineHeight: 2
-        text: qsTr("Please input user password")
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        font.family: medium.name
-        font.pixelSize: 16
-    }
+    // header: Text {
+    //     lineHeight: 2
+    //     text: qsTr("Please input user password")
+    //     horizontalAlignment: Text.AlignHCenter
+    //     verticalAlignment: Text.AlignVCenter
+    //     font.family: medium.name
+    //     font.pixelSize: 16
+    // }
 
     contentItem: MyControls.TextField {
         id: textField
