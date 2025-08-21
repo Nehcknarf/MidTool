@@ -1,7 +1,8 @@
 import os
 import sys
-import platform
 import tomllib
+import platform
+import subprocess
 from pathlib import Path
 from datetime import datetime
 
@@ -95,6 +96,7 @@ if system == "Linux":
             with open(p_shortcut, "w") as file:
                 file.write(shortcut_content)
             p_shortcut.chmod(0o755)
+            subprocess.run(['gio', 'set', str(p_shortcut), 'metadata::trusted', 'true'])
 
 elif system == "Windows":
     # For Shell
