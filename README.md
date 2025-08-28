@@ -18,13 +18,13 @@
 ## 快速开始
 ### 安装运行&编译依赖包（包含构建 Qt 应用基础依赖、X11 依赖）
 ```bash
-sudo apt install -y libgl1-mesa-dev libfontconfig1-dev libfreetype-dev libgtk-3-dev libx11-dev libx11-xcb-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libxrender-dev
+sudo apt install -y libgl1-mesa-dev libfontconfig1-dev libfreetype-dev libgtk-3-dev libx11-dev libx11-xcb-dev libxcb-cursor-dev libxcb-glx0-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-keysyms1-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-shape0-dev libxcb-shm0-dev libxcb-sync-dev libxcb-util-dev libxcb-xfixes0-dev libxcb-xkb-dev libxcb1-dev libxext-dev libxfixes-dev libxi-dev libxkbcommon-dev libxkbcommon-x11-dev libxrender-dev libpulse0
 ```
 ### 创建&激活虚拟环境，安装项目依赖（Qt6 Multimedia 后端依赖 FFmpeg；Deepin 23 国产操作系统需要使用 Python 3.12）
 ```bash
 conda create -n midtool python=3.13
 conda activate midtool
-conda install c-compiler cxx-compiler ffmpeg
+conda install c-compiler cxx-compiler ffmpeg=7.1.1
 pip install -r requirements.txt
 ```
 
